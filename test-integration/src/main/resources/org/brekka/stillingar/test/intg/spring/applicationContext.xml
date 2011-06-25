@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+	<context:component-scan base-package="org.brekka.stillingar.test.intg.services.impl" />
+
+	<bean id="configuration" class="org.brekka.stillingar.core.DefaultConfigurationSource" init-method="init">
+		<constructor-arg>
+			<bean class="org.brekka.stillingar.spring.ResouceBasedSnapshotManager">
+				<constructor-arg>
+					<bean class="org.brekka.stillingar.spring.ResourceSelector">
+						<constructor-arg>
+							<list>
+								<value>file:/home/andy/.stillingar/</value>
+								<value>classpath:org/brekka/stillingar/test/intg/</value>
+							</list>
+						</constructor-arg>
+						<constructor-arg>
+							<bean class="org.brekka.stillingar.spring.MavenVersionedResourceNameResolver">
+								<constructor-arg value="integration" />
+								<property name="groupId" value="org.brekka" />
+								<property name="artifactId" value="stillingar-test-integration" />
+							</bean>
+						</constructor-arg>
+					</bean>
+				</constructor-arg>
+				<constructor-arg>
+					<bean class="org.brekka.stillingar.xmlbeans.XmlBeansSnapshotLoader">
+						<property name="xpathNamespaces">
+						  <map>
+						      <entry key="c" value="http://brekka.org/xml/stillingar/test/intg" />
+						  </map>
+						</property>
+					</bean>
+				</constructor-arg>
+			</bean>
+		</constructor-arg>
+	</bean>
+
+	<bean class="org.brekka.stillingar.spring.ConfigurationBeanPostProcessor" p:configurationSource-ref="configuration" />
+	
+	<bean id="updateTask" class="org.brekka.stillingar.spring.LoggingBackgroundUpdater">
+	   <constructor-arg ref="configuration" />
+	</bean>
+
+	<bean id="scheduler" class="org.springframework.scheduling.concurrent.ScheduledExecutorFactoryBean">
+	   <property name="scheduledExecutorTasks">
+	       <list>
+	           <bean class="org.springframework.scheduling.concurrent.ScheduledExecutorTask">
+	               <constructor-arg ref="updateTask" />
+	               <property name="period" value="5000" />
+	           </bean>
+	       </list>
+	   </property>
+	   <property name="threadNamePrefix" value="configuration-reloader"></property>
+	</bean>
+	
+	<bean id="dynamicBean" class="java.util.Date" scope="prototype" />
+	
+	<!-- 
+	<stil:configuration id="integration" reload-interval="5000" resource-name="integration" loader="xmlbeans">
+	    <stil:xpath-namespace prefix="c" url="http://brekka.org/xml/stillingar/test/intg" />
+	</stil:configuration>
+	 -->
+
+</beans>

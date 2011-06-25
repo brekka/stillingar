@@ -164,7 +164,7 @@ public class XmlBeansConfigurationSnapshot implements ConfigurationSnapshot {
 	
 	protected <T> T convert(Class<T> expectedType, XmlObject object, String expression) {
 		T value = null;
-		boolean nullValue = true;
+		boolean nullValue = false;
 		if (object == null) {
 			// Leave as null
 			nullValue = true;
@@ -176,21 +176,21 @@ public class XmlBeansConfigurationSnapshot implements ConfigurationSnapshot {
 			} else {
 				value = (T) object.xmlText();
 			}
-		} else if (expectedType == Long.class) {
+		} else if (expectedType == Long.class || expectedType == Long.TYPE) {
 			if (object instanceof XmlLong) {
 				value = (T) Long.valueOf(((XmlLong) object).getLongValue());
 			} else if (object instanceof XmlInt) {
 				value = (T) Integer.valueOf(((XmlInt) object).getIntValue());
 			}
-		} else if (expectedType == Integer.class) {
+		} else if (expectedType == Integer.class || expectedType == Integer.TYPE) {
 			if (object instanceof XmlInt) {
 				value = (T) Integer.valueOf(((XmlInt) object).getIntValue());
 			}
-		} else if (expectedType == Float.class) {
+		} else if (expectedType == Float.class || expectedType == Float.TYPE) {
 			if (object instanceof XmlFloat) {
 				value = (T) Float.valueOf(((XmlFloat) object).getFloatValue());
 			}
-		} else if (expectedType == Double.class) {
+		} else if (expectedType == Double.class || expectedType == Double.TYPE) {
 			if (object instanceof XmlDouble) {
 				value = (T) Double.valueOf(((XmlDouble) object).getDoubleValue());
 			}

@@ -21,7 +21,6 @@ import java.io.StringWriter;
 import java.net.URL;
 import java.util.Formatter;
 import java.util.List;
-import java.util.TimerTask;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -30,7 +29,7 @@ import org.brekka.stillingar.core.GroupConfigurationException;
 import org.brekka.stillingar.core.UpdatableConfigurationSource;
 import org.brekka.stillingar.core.UpdateReport;
 
-public class LoggingBackgroundUpdater extends TimerTask {
+public class LoggingBackgroundUpdater implements Runnable {
 
 	private static final Log log = LogFactory.getLog(LoggingBackgroundUpdater.class);
 	

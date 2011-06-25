@@ -16,6 +16,8 @@
 
 package org.brekka.stillingar.spring;
 
+import static java.lang.String.format;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -61,7 +63,7 @@ public class ResourceSelector implements SelectedConfigurationSource {
 		}
 		if (original == null) {
 			// TODO message
-			throw new ConfigurationException("No config found");
+			throw new ConfigurationException(format("No configuration could be found with the name '%s'", originalName));
 		}
 		this.original = original;
 		this.lastGood = lastGood;

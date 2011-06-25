@@ -78,8 +78,8 @@ public class ResouceBasedSnapshotManager implements ConfigurationSnapshotManager
 			}
 			if (original.lastModified() > lastModifiedMillis) {
 				snapshot = retrieve(original);
+				latestSnapshot = snapshot;
 			}
-			latestSnapshot = snapshot;
 		} catch (IOException e) {
 			if (log.isWarnEnabled()) {
 				log.warn(format("Failed to determine last modified for resource '%s'",

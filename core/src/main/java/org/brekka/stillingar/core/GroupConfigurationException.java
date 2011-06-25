@@ -57,11 +57,11 @@ public class GroupConfigurationException extends RuntimeException {
 				break;
 			case VALUE_ASSIGNMENT:
 				message = format("Configuration group '%s' encountered %d errors during value assignment: %s", 
-						groupName, combineValueErrors());
+						groupName, errorList.size(), combineValueErrors());
 				break;
 			case VALUE_DISCOVERY:
 				message = format("Configuration group '%s' encountered %d errors during value discovery: %s", 
-						groupName, combineValueErrors());
+						groupName, errorList.size(), combineValueErrors());
 				break;
 			default:
 				message = format("Configuration group '%s' - unknown phase type '%s'", groupName, phase);
@@ -90,7 +90,7 @@ public class GroupConfigurationException extends RuntimeException {
 				sb.append("' (");
 				sb.append(cause.getClass().getName());
 				sb.append(")");
-				cause = e.getCause();
+				cause = cause.getCause();
 			}
 			if (iterator.hasNext()) {
 				sb.append(", ");
