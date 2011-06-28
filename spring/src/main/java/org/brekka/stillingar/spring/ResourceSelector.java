@@ -44,7 +44,8 @@ public class ResourceSelector implements SelectedConfigurationSource {
 		
 		for (Resource locationBase : locations) {
 			try {
-				if (locationBase.exists()) {
+				if (locationBase != null 
+						&& locationBase.exists()) {
 					Resource locationOriginal = locationBase.createRelative(originalName);
 					if (locationOriginal.exists()
 							&& locationOriginal.isReadable()) {

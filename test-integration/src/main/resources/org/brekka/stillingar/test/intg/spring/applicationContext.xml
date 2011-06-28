@@ -6,14 +6,17 @@
 
 	<context:component-scan base-package="org.brekka.stillingar.test.intg.services.impl" />
 
-	<bean id="configuration" class="org.brekka.stillingar.core.DefaultConfigurationSource" init-method="init">
+	<bean id="stillingar" class="org.brekka.stillingar.core.DefaultConfigurationSource" init-method="init">
 		<constructor-arg>
 			<bean class="org.brekka.stillingar.spring.ResouceBasedSnapshotManager">
 				<constructor-arg>
 					<bean class="org.brekka.stillingar.spring.ResourceSelector">
 						<constructor-arg>
 							<list>
-								<value>file:/home/andy/.stillingar/</value>
+								<bean class="org.brekka.stillingar.spring.ConfigBaseResolverFactoryBean" />
+								<bean class="org.brekka.stillingar.spring.HomeConfigBaseResolverFactoryBean">
+									<constructor-arg value=".stillingar" />
+								</bean>
 								<value>classpath:org/brekka/stillingar/test/intg/</value>
 							</list>
 						</constructor-arg>
@@ -29,9 +32,9 @@
 				<constructor-arg>
 					<bean class="org.brekka.stillingar.xmlbeans.XmlBeansSnapshotLoader">
 						<property name="xpathNamespaces">
-						  <map>
-						      <entry key="c" value="http://brekka.org/xml/stillingar/test/intg" />
-						  </map>
+							<map>
+								<entry key="c" value="http://brekka.org/xml/stillingar/test/intg" />
+							</map>
 						</property>
 					</bean>
 				</constructor-arg>
@@ -39,30 +42,27 @@
 		</constructor-arg>
 	</bean>
 
-	<bean class="org.brekka.stillingar.spring.ConfigurationBeanPostProcessor" p:configurationSource-ref="configuration" />
-	
+	<bean class="org.brekka.stillingar.spring.ConfigurationBeanPostProcessor" p:configurationSource-ref="stillingar" />
+
 	<bean id="updateTask" class="org.brekka.stillingar.spring.LoggingBackgroundUpdater">
-	   <constructor-arg ref="configuration" />
+		<constructor-arg ref="stillingar" />
 	</bean>
 
 	<bean id="scheduler" class="org.springframework.scheduling.concurrent.ScheduledExecutorFactoryBean">
-	   <property name="scheduledExecutorTasks">
-	       <list>
-	           <bean class="org.springframework.scheduling.concurrent.ScheduledExecutorTask">
-	               <constructor-arg ref="updateTask" />
-	               <property name="period" value="5000" />
-	           </bean>
-	       </list>
-	   </property>
-	   <property name="threadNamePrefix" value="configuration-reloader"></property>
+		<property name="scheduledExecutorTasks">
+			<list>
+				<bean class="org.springframework.scheduling.concurrent.ScheduledExecutorTask">
+					<constructor-arg ref="updateTask" />
+					<property name="period" value="5000" />
+				</bean>
+			</list>
+		</property>
+		<property name="threadNamePrefix" value="configuration-reloader"></property>
 	</bean>
-	
+
 	<bean id="dynamicBean" class="java.util.Date" scope="prototype" />
-	
-	<!-- 
-	<stil:configuration id="integration" reload-interval="5000" resource-name="integration" loader="xmlbeans">
-	    <stil:xpath-namespace prefix="c" url="http://brekka.org/xml/stillingar/test/intg" />
-	</stil:configuration>
-	 -->
+
+	<!-- <stil:configuration id="integration" reload-interval="5000" resource-name="integration" loader="xmlbeans"> <stil:xpath-namespace 
+		prefix="c" url="http://brekka.org/xml/stillingar/test/intg" /> </stil:configuration> -->
 
 </beans>
