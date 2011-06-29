@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:stil="http://brekka.org/schema/stillingar" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        targetNamespace="http://brekka.org/schema/stillingar" elementFormDefault="qualified"
+        attributeFormDefault="unqualified">
+    
+    
+    
+    <!-- <stil:configuration id="integration" reload-interval="5000" resource-name="integration" loader="xmlbeans"> <stil:xpath-namespace 
+        prefix="c" url="http://brekka.org/xml/stillingar/test/intg" /> </stil:configuration> -->
+    
+    <xsd:element name="configuration">
+        <xsd:complexType>
+            <xsd:sequence>
+            	<xsd:element name="xpath-namespace" minOccurs="0" maxOccurs="unbounded">
+            		<xsd:complexType>
+            			<xsd:attribute name="prefix" type="xsd:string"></xsd:attribute>
+            			<xsd:attribute name="url" type="xsd:string"></xsd:attribute>
+            		</xsd:complexType>
+            	</xsd:element>
+            </xsd:sequence>
+            <xsd:attribute name="id" type="xsd:string">
+            </xsd:attribute>
+            <xsd:attribute name="reload-interval" type="xsd:int">
+            </xsd:attribute>
+            <xsd:attribute name="name" type="xsd:int">
+            </xsd:attribute>
+            <xsd:attribute name="loader" type="xsd:string">
+            </xsd:attribute>
+        </xsd:complexType>
+    </xsd:element>
+</xsd:schema>

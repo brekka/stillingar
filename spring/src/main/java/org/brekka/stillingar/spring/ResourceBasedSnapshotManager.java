@@ -40,10 +40,10 @@ import org.springframework.core.io.Resource;
  * 
  * @author Andrew Taylor
  */
-public class ResouceBasedSnapshotManager implements ConfigurationSnapshotManager {
+public class ResourceBasedSnapshotManager implements ConfigurationSnapshotManager {
 
 	private static final Log log = LogFactory
-			.getLog(ResouceBasedSnapshotManager.class);
+			.getLog(ResourceBasedSnapshotManager.class);
 
 	/**
 	 * 
@@ -60,7 +60,7 @@ public class ResouceBasedSnapshotManager implements ConfigurationSnapshotManager
 	 */
 	private ConfigurationSnapshot latestSnapshot;
 
-	public ResouceBasedSnapshotManager(
+	public ResourceBasedSnapshotManager(
 			SelectedConfigurationSource selectedConfigurationSource,
 			ConfigurationSnapshotLoader snapshotLoader) {
 		this.selectedConfigurationSource = selectedConfigurationSource;
