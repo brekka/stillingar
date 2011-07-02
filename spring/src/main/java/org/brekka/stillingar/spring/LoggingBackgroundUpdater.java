@@ -29,6 +29,11 @@ import org.brekka.stillingar.core.GroupConfigurationException;
 import org.brekka.stillingar.core.UpdatableConfigurationSource;
 import org.brekka.stillingar.core.UpdateReport;
 
+/**
+ * TODO
+ * 
+ * @author Andrew Taylor
+ */
 public class LoggingBackgroundUpdater implements Runnable {
 
 	private static final Log log = LogFactory.getLog(LoggingBackgroundUpdater.class);

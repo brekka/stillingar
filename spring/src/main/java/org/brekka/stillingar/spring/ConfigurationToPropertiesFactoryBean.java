@@ -26,6 +26,11 @@ import org.brekka.stillingar.core.ConfigurationSource;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 
+/**
+ * TODO
+ * 
+ * @author Andrew Taylor
+ */
 public class ConfigurationToPropertiesFactoryBean implements FactoryBean<Properties>, InitializingBean {
 
 	private Map<String, String> keyToExpressionMap = Collections.emptyMap();

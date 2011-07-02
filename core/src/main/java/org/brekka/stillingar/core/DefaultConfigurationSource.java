@@ -22,7 +22,11 @@ import java.util.List;
 
 import org.brekka.stillingar.core.GroupConfigurationException.Phase;
 
-
+/**
+ * TODO
+ * 
+ * @author Andrew Taylor
+ */
 public class DefaultConfigurationSource implements UpdatableConfigurationSource {
 	
 	private final ConfigurationSnapshotManager snapshotManager;
@@ -49,9 +53,11 @@ public class DefaultConfigurationSource implements UpdatableConfigurationSource 
 		current = initSnapshot;
 	}
 	
-	public synchronized void register(ValueDefinition<?> valueDefinition) {
+	public synchronized void register(ValueDefinition<?> valueDefinition, boolean fireImmediately) {
 		ValueChangeAction valueChangeAction = prepareValueChange(valueDefinition, getCurrentSnapshot());
-		enactValueChange(valueChangeAction);
+		if (fireImmediately) {
+			enactValueChange(valueChangeAction);
+		}
 		standaloneGroup.getValues().add(valueDefinition);
 	}
 

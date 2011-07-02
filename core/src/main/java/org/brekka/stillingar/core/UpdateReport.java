@@ -19,7 +19,11 @@ package org.brekka.stillingar.core;
 import java.net.URL;
 import java.util.List;
 
-
+/**
+ * TODO
+ * 
+ * @author Andrew Taylor
+ */
 public interface UpdateReport {
 	
 	/**

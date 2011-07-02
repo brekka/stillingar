@@ -18,6 +18,11 @@ package org.brekka.stillingar.core;
 
 import java.util.List;
 
+/**
+ * TODO
+ * 
+ * @author Andrew Taylor
+ */
 public final class ValueDefinitionGroup {
 
 	private final String name;

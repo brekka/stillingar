@@ -16,6 +16,11 @@
 
 package org.brekka.stillingar.spring;
 
+/**
+ * TODO
+ * 
+ * @author Andrew Taylor
+ */
 public class ConfiguredException extends RuntimeException {
 
 	/**

@@ -16,6 +16,11 @@
 
 package org.brekka.stillingar.core;
 
+/**
+ * TODO
+ * 
+ * @author Andrew Taylor
+ */
 public interface ValueChangeListener<T> {
 	
 	void onChange(T newValue);

@@ -11,21 +11,28 @@
     <xsd:element name="configuration">
         <xsd:complexType>
             <xsd:sequence>
-            	<xsd:element name="xpath-namespace" minOccurs="0" maxOccurs="unbounded">
+            	<xsd:element name="namespace" minOccurs="0" maxOccurs="unbounded">
             		<xsd:complexType>
-            			<xsd:attribute name="prefix" type="xsd:string"></xsd:attribute>
-            			<xsd:attribute name="url" type="xsd:string"></xsd:attribute>
+            			<xsd:attribute name="prefix" type="xsd:string" use="required" />
+            			<xsd:attribute name="url" type="xsd:string" use="required" />
+            		</xsd:complexType>
+            	</xsd:element>
+            	<xsd:element name="property-placeholder" minOccurs="0" maxOccurs="unbounded">
+            		<xsd:complexType>
+            			<xsd:attribute name="prefix" type="xsd:string" use="optional" />
+            			<xsd:attribute name="suffix" type="xsd:string" use="optional" />
             		</xsd:complexType>
             	</xsd:element>
             </xsd:sequence>
-            <xsd:attribute name="id" type="xsd:string">
+            <xsd:attribute name="id" type="xsd:string" use="required" />
+            <xsd:attribute name="reload-interval">
+            	<xsd:simpleType>
+            		<xsd:restriction base="xsd:int">
+            			<xsd:minInclusive value="1000"></xsd:minInclusive>
+            		</xsd:restriction>
+            	</xsd:simpleType>
             </xsd:attribute>
-            <xsd:attribute name="reload-interval" type="xsd:int">
-            </xsd:attribute>
-            <xsd:attribute name="name" type="xsd:int">
-            </xsd:attribute>
-            <xsd:attribute name="loader" type="xsd:string">
-            </xsd:attribute>
+            <xsd:attribute name="type" type="xsd:string" use="required" />
         </xsd:complexType>
     </xsd:element>
 </xsd:schema>

@@ -18,6 +18,11 @@ package org.brekka.stillingar.spring;
 
 import static java.lang.String.format;
 
+/**
+ * TODO
+ * 
+ * @author Andrew Taylor
+ */
 public class BasicResourceNameResolver implements ResourceNameResolver {
 
 	private final String prefix;

@@ -16,9 +16,14 @@
 
 package org.brekka.stillingar.core;
 
+/**
+ * TODO
+ * 
+ * @author Andrew Taylor
+ */
 public interface UpdatableConfigurationSource extends ConfigurationSource {
 	
-	void register(ValueDefinition<?> value);
+	void register(ValueDefinition<?> value, boolean fireImmediately);
 	
 	void register(ValueDefinitionGroup valueGroup);
 	

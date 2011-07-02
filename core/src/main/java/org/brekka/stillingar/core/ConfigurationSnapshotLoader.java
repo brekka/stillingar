@@ -18,6 +18,11 @@ package org.brekka.stillingar.core;
 
 import java.net.URL;
 
+/**
+ * TODO
+ * 
+ * @author Andrew Taylor
+ */
 public interface ConfigurationSnapshotLoader {
 
 	ConfigurationSnapshot load(URL toLoad, long timestamp);

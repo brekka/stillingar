@@ -18,6 +18,11 @@ package org.brekka.stillingar.spring;
 
 import org.springframework.core.io.Resource;
 
+/**
+ * TODO
+ * 
+ * @author Andrew Taylor
+ */
 public interface SelectedConfigurationSource {
 
 	Resource getOriginal();

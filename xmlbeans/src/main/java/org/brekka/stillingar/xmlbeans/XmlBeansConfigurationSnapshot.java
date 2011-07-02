@@ -39,6 +39,11 @@ import org.apache.xmlbeans.XmlObject;
 import org.brekka.stillingar.core.ConfigurationSnapshot;
 import org.brekka.stillingar.core.ValueConfigurationException;
 
+/**
+ * TODO
+ * 
+ * @author Andrew Taylor
+ */
 public class XmlBeansConfigurationSnapshot implements ConfigurationSnapshot {
 
 	private final long timestamp;

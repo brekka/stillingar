@@ -16,6 +16,11 @@
 
 package org.brekka.stillingar.core;
 
+/**
+ * TODO
+ * 
+ * @author Andrew Taylor
+ */
 public final class ValueDefinition<T> {
 	
 	private final Class<T> type;

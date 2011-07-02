@@ -32,6 +32,11 @@ import org.brekka.stillingar.core.ConfigurationException;
 import org.brekka.stillingar.core.ConfigurationSnapshot;
 import org.brekka.stillingar.core.ConfigurationSnapshotLoader;
 
+/**
+ * TODO
+ * 
+ * @author Andrew Taylor
+ */
 public class XmlBeansSnapshotLoader implements ConfigurationSnapshotLoader {
 
 	

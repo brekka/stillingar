@@ -61,13 +61,31 @@
         <property name="threadNamePrefix" value="configuration-reloader"></property>
     </bean>
 	-->
+	
 
-
+    <bean id="something" class="java.lang.Float">
+        <constructor-arg value="$stillingar{/c:Configuration/c:Business/c:Frequency}">
+        </constructor-arg>
+    </bean>
 
 	<bean id="dynamicBean" class="java.util.Date" scope="prototype" />
+	
+	<bean id="simpleBeanStatic" class="org.brekka.stillingar.test.intg.SimpleBean">
+	   <property name="value" value="$stillingar{/c:Configuration/c:Business/c:Frequency}" />
+	</bean>
+	
+	<bean id="simpleBeanPrototype" class="org.brekka.stillingar.test.intg.SimpleBean" scope="prototype">
+	    <property name="value" value="$stillingar{/c:Configuration/c:Business/c:Frequency}" />
+	</bean>
+	
+	<bean class="org.brekka.stillingar.test.intg.PrototypeConfiguredBean"></bean>
 
-    <stil:configuration id="stillingar" reload-interval="5000"> 
-        <stil:xpath-namespace prefix="c" url="http://brekka.org/xml/stillingar/test/intg" />
+    <stil:configuration id="stillingar" reload-interval="5000" type="xmlbeans"> 
+        <stil:namespace prefix="c" url="http://brekka.org/xml/stillingar/test/intg" />
+        <stil:property-placeholder />
     </stil:configuration> 
 
+<!--     <bean class="org.brekka.stillingar.spring.ConfigurationPlaceholderConfigurer"> -->
+<!--         <constructor-arg ref="stillingar" /> -->
+<!--     </bean> -->
 </beans>

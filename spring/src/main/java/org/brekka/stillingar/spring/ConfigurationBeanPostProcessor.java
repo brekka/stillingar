@@ -26,11 +26,14 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.brekka.stillingar.annotations.ConfigurationListener;
 import org.brekka.stillingar.annotations.Configured;
 import org.brekka.stillingar.core.ConfigurationException;
+import org.brekka.stillingar.core.ConfigurationSource;
 import org.brekka.stillingar.core.GroupChangeListener;
 import org.brekka.stillingar.core.PropertyUpdateException;
 import org.brekka.stillingar.core.UpdatableConfigurationSource;
@@ -45,95 +48,158 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 
 /**
- * 
+ * TODO
  * 
  * @author Andrew Taylor
  */
 public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFactoryAware {
 
+	private final ConfigurationSource configurationSource;
+	
 	private BeanFactory beanFactory;
 	
-	private UpdatableConfigurationSource configurationSource;
 	
+	private Class<? extends Annotation> markerAnnotation = Configured.class;
+	
+	private Map<Class<?>, ValueDefinitionGroup> onceOnlyDefinitionCache = new HashMap<Class<?>, ValueDefinitionGroup>();
+	
+	
+	
+	public ConfigurationBeanPostProcessor(ConfigurationSource configurationSource) {
+		this.configurationSource = configurationSource;
+	}
+
 	public Object postProcessBeforeInitialization(Object bean, String beanName)
 			throws BeansException {
 		Class<? extends Object> beanClass = bean.getClass();
 		
-		if (beanClass.getAnnotation(Configured.class) != null) {
+		if (beanClass.getAnnotation(markerAnnotation) != null) {
 			
-			boolean prototype = beanFactory.isPrototype(beanName);
+			boolean singleton = beanFactory.isSingleton(beanName);
 			
-			if (prototype) {
-				processPrototype(bean, beanName);
+			if (singleton 
+			        && configurationSource instanceof UpdatableConfigurationSource) {
+			    processWithUpdates(bean, beanName);
 			} else {
-				processSingleton(bean, beanName);
+			    processOnceOnly(bean, beanName);
 			}
 			
 		}
 		return bean;
 	}
 	
-	protected void processPrototype(Object bean, String beanName) {
-		/*
-		 * TODO Prototype support
-		 * 
-		 * Will not support updates - just @Configured on fields and setters. Will make a direct call
-		 * to configurationSource to fetch current values.
-		 */
-	}
-
-	protected void processSingleton(Object bean, String beanName) {
-		Class<? extends Object> beanClass = bean.getClass();
-		
-		List<ValueDefinition<?>> valueList = new ArrayList<ValueDefinition<?>>();
-		
-		PostUpdateChangeListener beanChangeListener = null;
-		
-		Field[] declaredFields = beanClass.getDeclaredFields();
-		for (Field field : declaredFields) {
-			processField(field, valueList, bean);
-		}
-		
-		Method[] declaredMethods = beanClass.getDeclaredMethods();
-		for (Method method : declaredMethods) {
-			Configured configured = method.getAnnotation(Configured.class);
-			
-			ConfigurationListener configurationListener = method.getAnnotation(ConfigurationListener.class);
-			if (configurationListener != null) {
-				if (beanChangeListener != null) {
-					throw new ConfigurationException(format(
-							"Unable to create a configuration listener for the method '%s' " +
-							"as it already contains a configuration listener on the method '%s'",
-							method, beanName, bean.getClass().getName(), beanChangeListener.method));
-				}
-				beanChangeListener = processListenerMethod(method, valueList, bean);
-				
-			} else if (configured != null) {
-				processSetterMethod(configured, method, valueList, bean);
-			}
-		}
-		ValueDefinitionGroup group = new ValueDefinitionGroup(beanName, valueList, beanChangeListener);
-		configurationSource.register(group);
-	}
-
+	/**
+	 * When configuration values are encountered, they will retrieved and applied only. No updates
+	 * will be performed. Listeners will be called once to ensure we don't break their contract.
+	 * @param bean
+	 * @param beanName
+	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	protected void processField(Field field, List<ValueDefinition<?>> valueList, Object bean) {
-		Configured annotation = field.getAnnotation(Configured.class);
-		if (annotation != null) {
-			Class type = field.getType();
-			boolean list = false;
-			if (type == List.class) {
-				type = listType(field.getGenericType());
-				list = true;
-			}
-			FieldValueChangeListener<Object> listener = new FieldValueChangeListener<Object>(field, bean, type, list);
-			ValueDefinition<Object> value = new ValueDefinition<Object>(type, annotation.value(), listener, list);
-			valueList.add(value);
-		}
+    protected void processOnceOnly(Object bean, String beanName) {
+	    Class<? extends Object> targetClass = bean.getClass();
+	    ValueDefinitionGroup valueDefinitionGroup = onceOnlyDefinitionCache.get(targetClass);
+	    if (valueDefinitionGroup == null) {
+	        synchronized (onceOnlyDefinitionCache) {
+	            TargetClass target = new TargetClass(targetClass);
+	            valueDefinitionGroup = prepareValueGroup(beanName, target);
+	            onceOnlyDefinitionCache.put(targetClass, valueDefinitionGroup);
+            }
+	    }
+	    List<ValueDefinition<?>> values = valueDefinitionGroup.getValues();
+	    for (ValueDefinition<?> valueDefinition : values) {
+	        Object value;
+	        if (valueDefinition.isList()) {
+	            if (valueDefinition.getExpression() != null) {
+	                value = configurationSource.retrieveList(valueDefinition.getType(), valueDefinition.getExpression());
+	            } else {
+	                value = configurationSource.retrieveList(valueDefinition.getType());
+	            }
+	        } else {
+	            if (valueDefinition.getExpression() != null) {
+                    value = configurationSource.retrieve(valueDefinition.getType(), valueDefinition.getExpression());
+                } else {
+                    value = configurationSource.retrieve(valueDefinition.getType());
+                }
+	        }
+	        ValueChangeListener listener = valueDefinition.getListener();
+	        listener.onChange(value);
+        }
+	    GroupChangeListener changeListener = valueDefinitionGroup.getChangeListener();
+	    if (changeListener != null) {
+	        /*
+	         * Note we are deliberately not obtaining the semaphore.
+	         */
+	        changeListener.onChange();
+	    }
+	}
+
+	/**
+	 * Process configured field/method/listeners, also registering them for updates.
+	 * @param bean
+	 * @param beanName
+	 */
+	protected void processWithUpdates(Object bean, String beanName) {
+		ValueDefinitionGroup group = prepareValueGroup(beanName, bean);
+		((UpdatableConfigurationSource) configurationSource).register(group);
+	}
+
+
+	
+	protected ValueDefinitionGroup prepareValueGroup(String beanName, Object target) {
+	    List<ValueDefinition<?>> valueList = new ArrayList<ValueDefinition<?>>();
+	    
+	    Class<? extends Object> beanClass = target.getClass();
+	    if (target instanceof TargetClass) {
+	        beanClass = ((TargetClass) target).get();
+	    }
+	    
+        PostUpdateChangeListener beanChangeListener = null;
+        
+        Field[] declaredFields = beanClass.getDeclaredFields();
+        for (Field field : declaredFields) {
+            processField(field, valueList, target);
+        }
+        
+        Method[] declaredMethods = beanClass.getDeclaredMethods();
+        for (Method method : declaredMethods) {
+            Configured configured = method.getAnnotation(Configured.class);
+            
+            ConfigurationListener configurationListener = method.getAnnotation(ConfigurationListener.class);
+            if (configurationListener != null) {
+                if (beanChangeListener != null) {
+                    throw new ConfigurationException(format(
+                            "Unable to create a configuration listener for the method '%s' " +
+                            "as it already contains a configuration listener on the method '%s'",
+                            method, beanName, beanClass.getName(), beanChangeListener.method));
+                }
+                beanChangeListener = processListenerMethod(method, valueList, target);
+                
+            } else if (configured != null) {
+                processSetterMethod(configured, method, valueList, target);
+            }
+        }
+        ValueDefinitionGroup group = new ValueDefinitionGroup(beanName, valueList, beanChangeListener);
+        return group;
 	}
 	
+   @SuppressWarnings({ "rawtypes", "unchecked" })
+    protected void processField(Field field, List<ValueDefinition<?>> valueList, Object bean) {
+        Configured annotation = field.getAnnotation(Configured.class);
+        if (annotation != null) {
+            Class type = field.getType();
+            boolean list = false;
+            if (type == List.class) {
+                type = listType(field.getGenericType());
+                list = true;
+            }
+            FieldValueChangeListener<Object> listener = new FieldValueChangeListener<Object>(field, bean, type, list);
+            ValueDefinition<Object> value = new ValueDefinition<Object>(type, annotation.value(), listener, list);
+            valueList.add(value);
+        }
+    }
+	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	protected void processSetterMethod(Configured configured, Method method, List<ValueDefinition<?>> valueList, Object bean) {
+	protected void processSetterMethod(Configured configured, Method method, List<ValueDefinition<?>> valueList, Object target) {
 		Class<?>[] parameterTypes = method.getParameterTypes();
 		if (parameterTypes.length != 1) {
 			throw new ConfigurationException(format("The method '%s' does not appear to be a setter. " +
@@ -146,13 +212,13 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
 			type = listType(genericParameterTypes[0]);
 			list = true;
 		}
-		MethodValueChangeListener<Object> listener = new MethodValueChangeListener<Object>(method, bean, type, list);
+		MethodValueChangeListener<Object> listener = new MethodValueChangeListener<Object>(method, target, type, list);
 		ValueDefinition<Object> value = new ValueDefinition<Object>(type, configured.value(), listener, list);
 		valueList.add(value);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	protected PostUpdateChangeListener processListenerMethod(Method method, List<ValueDefinition<?>> valueList, Object bean) {
+	protected PostUpdateChangeListener processListenerMethod(Method method, List<ValueDefinition<?>> valueList, Object target) {
 		Class<?>[] parameterTypes = method.getParameterTypes();
 		Type[] genericParameterTypes = method.getGenericParameterTypes();
 		Annotation[][] parameterAnnotations = method.getParameterAnnotations();
@@ -208,7 +274,7 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
 			}
 			argList.add(arg);
 		}
-		return new PostUpdateChangeListener(bean, method, argList);
+		return new PostUpdateChangeListener(target, method, argList);
 	}
 
 	
@@ -228,8 +294,8 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
 		return bean;
 	}
 	
-	public void setConfigurationSource(UpdatableConfigurationSource configurationSource) {
-		this.configurationSource = configurationSource;
+	public void setMarkerAnnotation(Class<? extends Annotation> markerAnnotation) {
+		this.markerAnnotation = markerAnnotation;
 	}
 	
 	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
@@ -244,7 +310,7 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
 			this.field = field;
 		}
 
-		public void onChange(T newValue) {
+		public void onChange(T newValue, Object target) {
 			try {
 				if (!field.isAccessible()) {
 					field.setAccessible(true);
@@ -263,7 +329,7 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
 			this.method = method;
 		}
 
-		public void onChange(T newValue) {
+		public void onChange(T newValue, Object target) {
 			try {
 				method.invoke(target, newValue);
 			} catch (IllegalAccessException e) {
@@ -275,7 +341,7 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
 	}
 	
 	private abstract class InvocationChangeListenerSupport<T extends Object> implements ValueChangeListener<T> {
-		protected final Object target;
+		private final Object target;
 		private final Class<?> expectedValueType;
 		private final boolean list;
 		public InvocationChangeListenerSupport(Object target,
@@ -285,9 +351,19 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
 			this.list = list;
 		}
 		
+		public final void onChange(T newValue) {
+		    onChange(newValue, target);
+        }
+		
+		public abstract void onChange(T newValue, Object target);
+		
 		protected void throwError(String name, Object value, Throwable cause) {
 			Class<?> valueType = (value != null ? value.getClass() : null);
-			throw new PropertyUpdateException(name, valueType, expectedValueType, list, target.getClass(), cause);
+			Class<?> targetClass = target.getClass();
+			if (target instanceof TargetClass) {
+			    targetClass = ((TargetClass) target).get();
+			}
+			throw new PropertyUpdateException(name, valueType, expectedValueType, list, targetClass, cause);
 		}
 	}
 	
@@ -308,6 +384,10 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
 		}
 
 		public void onChange() {
+            onChange(target);
+        }
+		
+		public void onChange(Object target) {
 			Object[] args = new Object[argValues.size()];
 			for (int i = 0; i < argValues.size(); i++) {
 				ValueResolver arg = argValues.get(i);
@@ -369,5 +449,17 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
 	
 	private interface ValueResolver {
 		Object getValue();
+	}
+	
+	private class TargetClass {
+	    private final Class<?> target;
+	    
+	    public TargetClass(Class<?> target) {
+            this.target = target;
+        }
+
+        public Class<?> get() {
+            return target;
+        }
 	}
 }

@@ -26,6 +26,11 @@ import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.InitializingBean;
 
+/**
+ * TODO
+ * 
+ * @author Andrew Taylor
+ */
 public class MavenVersionedResourceNameResolver extends
 		BasicResourceNameResolver implements InitializingBean {
 

@@ -22,6 +22,11 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * TODO
+ * 
+ * @author Andrew Taylor
+ */
 public class GroupConfigurationException extends RuntimeException {
 
 	/**
