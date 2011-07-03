@@ -47,7 +47,12 @@ public class LoggingBackgroundUpdater implements Runnable {
 	
 	@Override
 	public void run() {
-		UpdateReport update = this.configurationSource.update();
+		UpdateReport update = null;
+        try {
+            update = this.configurationSource.update();
+        } catch (RuntimeException e) {
+            log.error("Failed to update configuration", e);
+        }
 		if (update != null) {
 			List<GroupConfigurationException> errors = update.getErrors();
 			URL location = update.getLocation();

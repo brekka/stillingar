@@ -54,30 +54,40 @@ public class ResourceSnapshotManager implements SnapshotManager {
 	/**
 	 * 
 	 */
-	private final ResourceSelector selectedConfigurationSource;
+	private final ResourceSelector resourceSelector;
 
 	/**
 	 * The last snapshot returned by {@link #retrieveLatest()}
 	 */
 	private Snapshot latestSnapshot;
+	
+	/**
+	 * The lastModified of the original at the time we last tried to read it. If it throws an exception
+	 * then we should not attempt to parse again until the resource last modified is greater than this
+	 * value.
+	 */
+	private long lastAttempt;
 
 	public ResourceSnapshotManager(
 			ResourceSelector selectedConfigurationSource,
 			SnapshotLoader snapshotLoader) {
-		this.selectedConfigurationSource = selectedConfigurationSource;
+		this.resourceSelector = selectedConfigurationSource;
 		this.snapshotLoader = snapshotLoader;
 
 	}
 
 	public Snapshot retrieveLatest() {
 		Snapshot snapshot = null;
-		Resource original = selectedConfigurationSource.getOriginal();
+		Resource original = resourceSelector.getOriginal();
 		try {
 			long lastModifiedMillis = 0;
 			if (latestSnapshot != null) {
 				lastModifiedMillis = latestSnapshot.getTimestamp();
 			}
-			if (original.lastModified() > lastModifiedMillis) {
+			long lastAttempt = this.lastAttempt;
+			if (original.lastModified() > lastModifiedMillis
+			        && original.lastModified() != lastAttempt) {
+			    this.lastAttempt = original.lastModified();
 				snapshot = retrieve(original);
 				latestSnapshot = snapshot;
 			}
@@ -91,7 +101,7 @@ public class ResourceSnapshotManager implements SnapshotManager {
 	}
 
 	public Snapshot retrieveLastGood() {
-		Resource lastGood = selectedConfigurationSource.getLastGood();
+		Resource lastGood = resourceSelector.getLastGood();
 		return retrieve(lastGood);
 	}
 
@@ -114,8 +124,8 @@ public class ResourceSnapshotManager implements SnapshotManager {
 	}
 
 	public void acceptLatest() {
-		Resource original = selectedConfigurationSource.getOriginal();
-		Resource lastGood = selectedConfigurationSource.getLastGood();
+		Resource original = resourceSelector.getOriginal();
+		Resource lastGood = resourceSelector.getLastGood();
 		if (lastGood instanceof FileSystemResource) {
 			FileSystemResource fsResource = (FileSystemResource) lastGood;
 			File file = fsResource.getFile();

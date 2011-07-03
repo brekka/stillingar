@@ -18,6 +18,7 @@ package org.brekka.stillingar.spring.resource;
 
 import static java.lang.String.format;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -50,8 +51,12 @@ public class ScanningResourceSelector implements ResourceSelector {
 					if (locationOriginal.exists()
 							&& locationOriginal.isReadable()) {
 						original = locationOriginal;
-						if (locationBase instanceof FileSystemResource) {
-							lastGood = locationBase.createRelative(lastGoodName);
+						try {
+						    File base = new File(locationBase.getURI());
+						    File lastGoodFile = new File(base, lastGoodName);
+						    lastGood = new FileSystemResource(lastGoodFile);
+						} catch (IllegalArgumentException e) {
+						    // Not a file, just ignore.
 						}
 						// We have found what we are looking for
 						break;
