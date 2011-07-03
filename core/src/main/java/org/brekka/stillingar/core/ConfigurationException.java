@@ -17,7 +17,7 @@
 package org.brekka.stillingar.core;
 
 /**
- * TODO
+ * Framework specific runtime exception thrown in response to error conditions.
  * 
  * @author Andrew Taylor
  */
@@ -29,6 +29,10 @@ public class ConfigurationException extends RuntimeException {
 	private static final long serialVersionUID = -8981488685366659347L;
 
 
+    public ConfigurationException() {
+        super();
+    }
+    
 	public ConfigurationException(String message) {
 		super(message);
 	}
@@ -39,14 +43,5 @@ public class ConfigurationException extends RuntimeException {
 
 	public ConfigurationException(Throwable cause) {
 		super(cause);
-	}
-
-	public ConfigurationException() {
-		super();
-	}
-	
-	
-
-	
-	
+	}	
 }

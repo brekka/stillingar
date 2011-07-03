@@ -43,6 +43,8 @@ import org.springframework.util.StringValueResolver;
 /**
  * TODO
  * 
+ * Inspired by the reloadable properties example found here: http://www.wuenschenswert.net/wunschdenken/archives/127.
+ * 
  * @author Andrew Taylor
  */
 public class ConfigurationPlaceholderConfigurer implements
@@ -87,9 +89,8 @@ public class ConfigurationPlaceholderConfigurer implements
 	}
 	
 	/**
-	 * Based on logic from
-	 * {@link PropertyPlaceholderConfigurer#postProcessBeanFactory(ConfigurableListableBeanFactory)}
-	 * .
+	 * Copied in its entirety from the {@link PropertyPlaceholderConfigurer} method of the same name.
+	 * The only changes are to the valueResolver and BeanDefinitionVisitor instances.
 	 */
 	@Override
 	public void postProcessBeanFactory(
@@ -184,8 +185,8 @@ public class ConfigurationPlaceholderConfigurer implements
 			String expression = placeholderHelper.replacePlaceholders(strVal, resolver);
 			if (!expression.equals(strVal)) {
 				// Something changed
-				value = configurationSource.retrieve(String.class,
-						expression);
+				value = configurationSource.retrieve(expression,
+						String.class);
 				if (beanDefVisitor != null 
 						&& beanDefVisitor.currentProperty != null
 						&& configurationSource instanceof UpdatableConfigurationSource

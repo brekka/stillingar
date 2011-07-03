@@ -16,17 +16,19 @@
 
 package org.brekka.stillingar.spring.config;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.brekka.stillingar.core.DefaultConfigurationSource;
-import org.brekka.stillingar.spring.ConfigBaseResolverFactoryBean;
 import org.brekka.stillingar.spring.ConfigurationBeanPostProcessor;
 import org.brekka.stillingar.spring.ConfigurationPlaceholderConfigurer;
-import org.brekka.stillingar.spring.HomeConfigBaseResolverFactoryBean;
 import org.brekka.stillingar.spring.LoggingBackgroundUpdater;
-import org.brekka.stillingar.spring.ResourceBasedSnapshotManager;
-import org.brekka.stillingar.spring.ResourceSelector;
+import org.brekka.stillingar.spring.resource.BaseInHomeDirResolver;
+import org.brekka.stillingar.spring.resource.BaseDirResolver;
+import org.brekka.stillingar.spring.resource.ScanningResourceSelector;
+import org.brekka.stillingar.spring.snapshot.ResourceSnapshotManager;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.ManagedList;
@@ -46,11 +48,33 @@ import org.w3c.dom.NodeList;
  */
 public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
 
+    /**
+     * Default locations to scan, in case they are not defined.
+     */
+    private static final List<String> DEFAULT_LOCATION_LIST = Arrays.asList(
+        /*
+         * Tomcat
+         */
+        "file:${catalina.base}/conf/",
+        /*
+         * Glassfish
+         */
+        "file:${com.sun.aas.instanceRoot}/config/",
+        /*
+         * JBoss
+         */
+        "file:${jboss.server.home.dir}/conf/",
+        /*
+         * Weblogic
+         */
+        "file:${env.DOMAIN_HOME}/config/"
+    );
+
 	private static final int MINIMUM_RELOAD_INTERVAL = 1000;
 
 	private static final Map<String, String> TYPE_ALIASES = new HashMap<String, String>();
 	static {
-	    TYPE_ALIASES.put("props", org.brekka.stillingar.core.PropertiesSnapshotLoader.class.getName());
+	    TYPE_ALIASES.put("props", org.brekka.stillingar.core.snapshot.PropertiesSnapshotLoader.class.getName());
 	    TYPE_ALIASES.put("xmlbeans", "org.brekka.stillingar.xmlbeans.XmlBeansSnapshotLoader");
 	}
 
@@ -66,16 +90,17 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
 		String id = element.getAttribute("id");
 		
 		ManagedList<Object> locations = new ManagedList<Object>();
-		BeanDefinitionBuilder configBaseResolver = BeanDefinitionBuilder.genericBeanDefinition(ConfigBaseResolverFactoryBean.class);
-		BeanDefinitionBuilder homeConfigBaseResolver = BeanDefinitionBuilder.genericBeanDefinition(HomeConfigBaseResolverFactoryBean.class);
+		BeanDefinitionBuilder configBaseResolver = BeanDefinitionBuilder.genericBeanDefinition(BaseDirResolver.class);
+		configBaseResolver.addConstructorArgValue(DEFAULT_LOCATION_LIST);
+		BeanDefinitionBuilder homeConfigBaseResolver = BeanDefinitionBuilder.genericBeanDefinition(BaseInHomeDirResolver.class);
 		homeConfigBaseResolver.addConstructorArgValue("." + id);
 		locations.add(configBaseResolver.getBeanDefinition());
 		locations.add(homeConfigBaseResolver.getBeanDefinition());
 		
-		BeanDefinitionBuilder resourceNameResolver = BeanDefinitionBuilder.genericBeanDefinition(org.brekka.stillingar.spring.BasicResourceNameResolver.class);
+		BeanDefinitionBuilder resourceNameResolver = BeanDefinitionBuilder.genericBeanDefinition(org.brekka.stillingar.spring.resource.BasicResourceNaming.class);
 		resourceNameResolver.addConstructorArgValue(id);
 		
-		BeanDefinitionBuilder configSource = BeanDefinitionBuilder.genericBeanDefinition(ResourceSelector.class);
+		BeanDefinitionBuilder configSource = BeanDefinitionBuilder.genericBeanDefinition(ScanningResourceSelector.class);
 		configSource.addConstructorArgValue(locations);
 		configSource.addConstructorArgValue(resourceNameResolver.getBeanDefinition());
 		
@@ -108,7 +133,7 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
 		snapshotLoader.addPropertyValue("xpathNamespaces", nsMap);
 		
 		
-		BeanDefinitionBuilder manager = BeanDefinitionBuilder.genericBeanDefinition(ResourceBasedSnapshotManager.class);
+		BeanDefinitionBuilder manager = BeanDefinitionBuilder.genericBeanDefinition(ResourceSnapshotManager.class);
 		manager.addConstructorArgValue(configSource.getBeanDefinition());
 		manager.addConstructorArgValue(snapshotLoader.getBeanDefinition());
 		

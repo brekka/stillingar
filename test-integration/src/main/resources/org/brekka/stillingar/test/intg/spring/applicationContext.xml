@@ -11,20 +11,20 @@
 <!-- 
 	<bean id="stillingar2" class="org.brekka.stillingar.core.DefaultConfigurationSource" init-method="init">
 		<constructor-arg>
-			<bean class="org.brekka.stillingar.spring.ResourceBasedSnapshotManager">
+			<bean class="org.brekka.stillingar.spring.snapshot.ResourceSnapshotManager">
 				<constructor-arg>
-					<bean class="org.brekka.stillingar.spring.ResourceSelector">
+					<bean class="org.brekka.stillingar.spring.resource.ScanningResourceSelector">
 						<constructor-arg>
 							<list>
-								<bean class="org.brekka.stillingar.spring.ConfigBaseResolverFactoryBean" />
-								<bean class="org.brekka.stillingar.spring.HomeConfigBaseResolverFactoryBean">
+								<bean class="org.brekka.stillingar.spring.resource.BaseDirResolver" />
+								<bean class="org.brekka.stillingar.spring.resource.BaseInHomeDirResolver">
 									<constructor-arg value=".stillingar" />
 								</bean>
 								<value>classpath:org/brekka/stillingar/test/intg/</value>
 							</list>
 						</constructor-arg>
 						<constructor-arg>
-							<bean class="org.brekka.stillingar.spring.MavenVersionedResourceNameResolver">
+							<bean class="org.brekka.stillingar.spring.resource.MavenVersionedResourceNaming">
 								<constructor-arg value="integration" />
 								<property name="groupId" value="org.brekka" />
 								<property name="artifactId" value="stillingar-test-integration" />

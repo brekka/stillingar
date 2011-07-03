@@ -1,30 +1,32 @@
-package org.brekka.stillingar.spring;
+package org.brekka.stillingar.spring.resource;
 
 import static org.junit.Assert.*;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.brekka.stillingar.spring.resource.BaseDirResolver;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.core.io.Resource;
 
-public class ConfigBaseResolverFactoryBeanTest {
+public class BaseDirResolverTest {
 
-	private ConfigBaseResolverFactoryBean resolverFactoryBean;
+	private BaseDirResolver resolverFactoryBean;
 	
 	private File baseDir;
 	
 	@Before
 	public void setUp() throws Exception {
 		File tmpDir = new File(System.getProperty("java.io.tmpdir"));
-		this.baseDir = new File(tmpDir, "ConfigBaseResolverFactoryBeanTest-" + System.currentTimeMillis());
+		this.baseDir = new File(tmpDir, "BaseDirResolverTest-" + System.currentTimeMillis());
 		File configDir = new File(baseDir, "conf");
 		configDir.mkdirs();
 		configDir.deleteOnExit();
 		baseDir.deleteOnExit();
-		resolverFactoryBean = new ConfigBaseResolverFactoryBean();
+		resolverFactoryBean = new BaseDirResolver(Arrays.asList(""));
 	}
 
 	@Test

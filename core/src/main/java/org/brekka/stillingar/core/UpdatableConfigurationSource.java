@@ -17,15 +17,42 @@
 package org.brekka.stillingar.core;
 
 /**
- * TODO
+ * Support updating of the configuration source, providing methods to allow other subsystems to register for
+ * notification of changes.
+ * 
+ * Registration allows both single value and group updates. Group updates are intended to be used when a configuration
+ * target (such as a bean) has multiple values that need to be updated atomically, optionally specifying a method that
+ * will be invoked once all values have been set.
  * 
  * @author Andrew Taylor
  */
 public interface UpdatableConfigurationSource extends ConfigurationSource {
-	
-	void register(ValueDefinition<?> value, boolean fireImmediately);
-	
-	void register(ValueDefinitionGroup valueGroup);
-	
-	UpdateReport update();
+
+    /**
+     * Register a value definition which will be notified of configuration updates when they occur.
+     * 
+     * @param valueDef
+     *            the value definition which will contain type/expression details and listener which will be called with
+     *            updates.
+     * @param fireImmediately
+     *            determines whether the listener within the value definition should be called prior to control being
+     *            returned to the caller.
+     */
+    void register(ValueDefinition<?> valueDef, boolean fireImmediately);
+
+    /**
+     * Register a group of value definitions which will be notified together when any update occurs.
+     * 
+     * @param valueGroup
+     *            the value group to register.
+     */
+    void register(ValueDefinitionGroup valueGroup);
+
+    /**
+     * Instruct this configuration source to update itself. The report returned will contain details or any errors
+     * encountered during the update.
+     * 
+     * @return the report detailing errors encountered during the update attempt.
+     */
+    UpdateReport update();
 }

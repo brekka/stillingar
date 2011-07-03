@@ -14,22 +14,25 @@
  * limitations under the License.
  */
 
-package org.brekka.stillingar.core;
+package org.brekka.stillingar.spring.resource;
+
+import static java.lang.String.format;
+
+import java.util.Arrays;
+import java.util.HashSet;
+
 
 /**
  * TODO
  * 
  * @author Andrew Taylor
  */
-public class PropertyUpdateException extends ConfigurationException {
+public class BaseInHomeDirResolver extends
+		BaseDirResolver {
+	
+	private static final String USER_HOME_PATH = "file:${user.home}/%s/";
 
-	/**
-	 * SerialUID
-	 */
-	private static final long serialVersionUID = -6253150293370045665L;
-
-	public PropertyUpdateException(String name, Class<?> valueType, Class<?> expectedType,
-			boolean list, Class<?> targetType, Throwable cause) {
-		super(cause);
+	public BaseInHomeDirResolver(String baseWithinHome) {
+		super(new HashSet<String>(Arrays.asList(format(USER_HOME_PATH, baseWithinHome))));
 	}
 }

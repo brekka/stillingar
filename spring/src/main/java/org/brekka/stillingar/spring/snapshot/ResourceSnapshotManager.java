@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.brekka.stillingar.spring;
+package org.brekka.stillingar.spring.snapshot;
 
 import static java.lang.String.format;
 
@@ -29,9 +29,10 @@ import java.net.URL;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.brekka.stillingar.core.ConfigurationException;
-import org.brekka.stillingar.core.ConfigurationSnapshot;
-import org.brekka.stillingar.core.ConfigurationSnapshotLoader;
-import org.brekka.stillingar.core.ConfigurationSnapshotManager;
+import org.brekka.stillingar.core.snapshot.Snapshot;
+import org.brekka.stillingar.core.snapshot.SnapshotLoader;
+import org.brekka.stillingar.core.snapshot.SnapshotManager;
+import org.brekka.stillingar.spring.resource.ResourceSelector;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 
@@ -40,36 +41,36 @@ import org.springframework.core.io.Resource;
  * 
  * @author Andrew Taylor
  */
-public class ResourceBasedSnapshotManager implements ConfigurationSnapshotManager {
+public class ResourceSnapshotManager implements SnapshotManager {
 
 	private static final Log log = LogFactory
-			.getLog(ResourceBasedSnapshotManager.class);
+			.getLog(ResourceSnapshotManager.class);
 
 	/**
 	 * 
 	 */
-	private final ConfigurationSnapshotLoader snapshotLoader;
+	private final SnapshotLoader snapshotLoader;
 
 	/**
 	 * 
 	 */
-	private final SelectedConfigurationSource selectedConfigurationSource;
+	private final ResourceSelector selectedConfigurationSource;
 
 	/**
 	 * The last snapshot returned by {@link #retrieveLatest()}
 	 */
-	private ConfigurationSnapshot latestSnapshot;
+	private Snapshot latestSnapshot;
 
-	public ResourceBasedSnapshotManager(
-			SelectedConfigurationSource selectedConfigurationSource,
-			ConfigurationSnapshotLoader snapshotLoader) {
+	public ResourceSnapshotManager(
+			ResourceSelector selectedConfigurationSource,
+			SnapshotLoader snapshotLoader) {
 		this.selectedConfigurationSource = selectedConfigurationSource;
 		this.snapshotLoader = snapshotLoader;
 
 	}
 
-	public ConfigurationSnapshot retrieveLatest() {
-		ConfigurationSnapshot snapshot = null;
+	public Snapshot retrieveLatest() {
+		Snapshot snapshot = null;
 		Resource original = selectedConfigurationSource.getOriginal();
 		try {
 			long lastModifiedMillis = 0;
@@ -89,13 +90,13 @@ public class ResourceBasedSnapshotManager implements ConfigurationSnapshotManage
 		return snapshot;
 	}
 
-	public ConfigurationSnapshot retrieveLastGood() {
+	public Snapshot retrieveLastGood() {
 		Resource lastGood = selectedConfigurationSource.getLastGood();
 		return retrieve(lastGood);
 	}
 
-	protected ConfigurationSnapshot retrieve(Resource resourceToLoad) {
-		ConfigurationSnapshot snapshot = null;
+	protected Snapshot retrieve(Resource resourceToLoad) {
+		Snapshot snapshot = null;
 		if (resourceToLoad != null && resourceToLoad.exists()
 				&& resourceToLoad.isReadable()) {
 			try {

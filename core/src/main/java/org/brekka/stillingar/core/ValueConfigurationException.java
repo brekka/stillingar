@@ -16,8 +16,10 @@
 
 package org.brekka.stillingar.core;
 
+import static java.lang.String.format;
+
 /**
- * TODO
+ * Value configuration problem. Can either be caused when resolving the value or when setting it.
  * 
  * @author Andrew Taylor
  */
@@ -29,9 +31,9 @@ public class ValueConfigurationException extends ConfigurationException {
 	private static final long serialVersionUID = 4645869513144296360L;
 
 	/**
-	 * The value type
+	 * The value valueType
 	 */
-	private final Class<?> type;
+	private final Class<?> valueType;
 	
 	/**
 	 * Expression used to resolve the value (optional)
@@ -45,46 +47,63 @@ public class ValueConfigurationException extends ConfigurationException {
 	
 	public ValueConfigurationException(String reason, ValueDefinition<?> definition, Throwable cause) {
 		super(cause);
-		this.type = definition.getType();
+		this.valueType = definition.getType();
 		this.expression = definition.getExpression();
 		this.reason = reason;
 	}
 	
 	public ValueConfigurationException(String reason, ValueDefinition<?> definition) {
 		super();
-		this.type = definition.getType();
+		this.valueType = definition.getType();
 		this.expression = definition.getExpression();
 		this.reason = reason;
 	}
 	
 	public ValueConfigurationException(String reason, Class<?> type, String expression, Throwable cause) {
 		super(cause);
-		this.type = type;
+		this.valueType = type;
 		this.expression = expression;
 		this.reason = reason;
 	}
 
 	public ValueConfigurationException(String reason, Class<?> type, String expression) {
 		super();
-		this.type = type;
+		this.valueType = type;
 		this.expression = expression;
 		this.reason = reason;
 	}
 	
 	@Override
 	public String getMessage() {
-		// TODO Combine instance vars into a message.
-		return super.getMessage();
+	    String message;
+	    if (expression != null) {
+	        message = format("%s - '%s' (%s)", reason, expression, (valueType != null ? valueType.getName() : null));
+	    } else {
+	        message = format("%s - %s", reason, (valueType != null ? valueType.getName() : null));
+	    }
+		return message;
 	}
 
-	public Class<?> getType() {
-		return type;
+	/**
+	 * The value valueType
+	 * @return
+	 */
+	public Class<?> getValueType() {
+		return valueType;
 	}
 
+	/**
+	 * Expression used to resolve the value (optional)
+	 * @return
+	 */
 	public String getExpression() {
 		return expression;
 	}
 
+	/**
+	 * The reason for the error
+	 * @return
+	 */
 	public String getReason() {
 		return reason;
 	}

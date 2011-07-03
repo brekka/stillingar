@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
-package org.brekka.stillingar.core;
+package org.brekka.stillingar.spring.resource;
 
-import java.net.URL;
+import org.springframework.core.io.Resource;
 
 /**
  * TODO
  * 
  * @author Andrew Taylor
  */
-public interface ConfigurationSnapshotLoader {
+public interface ResourceSelector {
 
-	ConfigurationSnapshot load(URL toLoad, long timestamp);
+	Resource getOriginal();
+	
+	Resource getLastGood();
 }

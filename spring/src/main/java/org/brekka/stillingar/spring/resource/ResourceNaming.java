@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package org.brekka.stillingar.spring;
+package org.brekka.stillingar.spring.resource;
 
 /**
  * TODO
  * 
  * @author Andrew Taylor
  */
-public interface ResourceNameResolver {
+public interface ResourceNaming {
 
 	String prepareOriginalName();
 	

@@ -29,15 +29,15 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.brekka.stillingar.core.ConfigurationException;
-import org.brekka.stillingar.core.ConfigurationSnapshot;
-import org.brekka.stillingar.core.ConfigurationSnapshotLoader;
+import org.brekka.stillingar.core.snapshot.Snapshot;
+import org.brekka.stillingar.core.snapshot.SnapshotLoader;
 
 /**
  * TODO
  * 
  * @author Andrew Taylor
  */
-public class XmlBeansSnapshotLoader implements ConfigurationSnapshotLoader {
+public class XmlBeansSnapshotLoader implements SnapshotLoader {
 
 	
 	private Map<String, String> xpathNamespaces;
@@ -45,8 +45,8 @@ public class XmlBeansSnapshotLoader implements ConfigurationSnapshotLoader {
 	private boolean validate = true;
 
 	
-	public ConfigurationSnapshot load(URL fromUrl, long timestamp) {
-		ConfigurationSnapshot snapshot;
+	public Snapshot load(URL fromUrl, long timestamp) {
+		Snapshot snapshot;
 		try {
 			XmlObject xmlBean = XmlObject.Factory.parse(fromUrl);
 			
@@ -54,7 +54,7 @@ public class XmlBeansSnapshotLoader implements ConfigurationSnapshotLoader {
 				validate(xmlBean);
 			}
 			
-			snapshot = new XmlBeansConfigurationSnapshot(fromUrl, timestamp, xmlBean, this.xpathNamespaces);
+			snapshot = new XmlBeansSnapshot(fromUrl, timestamp, xmlBean, this.xpathNamespaces);
 		} catch (IOException e) {
 			throw new ConfigurationException(format(
 					"Failed to read"), e);

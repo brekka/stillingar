@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.brekka.stillingar.spring;
+package org.brekka.stillingar.spring.resource;
 
 import static java.lang.String.format;
 
@@ -29,13 +29,13 @@ import org.springframework.core.io.Resource;
  * TODO better name
  * @author Andrew Taylor
  */
-public class ResourceSelector implements SelectedConfigurationSource {
+public class ScanningResourceSelector implements ResourceSelector {
 
 	private final Resource original;
 	
 	private final Resource lastGood;
 	
-	public ResourceSelector(List<Resource> locations, ResourceNameResolver resourceNameResolver) {
+	public ScanningResourceSelector(List<Resource> locations, ResourceNaming resourceNameResolver) {
 		Resource original = null;
 		Resource lastGood = null;
 		

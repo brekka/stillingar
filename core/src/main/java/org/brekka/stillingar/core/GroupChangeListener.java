@@ -16,9 +16,15 @@
 
 package org.brekka.stillingar.core;
 
+/**
+ * Called when once or more values within a group are updated.
+ * 
+ * @author Andrew Taylor
+ */
 public interface GroupChangeListener {
-
-	Object getSemaphore();
-	
+    
+    /**
+     * The configuration of the group has changed.
+     */
 	void onChange();
 }

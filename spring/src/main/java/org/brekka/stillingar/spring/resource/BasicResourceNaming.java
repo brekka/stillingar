@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package org.brekka.stillingar.spring;
+package org.brekka.stillingar.spring.resource;
 
 import static java.lang.String.format;
+
 
 /**
  * TODO
  * 
  * @author Andrew Taylor
  */
-public class BasicResourceNameResolver implements ResourceNameResolver {
+public class BasicResourceNaming implements ResourceNaming {
 
 	private final String prefix;
 	
@@ -33,7 +34,7 @@ public class BasicResourceNameResolver implements ResourceNameResolver {
 	
 	
 	
-	public BasicResourceNameResolver(String prefix) {
+	public BasicResourceNaming(String prefix) {
 		this.prefix = prefix;
 	}
 

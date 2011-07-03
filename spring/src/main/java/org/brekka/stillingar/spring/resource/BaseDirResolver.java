@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-package org.brekka.stillingar.spring;
+package org.brekka.stillingar.spring.resource;
 
 import java.net.MalformedURLException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -34,48 +32,25 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 
 /**
- * Attempt to locate the configuration base directories of popular Java web/application servers. The locations specified will
- * be checked sequentially until the first valid location is encountered. The locations can include system property and/or
- * environment variables which will be resolved prior to checking the location is valid.
+ * The locations specified will be checked sequentially until the first valid location is encountered. The locations can
+ * include system property and/or environment variables which will be resolved prior to checking the location is valid.
  * 
  * @author Andrew Taylor
  */
-public class ConfigBaseResolverFactoryBean implements FactoryBean<Resource>, ApplicationContextAware {
+public class BaseDirResolver implements FactoryBean<Resource>, ApplicationContextAware {
 	
 	/**
 	 * Regex used to detect and replace system/environment properties.
 	 */
 	private static final Pattern VAR_REPLACE_REGEX = Pattern.compile("\\$\\{(env\\.)?([\\w\\._\\-]+)\\}");
-
-	/**
-	 * Default locations to scan, in case they are not defined.
-	 */
-	private static final List<String> DEFAULT_LOCATION_LIST = Arrays.asList(
-		/*
-		 * Tomcat
-		 */
-		"file:${catalina.base}/conf/",
-		/*
-		 * Glassfish
-		 */
-		"file:${com.sun.aas.instanceRoot}/config/",
-		/*
-		 * JBoss
-		 */
-		"file:${jboss.server.home.dir}/conf/",
-		/*
-		 * Weblogic
-		 */
-		"file:${env.DOMAIN_HOME}/config/"
-	);
 	
 	/**
 	 * The list of locations
 	 */
-	private Set<String> locations;
+	private Collection<String> locations;
 	
 	/**
-	 * Enviroment var map
+	 * Environment var map
 	 */
 	private Map<String, String> envMap = System.getenv();
 	
@@ -85,11 +60,7 @@ public class ConfigBaseResolverFactoryBean implements FactoryBean<Resource>, App
 	 */
 	private ApplicationContext applicationContext;
 	
-	public ConfigBaseResolverFactoryBean() {
-		this(new HashSet<String>(DEFAULT_LOCATION_LIST));
-	}
-	
-	public ConfigBaseResolverFactoryBean(Set<String> locations) {
+	public BaseDirResolver(Collection<String> locations) {
 		this.locations = locations;
 	}
 	

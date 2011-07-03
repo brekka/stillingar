@@ -17,11 +17,19 @@
 package org.brekka.stillingar.core;
 
 /**
- * TODO
+ * Listener that is invoked when a value has been determined to be changed. Must be used in combination with a
+ * {@link ValueDefinition} which# specified the context for the value being listened for changes to.
  * 
  * @author Andrew Taylor
+ * 
+ * @param <T> the type of the value being listened for
  */
 public interface ValueChangeListener<T> {
-	
-	void onChange(T newValue);
+    /**
+     * Called to indicate that a change has occurred to the configured reference that this listener is monitoring.
+     * 
+     * @param newValue
+     *            the updated value that the implementation to apply to the reference.
+     */
+    void onChange(T newValue);
 }

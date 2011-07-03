@@ -20,20 +20,28 @@ import java.net.URL;
 import java.util.List;
 
 /**
- * TODO
+ * Details the outcome of an operation to update an {@link UpdatableConfigurationSource}. In an effort to make resolving
+ * configuration errors less iterative, 'Stillingar' will attempt to enact as many configuration changes as possible,
+ * and then return all of the errors in this report. It is then up to the caller what happens to this report but it will
+ * most likely be written out to an error log. The developer should then be able to resolve the majority of errors
+ * before attempting to re-run the system being configured.
  * 
  * @author Andrew Taylor
  */
 public interface UpdateReport {
-	
-	/**
-	 * The location where the file was loaded from
-	 * 
-	 * @return the URL
-	 */
-	URL getLocation();
-	
-	List<GroupConfigurationException> getErrors();
-	
-	
+
+    /**
+     * The location where the file was loaded from.
+     * 
+     * @return the URL
+     */
+    URL getLocation();
+
+    /**
+     * The list of errors encountered (if any)
+     * 
+     * @return a possibly empty list of errors.
+     */
+    List<GroupConfigurationException> getErrors();
+
 }

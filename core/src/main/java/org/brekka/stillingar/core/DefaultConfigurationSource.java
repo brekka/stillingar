@@ -21,31 +21,55 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.brekka.stillingar.core.GroupConfigurationException.Phase;
+import org.brekka.stillingar.core.snapshot.Snapshot;
+import org.brekka.stillingar.core.snapshot.SnapshotManager;
 
 /**
- * TODO
+ * Standard implementation of {@link UpdatableConfigurationSource} which provides atomic updates to group
+ * definitions and adhoc updates to standalone values. 
+ * 
+ * During the update process, standalone values will be updated first, then the groups. All will be performed in the order they
+ * were registered.
  * 
  * @author Andrew Taylor
  */
 public class DefaultConfigurationSource implements UpdatableConfigurationSource {
 	
-	private final ConfigurationSnapshotManager snapshotManager;
+    /**
+     * Where all snapshots will be obtained from
+     */
+	private final SnapshotManager snapshotManager;
 	
+	/**
+	 * The group that will contain all of the {@link ValueDefinition}s that were registered via
+	 * {@link #register(ValueDefinition, boolean)}.
+	 */
 	private ValueDefinitionGroup standaloneGroup;
 
+	/**
+	 * The list of all value groups including the standalone group above.
+	 */
 	private List<ValueDefinitionGroup> valueGroups = new ArrayList<ValueDefinitionGroup>();
 	
-	private ConfigurationSnapshot current;
+	/**
+	 * The current snapshot
+	 */
+	private Snapshot current;
 	
-	
-	public DefaultConfigurationSource(ConfigurationSnapshotManager snapshotManager) {
-		this.standaloneGroup = new ValueDefinitionGroup("_standalone", new ArrayList<ValueDefinition<?>>(), null);
+	/**
+	 * @param snapshotManager Where all snapshots will be obtained from
+	 */
+	public DefaultConfigurationSource(SnapshotManager snapshotManager) {
+		this.standaloneGroup = new ValueDefinitionGroup("_standalone", new ArrayList<ValueDefinition<?>>(), null, null);
 		this.valueGroups.add(standaloneGroup);
 		this.snapshotManager = snapshotManager;
 	}
 	
+	/**
+	 * Initialise this source, loading the last good or latest snapshot from the manager.
+	 */
 	public void init() {
-		ConfigurationSnapshot initSnapshot = snapshotManager.retrieveLastGood();
+		Snapshot initSnapshot = snapshotManager.retrieveLastGood();
 		if (initSnapshot == null) {
 			// There is no last good.
 			initSnapshot = snapshotManager.retrieveLatest();
@@ -71,16 +95,16 @@ public class DefaultConfigurationSource implements UpdatableConfigurationSource 
 		return getCurrentSnapshot().retrieve(valueType);
 	}
 	
-	public <T> T retrieve(Class<T> valueType, String expression) {
-		return getCurrentSnapshot().retrieve(valueType, expression);
+	public <T> T retrieve(String expression, Class<T> valueType) {
+		return getCurrentSnapshot().retrieve(expression, valueType);
 	}
 	
 	public <T> List<T> retrieveList(Class<T> valueType) {
 		return getCurrentSnapshot().retrieveList(valueType);
 	}
 	
-	public <T> List<T> retrieveList(Class<T> valueType, String expression) {
-		return getCurrentSnapshot().retrieveList(valueType, expression);
+	public <T> List<T> retrieveList(String expression, Class<T> valueType) {
+		return getCurrentSnapshot().retrieveList(expression, valueType);
 	}
 	
 	/**
@@ -88,7 +112,7 @@ public class DefaultConfigurationSource implements UpdatableConfigurationSource 
 	 */
 	public UpdateReport update() {
 		UpdateReport report = null;
-		ConfigurationSnapshot snapshot = snapshotManager.retrieveLatest();
+		Snapshot snapshot = snapshotManager.retrieveLatest();
 		if (snapshot != null) {
 			List<GroupConfigurationException> groupErrors = new ArrayList<GroupConfigurationException>();
 			List<GroupChangeAction> updateActionList = phaseOneUpdate(snapshot, groupErrors);
@@ -98,18 +122,24 @@ public class DefaultConfigurationSource implements UpdatableConfigurationSource 
 				phaseTwoUpdate(updateActionList, groupErrors);
 			}
 			
-			// Still no errors, make this a 'last good'
+			// Still no errors, make the snapshot active, signal acception of the snapshot to the manager.
 			if (groupErrors.isEmpty()) {
+			    this.current = snapshot;
 				snapshotManager.acceptLatest();
 			}
 			
 			report = new UpdateReportImpl(snapshot.getLocation(), groupErrors);
-			this.current = snapshot;
 		}
 		return report;
 	}
 	
-	protected List<GroupChangeAction> phaseOneUpdate(ConfigurationSnapshot snapshot, List<GroupConfigurationException> groupErrors) {
+	/**
+	 * 
+	 * @param snapshot
+	 * @param groupErrors
+	 * @return
+	 */
+	protected List<GroupChangeAction> phaseOneUpdate(Snapshot snapshot, List<GroupConfigurationException> groupErrors) {
 		List<ValueDefinitionGroup> valueGroups = this.valueGroups;
 		List<GroupChangeAction> updateActionList = new ArrayList<GroupChangeAction>(valueGroups.size());
 		
@@ -137,7 +167,7 @@ public class DefaultConfigurationSource implements UpdatableConfigurationSource 
 	
 	protected GroupChangeAction prepareGroupChange(
 			ValueDefinitionGroup valueDefinitionGroup,
-			ConfigurationSnapshot snapshot) {
+			Snapshot snapshot) {
 		List<ValueDefinition<?>> valueDefinitionList = valueDefinitionGroup.getValues();
 		List<ValueChangeAction> updateActions = new ArrayList<ValueChangeAction>(valueDefinitionList.size());
 		List<ConfigurationException> valueResolveErrors = new ArrayList<ConfigurationException>();
@@ -168,12 +198,7 @@ public class DefaultConfigurationSource implements UpdatableConfigurationSource 
 		List<ValueChangeAction> actionList = groupUpdateAction.getActionList();
 		List<ConfigurationException> valueUpdateErrors = new ArrayList<ConfigurationException>();
 		
-		GroupChangeListener groupChangeListener = valueDefinitionGroup.getChangeListener();
-		Object semaphore = null;
-		if (groupChangeListener != null) {
-			semaphore = groupChangeListener.getSemaphore();
-		}
-		
+		Object semaphore = valueDefinitionGroup.getSemaphore();
 		if (semaphore == null) {
 			// Semaphore must be set to something
 			semaphore = new Object();
@@ -215,19 +240,19 @@ public class DefaultConfigurationSource implements UpdatableConfigurationSource 
 		}
 	}
 
-	protected ValueChangeAction prepareValueChange(ValueDefinition<?> valueDefinition, ConfigurationSnapshot snapshot) {
+	protected ValueChangeAction prepareValueChange(ValueDefinition<?> valueDefinition, Snapshot snapshot) {
 		String expression = valueDefinition.getExpression();
 		Class<?> type = valueDefinition.getType();
 		Object result;
 		if (valueDefinition.isList()) {
 			if (expression != null) {
-				result = snapshot.retrieveList(type, expression);
+				result = snapshot.retrieveList(expression, type);
 			} else {
 				result = snapshot.retrieveList(type);
 			}
 		} else {
 			if (expression != null) {
-				result = snapshot.retrieve(type, expression);
+				result = snapshot.retrieve(expression, type);
 			} else {
 				result = snapshot.retrieve(type);
 			}
@@ -251,7 +276,7 @@ public class DefaultConfigurationSource implements UpdatableConfigurationSource 
 	 * Retrieve the currently active snapshot.
 	 * @return the active snapshot
 	 */
-	protected ConfigurationSnapshot getCurrentSnapshot() {
+	protected Snapshot getCurrentSnapshot() {
 		if (current == null) {
 			throw new ConfigurationException("This configuration source has not been initialized.");
 		}

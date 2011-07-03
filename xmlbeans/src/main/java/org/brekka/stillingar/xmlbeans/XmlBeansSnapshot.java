@@ -36,15 +36,15 @@ import org.apache.xmlbeans.XmlFloat;
 import org.apache.xmlbeans.XmlInt;
 import org.apache.xmlbeans.XmlLong;
 import org.apache.xmlbeans.XmlObject;
-import org.brekka.stillingar.core.ConfigurationSnapshot;
 import org.brekka.stillingar.core.ValueConfigurationException;
+import org.brekka.stillingar.core.snapshot.Snapshot;
 
 /**
  * TODO
  * 
  * @author Andrew Taylor
  */
-public class XmlBeansConfigurationSnapshot implements ConfigurationSnapshot {
+class XmlBeansSnapshot implements Snapshot {
 
 	private final long timestamp;
 	
@@ -56,7 +56,7 @@ public class XmlBeansConfigurationSnapshot implements ConfigurationSnapshot {
 	
 	
 
-	public XmlBeansConfigurationSnapshot(URL location, long timestamp, XmlObject bean,
+	public XmlBeansSnapshot(URL location, long timestamp, XmlObject bean,
 			Map<String, String> xpathNamespaces) {
 		this.location = location;
 		this.timestamp = timestamp;
@@ -87,7 +87,7 @@ public class XmlBeansConfigurationSnapshot implements ConfigurationSnapshot {
 	/* (non-Javadoc)
 	 * @see org.brekka.configuration.xmlbeans.Instance#retrieve(java.lang.Class, java.lang.String)
 	 */
-	public <T> T retrieve(Class<T> valueType, String expression) {
+	public <T> T retrieve(String expression, Class<T> valueType) {
 		T value;
 		XmlObject[] found = evaluate(expression);
 		if (found.length == 1) {
@@ -120,7 +120,7 @@ public class XmlBeansConfigurationSnapshot implements ConfigurationSnapshot {
 	/* (non-Javadoc)
 	 * @see org.brekka.configuration.xmlbeans.Instance#retrieveList(java.lang.Class, java.lang.String)
 	 */
-	public <T> List<T> retrieveList(Class<T> valueType, String expression) {
+	public <T> List<T> retrieveList(String expression, Class<T> valueType) {
 		List<T> results = new ArrayList<T>();
 		XmlObject[] found = evaluate(expression);
 		for (XmlObject xmlObject : found) {
@@ -198,7 +198,9 @@ public class XmlBeansConfigurationSnapshot implements ConfigurationSnapshot {
 		} else if (expectedType == Double.class || expectedType == Double.TYPE) {
 			if (object instanceof XmlDouble) {
 				value = (T) Double.valueOf(((XmlDouble) object).getDoubleValue());
-			}
+			} else if (object instanceof XmlFloat) {
+                value = (T) Double.valueOf(((XmlFloat) object).getFloatValue());
+            }
 		} else if (expectedType == URI.class) {
 			if (object instanceof XmlAnyURI) {
 				XmlAnyURI xmlUri = (XmlAnyURI) object;

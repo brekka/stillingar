@@ -19,33 +19,99 @@ package org.brekka.stillingar.core;
 import java.util.List;
 
 /**
- * TODO
+ * Encapsulates the details of a 'target' containing multiple values to be updated in an atomic manner, with an optional
+ * {@link GroupChangeListener} that should be called once all values are set.
  * 
  * @author Andrew Taylor
  */
 public final class ValueDefinitionGroup {
 
-	private final String name;
-	
-	private final List<ValueDefinition<?>> values;
-	
-	private final GroupChangeListener changeListener;
+    /**
+     * The label for this group. Used in exceptions to provide context.
+     */
+    private final String name;
 
-	public ValueDefinitionGroup(String name, List<ValueDefinition<?>> values, GroupChangeListener changeListener) {
-		this.name = name;
-		this.values = values;
-		this.changeListener = changeListener;
-	}
+    /**
+     * The list of values that are part of this group and as such should be updated with it.
+     */
+    private final List<ValueDefinition<?>> values;
 
-	public String getName() {
-		return name;
-	}
+    /**
+     * Optional listener that will be invoked once all values have been updated.
+     */
+    private final GroupChangeListener changeListener;
 
-	public List<ValueDefinition<?>> getValues() {
-		return values;
-	}
+    /**
+     * Optional locking semaphore that can be used to ensure exclusive access to the 'target' while it is being updated
+     * and the listener invoked.
+     */
+    private final Object semaphore;
 
-	public GroupChangeListener getChangeListener() {
-		return changeListener;
-	}
+    /**
+     * @param name
+     *            The label for this group. Used in exceptions to provide context.
+     * @param values
+     *            The list of values that are part of this group and as such should be updated with it.
+     * @param changeListener
+     *            Optional listener that will be invoked once all values have been updated.
+     */
+    public ValueDefinitionGroup(String name, List<ValueDefinition<?>> values, GroupChangeListener changeListener) {
+        this(name, values, changeListener, null);
+    }
+
+    /**
+     * @param name
+     *            The label for this group. Used in exceptions to provide context.
+     * @param values
+     *            The list of values that are part of this group and as such should be updated with it.
+     * @param changeListener
+     *            Optional listener that will be invoked once all values have been updated.
+     * @param semaphore
+     *            Optional locking semaphore that can be used to ensure exclusive access to the 'target' while it is
+     *            being updated and the listener invoked.
+     */
+    public ValueDefinitionGroup(String name, List<ValueDefinition<?>> values, GroupChangeListener changeListener,
+            Object semaphore) {
+        this.name = name;
+        this.values = values;
+        this.changeListener = changeListener;
+        this.semaphore = semaphore;
+    }
+
+    /**
+     * The label for this group. Used in exceptions to provide context.
+     * 
+     * @return
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * The list of values that are part of this group and as such should be updated with it.
+     * 
+     * @return
+     */
+    public List<ValueDefinition<?>> getValues() {
+        return values;
+    }
+
+    /**
+     * Optional listener that will be invoked once all values have been updated.
+     * 
+     * @return
+     */
+    public GroupChangeListener getChangeListener() {
+        return changeListener;
+    }
+
+    /**
+     * Optional locking semaphore that can be used to ensure exclusive access to the 'target' while it is being updated
+     * and the listener invoked.
+     * 
+     * @return
+     */
+    public Object getSemaphore() {
+        return semaphore;
+    }
 }

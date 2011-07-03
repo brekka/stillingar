@@ -15,6 +15,6 @@ public class PrototypeConfiguredBean {
     
     @ConfigurationListener
     public void configure() {
-        System.out.printf("Prototype, Frequency: %f", frequency);
+        System.out.printf("Prototype, Frequency: %f%n", frequency);
     }
 }

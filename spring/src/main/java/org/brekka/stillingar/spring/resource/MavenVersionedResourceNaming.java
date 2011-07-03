@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.brekka.stillingar.spring;
+package org.brekka.stillingar.spring.resource;
 
 import static java.lang.String.format;
 
@@ -31,8 +31,8 @@ import org.springframework.beans.factory.InitializingBean;
  * 
  * @author Andrew Taylor
  */
-public class MavenVersionedResourceNameResolver extends
-		BasicResourceNameResolver implements InitializingBean {
+public class MavenVersionedResourceNaming extends
+		BasicResourceNaming implements InitializingBean {
 
 	private static final Pattern DEFAULT_VERSION_PATTERN = Pattern
 			.compile("^(\\d+).*$");
@@ -45,7 +45,7 @@ public class MavenVersionedResourceNameResolver extends
 	
 	private ClassLoader resolveClassloader = this.getClass().getClassLoader();
 
-	public MavenVersionedResourceNameResolver(String prefix) {
+	public MavenVersionedResourceNaming(String prefix) {
 		super(prefix);
 	}
 	

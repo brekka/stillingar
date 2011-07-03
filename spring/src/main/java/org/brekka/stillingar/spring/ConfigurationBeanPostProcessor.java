@@ -35,7 +35,7 @@ import org.brekka.stillingar.annotations.Configured;
 import org.brekka.stillingar.core.ConfigurationException;
 import org.brekka.stillingar.core.ConfigurationSource;
 import org.brekka.stillingar.core.GroupChangeListener;
-import org.brekka.stillingar.core.PropertyUpdateException;
+import org.brekka.stillingar.core.ReferentUpdateException;
 import org.brekka.stillingar.core.UpdatableConfigurationSource;
 import org.brekka.stillingar.core.ValueChangeListener;
 import org.brekka.stillingar.core.ValueDefinition;
@@ -110,13 +110,13 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
 	        Object value;
 	        if (valueDefinition.isList()) {
 	            if (valueDefinition.getExpression() != null) {
-	                value = configurationSource.retrieveList(valueDefinition.getType(), valueDefinition.getExpression());
+	                value = configurationSource.retrieveList(valueDefinition.getExpression(), valueDefinition.getType());
 	            } else {
 	                value = configurationSource.retrieveList(valueDefinition.getType());
 	            }
 	        } else {
 	            if (valueDefinition.getExpression() != null) {
-                    value = configurationSource.retrieve(valueDefinition.getType(), valueDefinition.getExpression());
+                    value = configurationSource.retrieve(valueDefinition.getExpression(), valueDefinition.getType());
                 } else {
                     value = configurationSource.retrieve(valueDefinition.getType());
                 }
@@ -178,7 +178,7 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
                 processSetterMethod(configured, method, valueList, target);
             }
         }
-        ValueDefinitionGroup group = new ValueDefinitionGroup(beanName, valueList, beanChangeListener);
+        ValueDefinitionGroup group = new ValueDefinitionGroup(beanName, valueList, beanChangeListener, target);
         return group;
 	}
 	
@@ -306,7 +306,7 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
 		private final Field field;
 		
 		public FieldValueChangeListener(Field field, Object target, Class<?> expectedValueType, boolean list) {
-			super(target, expectedValueType, list);
+			super(target, expectedValueType, list, "Field");
 			this.field = field;
 		}
 
@@ -325,7 +325,7 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
 	private class MethodValueChangeListener<T extends Object> extends InvocationChangeListenerSupport<T> {
 		private final Method method;
 		public MethodValueChangeListener(Method method, Object target, Class<?> expectedValueType, boolean list) {
-			super(target, expectedValueType, list);
+			super(target, expectedValueType, list, "Method");
 			this.method = method;
 		}
 
@@ -344,11 +344,13 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
 		private final Object target;
 		private final Class<?> expectedValueType;
 		private final boolean list;
+		private final String type;
 		public InvocationChangeListenerSupport(Object target,
-				Class<?> expectedValueType, boolean list) {
+				Class<?> expectedValueType, boolean list, String type) {
 			this.target = target;
 			this.expectedValueType = expectedValueType;
 			this.list = list;
+			this.type = type;
 		}
 		
 		public final void onChange(T newValue) {
@@ -363,7 +365,7 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
 			if (target instanceof TargetClass) {
 			    targetClass = ((TargetClass) target).get();
 			}
-			throw new PropertyUpdateException(name, valueType, expectedValueType, list, targetClass, cause);
+			throw new ReferentUpdateException(type, name, valueType, expectedValueType, list, targetClass, cause);
 		}
 	}
 	
@@ -379,10 +381,6 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
 			this.argValues = argValues;
 		}
 		
-		public Object getSemaphore() {
-			return target;
-		}
-
 		public void onChange() {
             onChange(target);
         }
