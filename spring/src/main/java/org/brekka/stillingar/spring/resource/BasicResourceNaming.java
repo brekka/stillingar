@@ -18,51 +18,101 @@ package org.brekka.stillingar.spring.resource;
 
 import static java.lang.String.format;
 
-
 /**
- * TODO
+ * Simple resource naming strategy that generates 'original' and 'last good' files based on a prefix and suffix.
  * 
  * @author Andrew Taylor
  */
 public class BasicResourceNaming implements ResourceNaming {
+    /**
+     * The default string to use for the lastgood fragment
+     */
+    private static final String DEFAULT_LASTGOOD = "lastgood";
 
-	private final String prefix;
-	
-	private String suffix = "xml";
-	
-	private String lastGoodMarker = "lastgood";
-	
-	
-	
-	public BasicResourceNaming(String prefix) {
-		this.prefix = prefix;
-	}
+    /**
+     * The default suffix
+     */
+    private static final String DEFAULT_SUFFIX = "xml";
 
-	public String prepareOriginalName() {
-		return format("%s.%s", prefix, suffix);
-	}
+    /**
+     * The prefix that will be applied to the resource name. This will normally be the application name.
+     */
+    private final String prefix;
 
-	public String prepareLastGoodName() {
-		return format("%s-%s.%s", prefix, lastGoodMarker, suffix);
-	}
-	
-	protected String getLastGoodMarker() {
-		return lastGoodMarker;
-	}
-	
-	protected String getSuffix() {
-		return suffix;
-	}
-	
-	protected String getPrefix() {
-		return prefix;
-	}
+    /**
+     * The suffix to use which by default is 'xml'.
+     */
+    private String suffix = DEFAULT_SUFFIX;
 
-	public void setLastGoodMarker(String lastGoodMarker) {
-		this.lastGoodMarker = lastGoodMarker;
-	}
-	
-	public void setSuffix(String suffix) {
-		this.suffix = suffix;
-	}
+    /**
+     * Marker string to include which identifies it as a last good file.
+     */
+    private String lastGoodMarker = DEFAULT_LASTGOOD;
+
+    /**
+     * @param prefix
+     *            The prefix that will be applied to the resource name. This will normally be the application name.
+     */
+    public BasicResourceNaming(String prefix) {
+        this.prefix = prefix;
+    }
+
+    /**
+     * Generates the 'original' name which will simply be the prefix and suffix combined with a period separating them.
+     */
+    public String prepareOriginalName() {
+        return format("%s.%s", prefix, suffix);
+    }
+
+    /**
+     * Generates the 'last good' name which will take the format "[prefix]-[lastgood].[suffix]".
+     */
+    public String prepareLastGoodName() {
+        return format("%s-%s.%s", prefix, lastGoodMarker, suffix);
+    }
+
+    /**
+     * Retrieve the last good marker
+     * 
+     * @return
+     */
+    protected String getLastGoodMarker() {
+        return lastGoodMarker;
+    }
+
+    /**
+     * The suffix to use which by default is 'xml'.
+     * 
+     * @return
+     */
+    protected String getSuffix() {
+        return suffix;
+    }
+
+    /**
+     * The prefix that will be applied to the resource name. This will normally be the application name.
+     * 
+     * @return
+     */
+    protected String getPrefix() {
+        return prefix;
+    }
+
+    /**
+     * Override the 'last good' file marker
+     * 
+     * @param lastGoodMarker
+     */
+    public void setLastGoodMarker(String lastGoodMarker) {
+        this.lastGoodMarker = lastGoodMarker;
+    }
+
+    /**
+     * Override the default suffix
+     * 
+     * @param suffix
+     */
+    public void setSuffix(String suffix) {
+        this.suffix = suffix;
+    }
 }

@@ -47,12 +47,12 @@ public class ResourceSnapshotManager implements SnapshotManager {
 			.getLog(ResourceSnapshotManager.class);
 
 	/**
-	 * 
+	 * Will actually load the snapshots
 	 */
 	private final SnapshotLoader snapshotLoader;
 
 	/**
-	 * 
+	 * Determines where the resources that the snapshots will be based on will be loaded from.
 	 */
 	private final ResourceSelector resourceSelector;
 
@@ -68,10 +68,15 @@ public class ResourceSnapshotManager implements SnapshotManager {
 	 */
 	private long lastAttempt;
 
+	/**
+	 * 
+	 * @param resourceSelector Determines where the resources that the snapshots will be based on will be loaded from.
+	 * @param snapshotLoader Will actually load the snapshots
+	 */
 	public ResourceSnapshotManager(
-			ResourceSelector selectedConfigurationSource,
+			ResourceSelector resourceSelector,
 			SnapshotLoader snapshotLoader) {
-		this.resourceSelector = selectedConfigurationSource;
+		this.resourceSelector = resourceSelector;
 		this.snapshotLoader = snapshotLoader;
 
 	}
@@ -88,7 +93,7 @@ public class ResourceSnapshotManager implements SnapshotManager {
 			if (original.lastModified() > lastModifiedMillis
 			        && original.lastModified() != lastAttempt) {
 			    this.lastAttempt = original.lastModified();
-				snapshot = retrieve(original);
+				snapshot = performLoad(original);
 				latestSnapshot = snapshot;
 			}
 		} catch (IOException e) {
@@ -102,24 +107,8 @@ public class ResourceSnapshotManager implements SnapshotManager {
 
 	public Snapshot retrieveLastGood() {
 		Resource lastGood = resourceSelector.getLastGood();
-		return retrieve(lastGood);
-	}
-
-	protected Snapshot retrieve(Resource resourceToLoad) {
-		Snapshot snapshot = null;
-		if (resourceToLoad != null && resourceToLoad.exists()
-				&& resourceToLoad.isReadable()) {
-			try {
-				URL url = resourceToLoad.getURL();
-				long timestamp = resourceToLoad.lastModified();
-				snapshot = snapshotLoader.load(url, timestamp);
-			} catch (IOException e) {
-				throw new ConfigurationException(format("Resouce '%s'", resourceToLoad), e);
-			} catch (RuntimeException e) {
-				// Wrap to include location details
-				throw new ConfigurationException(format("Resouce '%s' processing problem", resourceToLoad), e);
-			}
-		}
+		Snapshot snapshot = performLoad(lastGood);
+		this.latestSnapshot = snapshot;
 		return snapshot;
 	}
 
@@ -137,8 +126,9 @@ public class ResourceSnapshotManager implements SnapshotManager {
 				copy(is, os);
 			} catch (IOException e) {
 				if (log.isWarnEnabled()) {
-					// TODO more detail
-					log.warn("Failed to copy original to lastGood", e);
+					log.warn(format(
+					        "Failed to copy original resource '%s' to lastGood '%s'",
+					        original, lastGood), e);
 				}
 			} finally {
 				closeQuietly(is);
@@ -146,6 +136,30 @@ public class ResourceSnapshotManager implements SnapshotManager {
 			}
 		}
 	}
+	
+    /**
+     * Perform the load operation that will convert a resource into a snapshot.
+     * @param resourceToLoad the resouce to load into a snapshot
+     * @return the snapshot loaded from the specified resource
+     * @throws ConfigurationException if something goes wrong such as an IO error.
+     */
+    protected Snapshot performLoad(Resource resourceToLoad) {
+        Snapshot snapshot = null;
+        if (resourceToLoad != null && resourceToLoad.exists()
+                && resourceToLoad.isReadable()) {
+            try {
+                URL url = resourceToLoad.getURL();
+                long timestamp = resourceToLoad.lastModified();
+                snapshot = snapshotLoader.load(url, timestamp);
+            } catch (IOException e) {
+                throw new ConfigurationException(format("Resouce '%s'", resourceToLoad), e);
+            } catch (RuntimeException e) {
+                // Wrap to include location details
+                throw new ConfigurationException(format("Resouce '%s' processing problem", resourceToLoad), e);
+            }
+        }
+        return snapshot;
+    }
 
     /**
      * Method content based on 'copyLarge' from Apache Commons IO.

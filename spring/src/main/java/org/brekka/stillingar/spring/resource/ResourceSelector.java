@@ -19,13 +19,22 @@ package org.brekka.stillingar.spring.resource;
 import org.springframework.core.io.Resource;
 
 /**
- * TODO
+ * Determines what resources will be used for the 'original' and 'last good'. Implementations may choose at
+ * initialisation from a variety of resources. 
  * 
  * @author Andrew Taylor
  */
 public interface ResourceSelector {
 
-	Resource getOriginal();
-	
-	Resource getLastGood();
+    /**
+     * The 'original' resource from which to load configuration snapshots.
+     * @return the original resource
+     */
+    Resource getOriginal();
+
+    /**
+     * The 'last good' resource from which to load the initial configuration snapshot.
+     * @return the last good resource
+     */
+    Resource getLastGood();
 }

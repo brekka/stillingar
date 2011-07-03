@@ -16,9 +16,14 @@ public class BusinessServiceImpl implements BusinessService {
 	@Configured("/c:Configuration/c:Business/c:Frequency")
 	private float frequency;
 	
+	private int configureCount = 0;
+	
+	private Date configureDate;
+	
+	private Business configureBusiness;
+
+	// Business method
 	public void doSomething() {
-		System.out.println("Done something");
-		
 	}
 	
 	@ConfigurationListener
@@ -26,6 +31,24 @@ public class BusinessServiceImpl implements BusinessService {
 	                      Date theDate, 
 	                      @Configured 
 	                      Business business) {
-		System.out.printf("Configured, Frequence: %f, date: %s, business: %s%n", frequency, theDate, business);
+	    configureCount++;
+	    this.configureDate = theDate;
+	    this.configureBusiness = business;
 	}
+	
+	public int getConfigureCount() {
+        return configureCount;
+    }
+	
+	public Business getConfigureBusiness() {
+        return configureBusiness;
+    }
+	
+	public Date getConfigureDate() {
+        return configureDate;
+    }
+	
+	public float getFrequency() {
+        return frequency;
+    }
 }

@@ -39,7 +39,8 @@ public class PlaceholderTest {
 		try {
 			bean.process1();
 		} catch (IllegalStateException e) {
-			assertEquals("Instance variable <java.lang.Runnable> at line 5 of class " +
+		    
+			assertEquals("Instance variable <java.lang.Runnable> at line 21 of class " +
 					"'org.brekka.stillingar.PlaceholderTestBean' has not yet been set",
 					e.getMessage());
 			throw e;
@@ -51,7 +52,7 @@ public class PlaceholderTest {
 		try {
 			bean.process2();
 		} catch (IllegalStateException e) {
-			assertEquals("Instance variable 'placedWithLabel' <java.lang.Runnable> at line 7 of class " +
+			assertEquals("Instance variable 'placedWithLabel' <java.lang.Runnable> at line 23 of class " +
 					"'org.brekka.stillingar.PlaceholderTestBean' has not yet been set", 
 					e.getMessage());
 			throw e;

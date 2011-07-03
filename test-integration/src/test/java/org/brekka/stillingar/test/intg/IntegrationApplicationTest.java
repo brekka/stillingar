@@ -1,6 +1,7 @@
 package org.brekka.stillingar.test.intg;
 
 import org.brekka.stillingar.test.intg.services.BusinessService;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -26,12 +27,6 @@ public class IntegrationApplicationTest extends AbstractJUnit4SpringContextTests
 		businessService.doSomething();
 		
 		applicationContext.getBean(PrototypeConfiguredBean.class);
-		
-		System.out.println("Something: " + something);
-		System.out.println("Prototype: " + applicationContext.getBean("simpleBeanPrototype"));
-		Thread.sleep(60000);
-		applicationContext.getBean(PrototypeConfiguredBean.class);
-		System.out.println("Prototype: " + applicationContext.getBean("simpleBeanPrototype"));
 	}
 	
 }

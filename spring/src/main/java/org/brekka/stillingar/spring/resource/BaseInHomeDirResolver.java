@@ -21,18 +21,25 @@ import static java.lang.String.format;
 import java.util.Arrays;
 import java.util.HashSet;
 
-
 /**
- * TODO
+ * Specialisation of {@link BaseDirResolver} that will attempt to locate the configuration base directory within the
+ * current user's home under the directory identified by the constructors only argument.
  * 
  * @author Andrew Taylor
  */
-public class BaseInHomeDirResolver extends
-		BaseDirResolver {
-	
-	private static final String USER_HOME_PATH = "file:${user.home}/%s/";
+public class BaseInHomeDirResolver extends BaseDirResolver {
 
-	public BaseInHomeDirResolver(String baseWithinHome) {
-		super(new HashSet<String>(Arrays.asList(format(USER_HOME_PATH, baseWithinHome))));
-	}
+    /**
+     * The path of the configuration directory that will be formatted with the name of the sub-directory specific to
+     * this application.
+     */
+    private static final String USER_HOME_PATH = "file:${user.home}/%s/";
+
+    /**
+     * @param baseWithinHome
+     *            the name of the directory within the user home that will form the base configuration directory.
+     */
+    public BaseInHomeDirResolver(String baseWithinHome) {
+        super(new HashSet<String>(Arrays.asList(format(USER_HOME_PATH, baseWithinHome))));
+    }
 }

@@ -40,7 +40,7 @@ import org.brekka.stillingar.core.ValueConfigurationException;
 import org.brekka.stillingar.core.snapshot.Snapshot;
 
 /**
- * TODO
+ * Configuration snapshot based on Apache XmlBeans.
  * 
  * @author Andrew Taylor
  */

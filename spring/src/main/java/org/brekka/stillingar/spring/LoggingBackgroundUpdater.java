@@ -30,60 +30,69 @@ import org.brekka.stillingar.core.UpdatableConfigurationSource;
 import org.brekka.stillingar.core.UpdateReport;
 
 /**
- * TODO
+ * A simple runnable that can be used perform updates on an {@link UpdatableConfigurationSource}, logging out any
+ * resulting report and its errors.
  * 
  * @author Andrew Taylor
  */
 public class LoggingBackgroundUpdater implements Runnable {
 
-	private static final Log log = LogFactory.getLog(LoggingBackgroundUpdater.class);
-	
-	private final UpdatableConfigurationSource configurationSource;
+    /**
+     * The logger to use to report errors
+     */
+    private static final Log log = LogFactory.getLog(LoggingBackgroundUpdater.class);
 
-	public LoggingBackgroundUpdater(
-			UpdatableConfigurationSource configurationSource) {
-		this.configurationSource = configurationSource;
-	}
-	
-	@Override
-	public void run() {
-		UpdateReport update = null;
+    /**
+     * The configuration source to call each time the {@link #run()} method is called.
+     */
+    private final UpdatableConfigurationSource configurationSource;
+
+    /**
+     * @param configurationSource The configuration source to call each time the {@link #run()} method is called.
+     */
+    public LoggingBackgroundUpdater(UpdatableConfigurationSource configurationSource) {
+        this.configurationSource = configurationSource;
+    }
+
+    @Override
+    public void run() {
+        UpdateReport update = null;
         try {
             update = this.configurationSource.update();
         } catch (RuntimeException e) {
             log.error("Failed to update configuration", e);
         }
-		if (update != null) {
-			List<GroupConfigurationException> errors = update.getErrors();
-			URL location = update.getLocation();
-			if (!errors.isEmpty()) {
-				StringWriter writer = new StringWriter();
-				PrintWriter out = new PrintWriter(writer);
-				Formatter fmt = new Formatter(out);
-				
-				fmt.format("Errors encountered during configuration update from '%s'. " +
-						"%d group errors follow.%n", location, errors.size());
-				for (GroupConfigurationException groupConfigurationException : errors) {
-					fmt.format(" Group '%s' errors (total %d):%n", groupConfigurationException.getGroupName());
-					List<ConfigurationException> errorList = groupConfigurationException.getErrorList();
-					int cnt = 1;
-					for (ConfigurationException configurationException : errorList) {
-						fmt.format("  Error %d of %d:%n", cnt, errorList.size());
-						configurationException.printStackTrace(out);
-						cnt++;
-					}
-				}
-				// log the error
-				log.error(writer.toString());
-			} else {
-				if (log.isInfoEnabled()) {
-					log.info(String.format("Configuration has been updated successfully from '%s'.", location));
-				}
-			}
-		} else {
-			if (log.isTraceEnabled()) {
-				log.trace("No change to configuration");
-			}
-		}
-	}
+        if (update != null) {
+            List<GroupConfigurationException> errors = update.getErrors();
+            URL location = update.getLocation();
+            if (!errors.isEmpty()) {
+                StringWriter writer = new StringWriter();
+                PrintWriter out = new PrintWriter(writer);
+                Formatter fmt = new Formatter(out);
+
+                fmt.format("Errors encountered during configuration update from '%s'. " + "%d group errors follow.%n",
+                        location, errors.size());
+                for (GroupConfigurationException groupConfigurationException : errors) {
+                    fmt.format(" Group '%s' errors (total %d):%n", groupConfigurationException.getGroupName());
+                    List<ConfigurationException> errorList = groupConfigurationException.getErrorList();
+                    int cnt = 1;
+                    for (ConfigurationException configurationException : errorList) {
+                        fmt.format("  Error %d of %d:%n", cnt, errorList.size());
+                        configurationException.printStackTrace(out);
+                        cnt++;
+                    }
+                }
+                // log the error
+                log.error(writer.toString());
+            } else {
+                if (log.isInfoEnabled()) {
+                    log.info(String.format("Configuration has been updated successfully from '%s'.", location));
+                }
+            }
+        } else {
+            if (log.isTraceEnabled()) {
+                log.trace("No change to configuration");
+            }
+        }
+    }
 }

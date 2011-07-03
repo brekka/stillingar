@@ -17,13 +17,25 @@
 package org.brekka.stillingar.spring.resource;
 
 /**
- * TODO
+ * Allows customisation of the resource names that will be loaded.
  * 
  * @author Andrew Taylor
  */
 public interface ResourceNaming {
 
-	String prepareOriginalName();
-	
-	String prepareLastGoodName();
+    /**
+     * Compose the full name of the 'original' resource that will be resolved within the configuration base location.
+     * The original name will be what the administrator will edit to update the values.
+     * 
+     * @return the original configuration resource name.
+     */
+    String prepareOriginalName();
+
+    /**
+     * The name of the 'last good' file that will be generated when the 'original' is successfully loaded. This will
+     * reside in the same configuration base location as the original so cannot have the same name.
+     * 
+     * @return the 'last good' configuration resource name.
+     */
+    String prepareLastGoodName();
 }

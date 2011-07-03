@@ -163,6 +163,7 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
                 BeanDefinitionBuilder scheduledExecutorTask = BeanDefinitionBuilder.genericBeanDefinition(ScheduledExecutorTask.class);
                 scheduledExecutorTask.addConstructorArgValue(updateTask.getBeanDefinition());
                 scheduledExecutorTask.addPropertyValue("period", reloadInterval);
+                scheduledExecutorTask.addPropertyValue("delay", reloadInterval);
                 
                 
                 ManagedList<Object> taskList = new ManagedList<Object>();

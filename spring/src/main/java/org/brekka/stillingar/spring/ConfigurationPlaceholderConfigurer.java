@@ -41,187 +41,181 @@ import org.springframework.util.PropertyPlaceholderHelper.PlaceholderResolver;
 import org.springframework.util.StringValueResolver;
 
 /**
- * TODO
+ * Identifies and replaces placeholders defined within a Spring configuration with values obtained from a
+ * {@link ConfigurationSource}.
  * 
  * Inspired by the reloadable properties example found here: http://www.wuenschenswert.net/wunschdenken/archives/127.
  * 
  * @author Andrew Taylor
  */
-public class ConfigurationPlaceholderConfigurer implements
-		BeanFactoryPostProcessor, BeanFactoryAware, BeanNameAware, InitializingBean {
+public class ConfigurationPlaceholderConfigurer implements BeanFactoryPostProcessor, BeanFactoryAware, BeanNameAware,
+        InitializingBean {
 
     /**
      * The source for configuration values
      */
     private final ConfigurationSource configurationSource;
-    
-	/**
-	 * Simply returns the value within the placeholder.
-	 */
-	private final PlaceholderResolver resolver = new CustomPlaceholderResolver();
 
-	/**
-	 * The bean factory that loaded this instance
-	 */
-	private BeanFactory beanFactory;
-	
-	/**
-	 * The name of this bean within the container.
-	 */
-	private String beanName;
-	
-	/**
-	 * Used to parse the placeholder string.
-	 */
-	private PropertyPlaceholderHelper placeholderHelper;
-	
-	
-	
-	public ConfigurationPlaceholderConfigurer(ConfigurationSource configurationSource) {
-		this.configurationSource = configurationSource;
-	}
-	
-	@Override
-	public void afterPropertiesSet() throws Exception {
-	    if (placeholderHelper == null) {
-	        placeholderHelper = new PropertyPlaceholderHelper("${", "}");
-	    }
-	}
-	
-	/**
-	 * Copied in its entirety from the {@link PropertyPlaceholderConfigurer} method of the same name.
-	 * The only changes are to the valueResolver and BeanDefinitionVisitor instances.
-	 */
-	@Override
-	public void postProcessBeanFactory(
-			ConfigurableListableBeanFactory beanFactoryToProcess)
-			throws BeansException {
+    /**
+     * Simply returns the value within the placeholder.
+     */
+    private final PlaceholderResolver resolver = new CustomPlaceholderResolver();
 
-		String[] beanNames = beanFactoryToProcess.getBeanDefinitionNames();
-		for (String curName : beanNames) {
-			CustomStringValueResolver valueResolver = new CustomStringValueResolver();
-			BeanDefinitionVisitor visitor = new CustomBeanDefinitionVisitor(curName, valueResolver);
-			
-			// Check that we're not parsing our own bean definition,
-			// to avoid failing on unresolvable placeholders in properties file
-			// locations.
-			if (!(curName.equals(this.beanName) && beanFactoryToProcess
-					.equals(this.beanFactory))) {
-				BeanDefinition bd = beanFactoryToProcess
-						.getBeanDefinition(curName);
-				try {
-					visitor.visitBeanDefinition(bd);
-				} catch (Exception ex) {
-					throw new BeanDefinitionStoreException(
-							bd.getResourceDescription(), curName,
-							ex.getMessage());
-				}
-			}
-		}
-		
-		StringValueResolver valueResolver = new CustomStringValueResolver();
+    /**
+     * The bean factory that loaded this instance
+     */
+    private BeanFactory beanFactory;
 
-		// New in Spring 2.5: resolve placeholders in alias target names and
-		// aliases as well.
-		beanFactoryToProcess.resolveAliases(valueResolver);
+    /**
+     * The name of this bean within the container.
+     */
+    private String beanName;
 
-		// New in Spring 3.0: resolve placeholders in embedded values such as
-		// annotation attributes.
-		beanFactoryToProcess.addEmbeddedValueResolver(valueResolver);
-	}
+    /**
+     * Used to parse the placeholder string.
+     */
+    private PropertyPlaceholderHelper placeholderHelper;
 
-	@Override
-	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-		this.beanFactory = beanFactory;
-	}
+    public ConfigurationPlaceholderConfigurer(ConfigurationSource configurationSource) {
+        this.configurationSource = configurationSource;
+    }
 
-	@Override
-	public void setBeanName(String name) {
-		this.beanName = name;
-	}
-	
-	public void setPlaceholderHelper(PropertyPlaceholderHelper placeholderHelper) {
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        if (placeholderHelper == null) {
+            placeholderHelper = new PropertyPlaceholderHelper("${", "}");
+        }
+    }
+
+    /**
+     * Copied in its entirety from the {@link PropertyPlaceholderConfigurer} method of the same name. The only changes
+     * are to the valueResolver and BeanDefinitionVisitor instances.
+     */
+    @Override
+    public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactoryToProcess) throws BeansException {
+
+        String[] beanNames = beanFactoryToProcess.getBeanDefinitionNames();
+        for (String curName : beanNames) {
+            CustomStringValueResolver valueResolver = new CustomStringValueResolver();
+            BeanDefinitionVisitor visitor = new CustomBeanDefinitionVisitor(curName, valueResolver);
+
+            // Check that we're not parsing our own bean definition,
+            // to avoid failing on unresolvable placeholders in properties file
+            // locations.
+            if (!(curName.equals(this.beanName) && beanFactoryToProcess.equals(this.beanFactory))) {
+                BeanDefinition bd = beanFactoryToProcess.getBeanDefinition(curName);
+                try {
+                    visitor.visitBeanDefinition(bd);
+                } catch (Exception ex) {
+                    throw new BeanDefinitionStoreException(bd.getResourceDescription(), curName, ex.getMessage());
+                }
+            }
+        }
+
+        StringValueResolver valueResolver = new CustomStringValueResolver();
+
+        // New in Spring 2.5: resolve placeholders in alias target names and
+        // aliases as well.
+        beanFactoryToProcess.resolveAliases(valueResolver);
+
+        // New in Spring 3.0: resolve placeholders in embedded values such as
+        // annotation attributes.
+        beanFactoryToProcess.addEmbeddedValueResolver(valueResolver);
+    }
+
+    @Override
+    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+        this.beanFactory = beanFactory;
+    }
+
+    @Override
+    public void setBeanName(String name) {
+        this.beanName = name;
+    }
+
+    public void setPlaceholderHelper(PropertyPlaceholderHelper placeholderHelper) {
         this.placeholderHelper = placeholderHelper;
     }
-	
-	private class CustomBeanDefinitionVisitor extends BeanDefinitionVisitor {
-		private final String beanName;
-		
-		private PropertyValue currentProperty;
 
-		public CustomBeanDefinitionVisitor(String beanName, CustomStringValueResolver valueResolver) {
-			super(valueResolver);
-			this.beanName = beanName;
-			valueResolver.setBeanDefVisitor(this);
-		}
+    private class CustomBeanDefinitionVisitor extends BeanDefinitionVisitor {
+        private final String beanName;
 
-		@Override
-		protected void visitPropertyValues(MutablePropertyValues pvs) {
-			PropertyValue[] pvArray = pvs.getPropertyValues();
-			for (PropertyValue pv : pvArray) {
-				currentProperty = pv;
-				Object newVal = resolveValue(pv.getValue());
-				if (!ObjectUtils.nullSafeEquals(newVal, pv.getValue())) {
-					pvs.add(pv.getName(), newVal);
-				}
-				currentProperty = null;
-			}
-		}
-	}
+        private PropertyValue currentProperty;
 
-	private class CustomPlaceholderResolver implements PlaceholderResolver {
-		@Override
-		public String resolvePlaceholder(String expression) {
-			return expression;
-		}
-	}
+        public CustomBeanDefinitionVisitor(String beanName, CustomStringValueResolver valueResolver) {
+            super(valueResolver);
+            this.beanName = beanName;
+            valueResolver.setBeanDefVisitor(this);
+        }
 
-	private class CustomStringValueResolver implements StringValueResolver {
-		private CustomBeanDefinitionVisitor beanDefVisitor;
-		
-		@Override
-		public String resolveStringValue(String strVal) {
-			String value = strVal;
-			String expression = placeholderHelper.replacePlaceholders(strVal, resolver);
-			if (!expression.equals(strVal)) {
-				// Something changed
-				value = configurationSource.retrieve(expression,
-						String.class);
-				if (beanDefVisitor != null 
-						&& beanDefVisitor.currentProperty != null
-						&& configurationSource instanceof UpdatableConfigurationSource
-						&& beanFactory.isSingleton(beanDefVisitor.beanName)) {
-					UpdatableConfigurationSource ucs = (UpdatableConfigurationSource) configurationSource;
-					BeanPropertyChangeListener listener = new BeanPropertyChangeListener(beanDefVisitor.beanName, beanDefVisitor.currentProperty.getName(), beanFactory);
-					ValueDefinition<String> vd = new ValueDefinition<String>(String.class, expression, listener, false);
-					ucs.register(vd, false);
-				}
-			}
-			return value;
-		}
-		
-		public void setBeanDefVisitor(CustomBeanDefinitionVisitor beanDefVisitor) {
-			this.beanDefVisitor = beanDefVisitor;
-		}
-	}
+        @Override
+        protected void visitPropertyValues(MutablePropertyValues pvs) {
+            PropertyValue[] pvArray = pvs.getPropertyValues();
+            for (PropertyValue pv : pvArray) {
+                currentProperty = pv;
+                Object newVal = resolveValue(pv.getValue());
+                if (!ObjectUtils.nullSafeEquals(newVal, pv.getValue())) {
+                    pvs.add(pv.getName(), newVal);
+                }
+                currentProperty = null;
+            }
+        }
+    }
 
-	private static class BeanPropertyChangeListener implements
-			ValueChangeListener<String> {
-		private final String beanName;
-		private final String property;
-		private final BeanFactory beanFactory;
-		
-		public BeanPropertyChangeListener(String beanName, String property,
-				BeanFactory beanFactory) {
-			this.beanName = beanName;
-			this.property = property;
-			this.beanFactory = beanFactory;
-		}
+    private class CustomPlaceholderResolver implements PlaceholderResolver {
+        @Override
+        public String resolvePlaceholder(String expression) {
+            return expression;
+        }
+    }
 
-		public void onChange(String newValue) {
-			Object bean = beanFactory.getBean(beanName);
-			BeanWrapper beanWrapper = PropertyAccessorFactory.forBeanPropertyAccess(bean);
-			beanWrapper.setPropertyValue(new PropertyValue(property, newValue));
-		}
-	}
+    private class CustomStringValueResolver implements StringValueResolver {
+        private CustomBeanDefinitionVisitor beanDefVisitor;
+
+        @Override
+        public String resolveStringValue(String strVal) {
+            String value = strVal;
+            String expression = placeholderHelper.replacePlaceholders(strVal, resolver);
+            if (!expression.equals(strVal)) {
+                // Something changed
+                value = configurationSource.retrieve(expression, String.class);
+                if (beanDefVisitor != null && beanDefVisitor.currentProperty != null
+                        && configurationSource instanceof UpdatableConfigurationSource
+                        && beanFactory.isSingleton(beanDefVisitor.beanName)) {
+                    UpdatableConfigurationSource ucs = (UpdatableConfigurationSource) configurationSource;
+                    BeanPropertyChangeListener listener = new BeanPropertyChangeListener(beanDefVisitor.beanName,
+                            beanDefVisitor.currentProperty.getName(), beanFactory);
+                    ValueDefinition<String> vd = new ValueDefinition<String>(String.class, expression, listener, false);
+                    ucs.register(vd, false);
+                }
+            }
+            return value;
+        }
+
+        public void setBeanDefVisitor(CustomBeanDefinitionVisitor beanDefVisitor) {
+            this.beanDefVisitor = beanDefVisitor;
+        }
+    }
+
+    /**
+     * A value change listener that will resolve property changes by looking up the named bean in the 
+     * {@link BeanFactory} and then updating the instance directly.
+     */
+    private static class BeanPropertyChangeListener implements ValueChangeListener<String> {
+        private final String beanName;
+        private final String property;
+        private final BeanFactory beanFactory;
+
+        public BeanPropertyChangeListener(String beanName, String property, BeanFactory beanFactory) {
+            this.beanName = beanName;
+            this.property = property;
+            this.beanFactory = beanFactory;
+        }
+
+        public void onChange(String newValue) {
+            Object bean = beanFactory.getBean(beanName);
+            BeanWrapper beanWrapper = PropertyAccessorFactory.forBeanPropertyAccess(bean);
+            beanWrapper.setPropertyValue(new PropertyValue(property, newValue));
+        }
+    }
 }

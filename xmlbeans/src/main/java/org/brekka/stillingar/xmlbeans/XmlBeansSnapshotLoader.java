@@ -33,7 +33,7 @@ import org.brekka.stillingar.core.snapshot.Snapshot;
 import org.brekka.stillingar.core.snapshot.SnapshotLoader;
 
 /**
- * TODO
+ * Loader of Apache XmlBean based snapshots.
  * 
  * @author Andrew Taylor
  */
