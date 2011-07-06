@@ -19,7 +19,10 @@ package org.brekka.stillingar.spring.resource;
 import static java.lang.String.format;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
+
+import org.springframework.core.io.Resource;
 
 /**
  * Specialisation of {@link BaseDirResolver} that will attempt to locate the configuration base directory within the
@@ -41,5 +44,11 @@ public class BaseInHomeDirResolver extends BaseDirResolver {
      */
     public BaseInHomeDirResolver(String baseWithinHome) {
         super(new HashSet<String>(Arrays.asList(format(USER_HOME_PATH, baseWithinHome))));
+    }
+    
+    protected Resource onUnresolvable(Collection<String> locations) {
+        return new UnresolvableResource(
+                "Unable to locate a configuration base directory in the user home (%s)", 
+                locations.iterator().next());
     }
 }

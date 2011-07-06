@@ -87,13 +87,19 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
 	@Override
 	protected void doParse(Element element, ParserContext parserContext,
 			BeanDefinitionBuilder builder) {
+	    // ID used for the ConfigurationSource 
 		String id = element.getAttribute("id");
 		
+		// Optional application name, will use the id if not specified.
+		String applicationName = element.getAttribute("application-name");
+		if (applicationName == null) {
+		    applicationName = id;
+		}
 		ManagedList<Object> locations = new ManagedList<Object>();
 		BeanDefinitionBuilder configBaseResolver = BeanDefinitionBuilder.genericBeanDefinition(BaseDirResolver.class);
 		configBaseResolver.addConstructorArgValue(DEFAULT_LOCATION_LIST);
 		BeanDefinitionBuilder homeConfigBaseResolver = BeanDefinitionBuilder.genericBeanDefinition(BaseInHomeDirResolver.class);
-		homeConfigBaseResolver.addConstructorArgValue("." + id);
+		homeConfigBaseResolver.addConstructorArgValue("." + applicationName);
 		locations.add(configBaseResolver.getBeanDefinition());
 		locations.add(homeConfigBaseResolver.getBeanDefinition());
 		
@@ -103,6 +109,7 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
 		BeanDefinitionBuilder configSource = BeanDefinitionBuilder.genericBeanDefinition(ScanningResourceSelector.class);
 		configSource.addConstructorArgValue(locations);
 		configSource.addConstructorArgValue(resourceNameResolver.getBeanDefinition());
+		
 		
 		String type = element.getAttribute("type");
 		if (TYPE_ALIASES.containsKey(type)) {

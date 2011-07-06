@@ -16,12 +16,17 @@
 
 package org.brekka.stillingar.spring.resource;
 
+import static java.lang.String.format;
+
 import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.context.ApplicationContext;
@@ -45,6 +50,11 @@ public class BaseDirResolver implements FactoryBean<Resource>, ApplicationContex
     private static final Pattern VAR_REPLACE_REGEX = Pattern.compile("\\$\\{(env\\.)?([\\w\\._\\-]+)\\}");
 
     /**
+     * Logger
+     */
+    private static final Log log = LogFactory.getLog(BaseDirResolver.class);
+    
+    /**
      * The list of locations
      */
     private final Collection<String> locations;
@@ -60,8 +70,11 @@ public class BaseDirResolver implements FactoryBean<Resource>, ApplicationContex
      */
     private ApplicationContext applicationContext;
 
+    /**
+     * @param locations The list of locations
+     */
     public BaseDirResolver(Collection<String> locations) {
-        this.locations = locations;
+        this.locations = new ArrayList<String>(locations);
     }
 
     @Override
@@ -72,13 +85,26 @@ public class BaseDirResolver implements FactoryBean<Resource>, ApplicationContex
     @Override
     public Resource getObject() throws Exception {
         Resource resource = null;
-        for (String location : locations) {
+        for (String location : this.locations) {
             resource = resolve(location);
             if (resource != null) {
                 break;
             }
         }
+        if (resource == null) {
+            resource = onUnresolvable(this.locations);
+        }
         return resource;
+    }
+    
+    /**
+     * Called when a location cannot be resolved to an actual location.
+     * @param locations the collection of locations strings, as they were passed to the constructor.
+     * @return a marker resource that will identify to the caller that the location was not resolvable.
+     */
+    protected Resource onUnresolvable(Collection<String> locations) {
+        return new UnresolvableResource("None of these paths could be resolved " +
+        		"to a valid configuration base directory: %s", locations);
     }
 
     /**
@@ -88,7 +114,7 @@ public class BaseDirResolver implements FactoryBean<Resource>, ApplicationContex
      * @param location the location to extrapolate placeholders for.
      * @return the resource or null if all placeholders cannot be resolved.
      */
-    Resource resolve(String location) {
+    protected Resource resolve(String location) {
         Resource resource = null;
         Matcher matcher = VAR_REPLACE_REGEX.matcher(location);
         boolean allValuesReplaced = true;
@@ -112,13 +138,17 @@ public class BaseDirResolver implements FactoryBean<Resource>, ApplicationContex
             matcher.appendTail(sb);
         }
         if (allValuesReplaced) {
+            String url = sb.toString();
             if (applicationContext != null) {
-                resource = applicationContext.getResource(sb.toString());
+                resource = applicationContext.getResource(url);
             } else {
                 try {
-                    resource = new UrlResource(sb.toString());
+                    resource = new UrlResource(url);
                 } catch (MalformedURLException e) {
                     // Ignore
+                    if (log.isWarnEnabled()) {
+                        log.warn(format("Failed to parse URL '%s'", url), e);
+                    }
                 }
             }
             if (!resource.exists()) {

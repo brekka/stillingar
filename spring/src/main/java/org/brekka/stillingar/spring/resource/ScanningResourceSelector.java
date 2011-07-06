@@ -72,23 +72,21 @@ public class ScanningResourceSelector implements ResourceSelector {
 
         for (Resource locationBase : locations) {
             try {
-                if (locationBase != null && locationBase.exists()) {
+                if (locationBase != null 
+                        && !(locationBase instanceof UnresolvableResource)
+                        && locationBase.exists()) {
                     Resource locationOriginal = locationBase.createRelative(originalName);
-                    if (locationOriginal.exists() && locationOriginal.isReadable()) {
+                    if (locationOriginal.exists() 
+                            && locationOriginal.isReadable()) {
                         original = locationOriginal;
-                        try {
-                            File base = new File(locationBase.getURI());
-                            File lastGoodFile = new File(base, lastGoodName);
-                            lastGood = new FileSystemResource(lastGoodFile);
-                        } catch (IllegalArgumentException e) {
-                            // Not a file, just ignore.
-                        }
+                        lastGood = resolveLastGood(locationBase, lastGoodName);
+                        
                         // We have found what we are looking for
                         break;
                     }
                 }
             } catch (IOException e) {
-                // Log as warning
+                // Location could not be resolved, log as warning, then move on to the next one.
                 if (log.isWarnEnabled()) {
                     log.warn(format("Resource location '%s' encountered problem", locationBase), e);
                 }
@@ -96,10 +94,26 @@ public class ScanningResourceSelector implements ResourceSelector {
         }
         if (original == null) {
             throw new ConfigurationException(format(
-                    "Could not find configuration resource '%s' in any of the following: %s", originalName, locations));
+                    "Could not find configuration resource '%s' in any of the following: %s", 
+                    originalName, locations));
         }
         this.original = original;
         this.lastGood = lastGood;
+    }
+
+    private Resource resolveLastGood(Resource locationBase, String lastGoodName) throws IOException {
+        Resource lastGood = null;
+        try {
+            File base = locationBase.getFile();
+            File lastGoodFile = new File(base, lastGoodName);
+            lastGood = new FileSystemResource(lastGoodFile);
+        } catch (IllegalArgumentException e) {
+            // Not a file, just ignore.
+            if (log.isDebugEnabled()) {
+                log.debug("Unable to extra file from resource, it does not appear to be file system based.", e);
+            }
+        }
+        return lastGood;
     }
 
     public final Resource getOriginal() {
