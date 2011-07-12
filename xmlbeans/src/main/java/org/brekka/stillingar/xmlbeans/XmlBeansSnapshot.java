@@ -18,8 +18,6 @@ package org.brekka.stillingar.xmlbeans;
 
 import static java.lang.String.format;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,17 +25,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.xmlbeans.XmlAnySimpleType;
-import org.apache.xmlbeans.XmlAnyURI;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
-import org.apache.xmlbeans.XmlDouble;
-import org.apache.xmlbeans.XmlFloat;
-import org.apache.xmlbeans.XmlInt;
-import org.apache.xmlbeans.XmlLong;
 import org.apache.xmlbeans.XmlObject;
 import org.brekka.stillingar.core.ValueConfigurationException;
 import org.brekka.stillingar.core.snapshot.Snapshot;
+import org.brekka.stillingar.xmlbeans.conversion.ConversionManager;
+import org.brekka.stillingar.xmlbeans.conversion.TypeConverter;
 
 /**
  * Configuration snapshot based on Apache XmlBeans.
@@ -52,16 +46,19 @@ class XmlBeansSnapshot implements Snapshot {
 	
 	private final XmlObject bean;
 	
+	private final ConversionManager conversionManager;
+	
 	private final Map<String, String> xpathNamespaces;
 	
 	
 
 	public XmlBeansSnapshot(URL location, long timestamp, XmlObject bean,
-			Map<String, String> xpathNamespaces) {
+			Map<String, String> xpathNamespaces, ConversionManager conversionManager) {
 		this.location = location;
 		this.timestamp = timestamp;
 		this.bean = bean;
 		this.xpathNamespaces = xpathNamespaces;
+		this.conversionManager = conversionManager;
 	}
 	
 	public URL getLocation() {
@@ -167,52 +164,23 @@ class XmlBeansSnapshot implements Snapshot {
 		return bean.selectPath(sb.toString());
 	}
 	
-	protected <T> T convert(Class<T> expectedType, XmlObject object, String expression) {
+	@SuppressWarnings("unchecked")
+    protected <T> T convert(Class<T> expectedType, XmlObject object, String expression) {
 		T value = null;
 		boolean nullValue = false;
+		TypeConverter<T> typeConverter = conversionManager.getConverterForTarget(expectedType);
 		if (object == null) {
 			// Leave as null
 			nullValue = true;
 		} else if (expectedType.isAssignableFrom(object.getClass())) {
 			value = (T) object;
-		} else if (expectedType == String.class) {
-			if (object instanceof XmlAnySimpleType) {
-				value = (T) ((XmlAnySimpleType) object).getStringValue();
-			} else {
-				value = (T) object.xmlText();
-			}
-		} else if (expectedType == Long.class || expectedType == Long.TYPE) {
-			if (object instanceof XmlLong) {
-				value = (T) Long.valueOf(((XmlLong) object).getLongValue());
-			} else if (object instanceof XmlInt) {
-				value = (T) Integer.valueOf(((XmlInt) object).getIntValue());
-			}
-		} else if (expectedType == Integer.class || expectedType == Integer.TYPE) {
-			if (object instanceof XmlInt) {
-				value = (T) Integer.valueOf(((XmlInt) object).getIntValue());
-			}
-		} else if (expectedType == Float.class || expectedType == Float.TYPE) {
-			if (object instanceof XmlFloat) {
-				value = (T) Float.valueOf(((XmlFloat) object).getFloatValue());
-			}
-		} else if (expectedType == Double.class || expectedType == Double.TYPE) {
-			if (object instanceof XmlDouble) {
-				value = (T) Double.valueOf(((XmlDouble) object).getDoubleValue());
-			} else if (object instanceof XmlFloat) {
-                value = (T) Double.valueOf(((XmlFloat) object).getFloatValue());
+		} else if (typeConverter != null) {
+			try {
+                value = typeConverter.convert(object);
+            } catch (IllegalArgumentException e) {
+                throw new ValueConfigurationException(format("conversion failure"),
+                        expectedType, expression, e);
             }
-		} else if (expectedType == URI.class) {
-			if (object instanceof XmlAnyURI) {
-				XmlAnyURI xmlUri = (XmlAnyURI) object;
-				String uri = xmlUri.getStringValue();
-				try {
-					value = (T) new URI(uri);
-				} catch (URISyntaxException e) {
-					throw new ValueConfigurationException(format("value '%s' cannot be converted to a '%s'",
-							uri, URI.class.getName()),
-							expectedType, expression);
-				}
-			}
 		} 
 		if (!nullValue 
 				&& value == null) {

@@ -14,30 +14,33 @@
  * limitations under the License.
  */
 
-package org.brekka.stillingar.test.intg;
+package org.brekka.stillingar.xmlbeans.conversion;
 
-import org.brekka.stillingar.annotations.ConfigurationListener;
-import org.brekka.stillingar.annotations.Configured;
+import org.apache.xmlbeans.XmlByte;
+import org.apache.xmlbeans.XmlObject;
 
-@Configured
-public class PrototypeConfiguredBean {
+/**
+ * @author Andrew Taylor
+ */
+public class ByteConverter extends AbstractTypeConverter<Byte> {
 
-    @Configured("/c:Configuration/c:Business/c:Frequency")
-    private float frequency;
     
-    private boolean configureCalled;
-    
-    @ConfigurationListener
-    public void configure() {
-        configureCalled = true;
+    public Class<Byte> targetType() {
+        return Byte.class;
     }
     
-    
-    public float getFrequency() {
-        return frequency;
+    @Override
+    public Class<?> primitiveType() {
+        return Byte.TYPE;
     }
     
-    public boolean isConfigureCalled() {
-        return configureCalled;
+    public Byte convert(XmlObject xmlValue) {
+        Byte value;
+        if (xmlValue instanceof XmlByte) {
+            value = Byte.valueOf(((XmlByte) xmlValue).getByteValue());
+        } else {
+            throw noConversionAvailable(xmlValue);
+        }
+        return value;
     }
 }

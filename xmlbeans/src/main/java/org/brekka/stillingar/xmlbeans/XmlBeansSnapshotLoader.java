@@ -31,6 +31,7 @@ import org.apache.xmlbeans.XmlOptions;
 import org.brekka.stillingar.core.ConfigurationException;
 import org.brekka.stillingar.core.snapshot.Snapshot;
 import org.brekka.stillingar.core.snapshot.SnapshotLoader;
+import org.brekka.stillingar.xmlbeans.conversion.ConversionManager;
 
 /**
  * Loader of Apache XmlBean based snapshots.
@@ -39,10 +40,23 @@ import org.brekka.stillingar.core.snapshot.SnapshotLoader;
  */
 public class XmlBeansSnapshotLoader implements SnapshotLoader {
 
+    private final ConversionManager conversionManager;
 	
 	private Map<String, String> xpathNamespaces;
 	
 	private boolean validate = true;
+	
+	
+	/**
+     * 
+     */
+    public XmlBeansSnapshotLoader() {
+        this(new ConversionManager());
+    }
+    
+    public XmlBeansSnapshotLoader(ConversionManager conversionManager) {
+        this.conversionManager = conversionManager;
+    }
 
 	
 	public Snapshot load(URL fromUrl, long timestamp) {
@@ -54,7 +68,7 @@ public class XmlBeansSnapshotLoader implements SnapshotLoader {
 				validate(xmlBean);
 			}
 			
-			snapshot = new XmlBeansSnapshot(fromUrl, timestamp, xmlBean, this.xpathNamespaces);
+			snapshot = new XmlBeansSnapshot(fromUrl, timestamp, xmlBean, this.xpathNamespaces, conversionManager);
 		} catch (IOException e) {
 			throw new ConfigurationException(format(
 					"Failed to read"), e);
@@ -84,5 +98,4 @@ public class XmlBeansSnapshotLoader implements SnapshotLoader {
 	public void setValidate(boolean validate) {
 		this.validate = validate;
 	}
-	
 }

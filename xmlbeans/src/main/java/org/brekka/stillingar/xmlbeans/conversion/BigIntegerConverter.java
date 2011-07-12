@@ -14,17 +14,31 @@
  * limitations under the License.
  */
 
-package org.brekka.stillingar.test.intg;
+package org.brekka.stillingar.xmlbeans.conversion;
 
-public class SimpleBean {
+import java.math.BigInteger;
 
-	private Float value;
+import org.apache.xmlbeans.XmlInteger;
+import org.apache.xmlbeans.XmlObject;
 
-	public void setValue(Float value) {
-		this.value = value;
-	}
-	
-	public Float getValue() {
+/**
+ * @author Andrew Taylor
+ */
+public class BigIntegerConverter extends AbstractTypeConverter<BigInteger> {
+
+    
+    public Class<BigInteger> targetType() {
+        return BigInteger.class;
+    }
+    
+    
+    public BigInteger convert(XmlObject xmlValue) {
+        BigInteger value;
+        if (xmlValue instanceof XmlInteger) {
+            value = ((XmlInteger) xmlValue).getBigIntegerValue();
+        } else {
+            throw noConversionAvailable(xmlValue);
+        }
         return value;
     }
 }

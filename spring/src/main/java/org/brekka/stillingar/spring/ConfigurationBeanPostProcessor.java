@@ -89,7 +89,7 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
 	}
 	
 	/**
-	 * When configuration values are encountered, they will retrieved and applied only. No updates
+	 * When configuration values are encountered, they will be retrieved and applied only. No updates
 	 * will be performed. Listeners will be called once to ensure we don't break their contract.
 	 * @param bean
 	 * @param beanName

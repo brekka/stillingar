@@ -14,9 +14,28 @@
  * limitations under the License.
  */
 
-package org.brekka.stillingar.test.intg.services;
+package org.brekka.stillingar.xmlbeans.conversion;
 
-public interface BusinessService {
+import org.apache.xmlbeans.XmlAnySimpleType;
+import org.apache.xmlbeans.XmlObject;
 
-	void doSomething();
+/**
+ * @author Andrew Taylor
+ */
+public class StringConverter extends AbstractTypeConverter<String> {
+
+    public Class<String> targetType() {
+        return String.class;
+    }    
+    
+    public String convert(XmlObject xmlValue) {
+        String value;
+        if (xmlValue instanceof XmlAnySimpleType) {
+            value = ((XmlAnySimpleType) xmlValue).getStringValue();
+        } else {
+            value = xmlValue.xmlText();
+        }
+        return value;
+    }
+    
 }
