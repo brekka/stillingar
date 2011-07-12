@@ -53,6 +53,12 @@
 			<artifactId>stillingar-xmlbeans</artifactId>
 			<version>${stillingar-version}</version>
 		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.16</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>

@@ -81,7 +81,8 @@ public class XmlBeansSnapshotLoader implements SnapshotLoader {
 	
 	protected void validate(XmlObject bean) {
 		List<XmlError> errors = new ArrayList<XmlError>();
-		XmlOptions validateOptions = new XmlOptions().setErrorListener(errors);
+		XmlOptions validateOptions = new XmlOptions();
+		validateOptions.setErrorListener(errors);
 		
 		if (!bean.validate(validateOptions)) {
 			throw new ConfigurationException(format(

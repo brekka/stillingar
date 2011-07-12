@@ -78,10 +78,16 @@
 	    <property name="value" value="$app-config{/c:Configuration/c:Business/c:Frequency}" />
 	</bean>
 	
+	<bean id="logging" class="org.brekka.stillingar.test.intg.Log4JConfigurationBean">
+	   <property name="expression" value="/c:Configuration/c:Logging/log4j:configuration" />
+	   <property name="source" ref="app-config" />
+	</bean>
+	
 	<bean class="org.brekka.stillingar.test.intg.PrototypeConfiguredBean"></bean>
 
     <stil:configuration id="app-config" application-name="integration" reload-interval="5000" type="xmlbeans"> 
-        <stil:namespace prefix="c" url="http://brekka.org/xml/stillingar/test/intg" />
+        <stil:namespace prefix="c"     url="http://brekka.org/xml/stillingar/test/intg" />
+        <stil:namespace prefix="log4j" url="http://jakarta.apache.org/log4j/" />
         <stil:property-placeholder />
     </stil:configuration> 
 

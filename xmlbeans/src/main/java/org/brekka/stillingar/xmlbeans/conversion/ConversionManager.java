@@ -36,6 +36,7 @@ public class ConversionManager {
         BUILT_IN.add(CalendarConverter.class);
         BUILT_IN.add(DateConverter.class);
         BUILT_IN.add(DoubleConverter.class);
+        BUILT_IN.add(ElementConverter.class);
         BUILT_IN.add(FloatConverter.class);
         BUILT_IN.add(IntegerConverter.class);
         BUILT_IN.add(LongConverter.class);

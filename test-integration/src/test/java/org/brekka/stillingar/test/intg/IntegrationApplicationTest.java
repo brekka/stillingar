@@ -26,7 +26,9 @@ public class IntegrationApplicationTest extends AbstractJUnit4SpringContextTests
 		businessService.doSomething();
 		
 		PrototypeConfiguredBean bean = applicationContext.getBean(PrototypeConfiguredBean.class);
-		float frequency = bean.getFrequency();
+		bean.getFrequency();
+		
+		
 	}
 	
 }
