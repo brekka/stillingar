@@ -134,7 +134,7 @@ public class BaseDirResolver implements FactoryBean<Resource>, ApplicationContex
             if (!allValuesReplaced) {
                 break;
             }
-            matcher.appendReplacement(sb, value);
+            matcher.appendReplacement(sb, Matcher.quoteReplacement(value));
             matcher.appendTail(sb);
         }
         if (allValuesReplaced) {
