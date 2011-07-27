@@ -3,11 +3,6 @@
         targetNamespace="http://brekka.org/schema/stillingar" elementFormDefault="qualified"
         attributeFormDefault="unqualified">
     
-    
-    
-    <!-- <stil:configuration id="integration" reload-interval="5000" resource-name="integration" loader="xmlbeans"> <stil:xpath-namespace 
-        prefix="c" url="http://brekka.org/xml/stillingar/test/intg" /> </stil:configuration> -->
-    
     <xsd:element name="configuration">
         <xsd:complexType>
             <xsd:sequence>

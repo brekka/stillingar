@@ -67,7 +67,7 @@
         <constructor-arg value="$app-config{/c:Configuration/c:Business/c:Frequency}">
         </constructor-arg>
     </bean>
-
+    
 	<bean id="dynamicBean" class="java.util.Date" scope="prototype" />
 	
 	<bean id="simpleBeanStatic" class="org.brekka.stillingar.test.intg.SimpleBean">

@@ -27,8 +27,6 @@ public class IntegrationApplicationTest extends AbstractJUnit4SpringContextTests
 		
 		PrototypeConfiguredBean bean = applicationContext.getBean(PrototypeConfiguredBean.class);
 		bean.getFrequency();
-		
-		
 	}
 	
 }

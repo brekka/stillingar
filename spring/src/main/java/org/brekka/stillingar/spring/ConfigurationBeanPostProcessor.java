@@ -404,7 +404,7 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
 		}
 		protected void throwError(Object[] args, Throwable cause) {
 			throw new ConfigurationException(format("Listener method '%s' of type '%s' with arguments %s", 
-					method.getName(), method.getDeclaringClass().getName(), Arrays.toString(args)));
+					method.getName(), method.getDeclaringClass().getName(), Arrays.toString(args)), cause);
 		}
 	}
 	
