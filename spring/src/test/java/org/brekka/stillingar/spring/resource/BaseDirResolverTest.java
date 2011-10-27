@@ -49,7 +49,7 @@ public class BaseDirResolverTest {
 	public void testResolveSysProp() throws Exception {
 		System.setProperty("catalina.base", baseDir.getAbsolutePath());
 		Resource resolve = resolverFactoryBean.resolve("file:${catalina.base}/conf");
-		assertEquals("file:" + baseDir.getAbsolutePath() + "/conf", resolve.getURL().toString());
+		assertEquals(new File(baseDir.getAbsolutePath(), "/conf"), resolve.getFile());
 	}
 
 	@Test
@@ -59,6 +59,6 @@ public class BaseDirResolverTest {
 		env.put("DOMAIN_HOME", baseDir.getAbsolutePath());
 		resolverFactoryBean.setEnvMap(env);
 		Resource resolve = resolverFactoryBean.resolve("file:${env.DOMAIN_HOME}/conf");
-		assertEquals("file:" + baseDir.getAbsolutePath() + "/conf", resolve.getURL().toString());
+		assertEquals(new File(baseDir.getAbsolutePath(), "/conf"), resolve.getFile());
 	}
 }
