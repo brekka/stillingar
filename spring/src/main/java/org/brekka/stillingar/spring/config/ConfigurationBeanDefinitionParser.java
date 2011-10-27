@@ -100,8 +100,11 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
 		configBaseResolver.addConstructorArgValue(DEFAULT_LOCATION_LIST);
 		BeanDefinitionBuilder homeConfigBaseResolver = BeanDefinitionBuilder.genericBeanDefinition(BaseInHomeDirResolver.class);
 		homeConfigBaseResolver.addConstructorArgValue("." + applicationName);
+		BeanDefinitionBuilder classpathBaseResolver = BeanDefinitionBuilder.genericBeanDefinition(BaseDirResolver.class);
+		classpathBaseResolver.addConstructorArgValue(Arrays.asList("classpath:/stillingar/"));
 		locations.add(configBaseResolver.getBeanDefinition());
 		locations.add(homeConfigBaseResolver.getBeanDefinition());
+		locations.add(classpathBaseResolver.getBeanDefinition());
 		
 		BeanDefinitionBuilder resourceNameResolver = BeanDefinitionBuilder.genericBeanDefinition(org.brekka.stillingar.spring.resource.BasicResourceNaming.class);
 		resourceNameResolver.addConstructorArgValue(id);

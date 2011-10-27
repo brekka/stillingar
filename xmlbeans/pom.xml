@@ -3,7 +3,7 @@
 	<parent>
 		<artifactId>stillingar</artifactId>
 		<groupId>org.brekka</groupId>
-		<version>0.1.0</version>
+		<version>0.1</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	
@@ -26,12 +26,6 @@
 			<groupId>org.apache.xmlbeans</groupId>
 			<artifactId>xmlbeans</artifactId>
 			<version>${xmlbeans-version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.brekka</groupId>
-			<artifactId>brekka-configuration-testmodel</artifactId>
-			<version>1.0.0</version>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>

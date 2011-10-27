@@ -71,9 +71,8 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
 
 	public Object postProcessBeforeInitialization(Object bean, String beanName)
 			throws BeansException {
-		Class<? extends Object> beanClass = bean.getClass();
-		
-		if (beanClass.getAnnotation(markerAnnotation) != null) {
+		Class<?> beanClass = bean.getClass();
+		if (hasConfiguredAnnotation(beanClass)) {
 			
 			boolean singleton = beanFactory.isSingleton(beanName);
 			
@@ -88,7 +87,7 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
 		return bean;
 	}
 	
-	/**
+    /**
 	 * When configuration values are encountered, they will be retrieved and applied only. No updates
 	 * will be performed. Listeners will be called once to ensure we don't break their contract.
 	 * @param bean
@@ -153,12 +152,17 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
 	        beanClass = ((TargetClass) target).get();
 	    }
 	    
+	    Class<?> inpectClass = beanClass;
+	    while (inpectClass != null) {
+	        Field[] declaredFields = inpectClass.getDeclaredFields();
+	        for (Field field : declaredFields) {
+	            processField(field, valueList, target);
+	        }
+	        inpectClass = inpectClass.getSuperclass();
+	    }
+	    
         PostUpdateChangeListener beanChangeListener = null;
         
-        Field[] declaredFields = beanClass.getDeclaredFields();
-        for (Field field : declaredFields) {
-            processField(field, valueList, target);
-        }
         
         Method[] declaredMethods = beanClass.getDeclaredMethods();
         for (Method method : declaredMethods) {
@@ -288,6 +292,25 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
 		}
 		return type;
 	}
+	
+	/**
+	 * Determine if the bean class or any of its super types have a {@link Configured}
+	 * annotation set.
+	 * @param beanClass
+	 * @return
+	 */
+    private boolean hasConfiguredAnnotation(Class<?> beanClass) {
+        boolean retVal = false;
+        Class<?> inpectClass = beanClass;
+        while (inpectClass != null) {
+            if (inpectClass.getAnnotation(markerAnnotation) != null) {
+                retVal = true;
+                break;
+            }
+            inpectClass = inpectClass.getSuperclass();
+        }
+        return retVal;
+    }
 
 	public Object postProcessAfterInitialization(Object bean, String beanName)
 			throws BeansException {
