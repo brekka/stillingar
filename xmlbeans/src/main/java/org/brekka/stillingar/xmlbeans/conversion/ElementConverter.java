@@ -33,12 +33,17 @@ public class ElementConverter extends AbstractTypeConverter<Element> {
     
     
     public Element convert(XmlObject xmlValue) {
+        return xmlObjectToElement(xmlValue);
+    }
+    
+    public static Element xmlObjectToElement(XmlObject xmlValue) {
         Node domNode = xmlValue.getDomNode();
-        Element value;
+        Element value = null;
         if (domNode instanceof Element) {
             value = ((Element) domNode);
         } else {
-            throw noConversionAvailable(xmlValue);
+            throw new IllegalArgumentException(String.format(
+                    "Unable to extract Element from XmlObject of type '%s'", xmlValue.schemaType()));
         }
         return value;
     }

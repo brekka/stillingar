@@ -25,10 +25,11 @@ import org.brekka.stillingar.core.DefaultConfigurationSource;
 import org.brekka.stillingar.spring.ConfigurationBeanPostProcessor;
 import org.brekka.stillingar.spring.ConfigurationPlaceholderConfigurer;
 import org.brekka.stillingar.spring.LoggingBackgroundUpdater;
-import org.brekka.stillingar.spring.resource.BaseInHomeDirResolver;
 import org.brekka.stillingar.spring.resource.BaseDirResolver;
+import org.brekka.stillingar.spring.resource.BaseInHomeDirResolver;
 import org.brekka.stillingar.spring.resource.ScanningResourceSelector;
 import org.brekka.stillingar.spring.snapshot.ResourceSnapshotManager;
+import org.brekka.stillingar.spring.xmlbeans.ApplicationContextConverter;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.ManagedList;
@@ -47,6 +48,9 @@ import org.w3c.dom.NodeList;
  * @author Andrew Taylor
  */
 public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
+
+    private static final String LOADER_TYPE_PROPS = "props";
+    private static final String LOADER_TYPE_XMLBEANS = "xmlbeans";
 
     /**
      * Default locations to scan, in case they are not defined.
@@ -74,8 +78,8 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
 
 	private static final Map<String, String> TYPE_ALIASES = new HashMap<String, String>();
 	static {
-	    TYPE_ALIASES.put("props", org.brekka.stillingar.core.snapshot.PropertiesSnapshotLoader.class.getName());
-	    TYPE_ALIASES.put("xmlbeans", "org.brekka.stillingar.xmlbeans.XmlBeansSnapshotLoader");
+	    TYPE_ALIASES.put(LOADER_TYPE_PROPS, org.brekka.stillingar.core.snapshot.PropertiesSnapshotLoader.class.getName());
+	    TYPE_ALIASES.put(LOADER_TYPE_XMLBEANS, "org.brekka.stillingar.xmlbeans.XmlBeansSnapshotLoader");
 	}
 
     @Override
@@ -114,12 +118,23 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
 		configSource.addConstructorArgValue(resourceNameResolver.getBeanDefinition());
 		
 		
-		String type = element.getAttribute("type");
-		if (TYPE_ALIASES.containsKey(type)) {
-		    type = TYPE_ALIASES.get(type);
+		String typeKey = element.getAttribute("type");
+		String type = LOADER_TYPE_PROPS;
+		if (TYPE_ALIASES.containsKey(typeKey)) {
+		    type = TYPE_ALIASES.get(typeKey);
 		}
 		
 		BeanDefinitionBuilder snapshotLoader = BeanDefinitionBuilder.genericBeanDefinition(type);
+		if (typeKey.equals(LOADER_TYPE_XMLBEANS)) {
+		    BeanDefinitionBuilder conversionManager = BeanDefinitionBuilder.genericBeanDefinition("org.brekka.stillingar.xmlbeans.conversion.ConversionManager");
+		    
+		    ManagedList<Object> converters = prepareDefaultConverters();
+		    BeanDefinitionBuilder applicationContextConverter = BeanDefinitionBuilder.genericBeanDefinition(ApplicationContextConverter.class);
+		    converters.add(applicationContextConverter.getBeanDefinition());
+		    
+		    conversionManager.addConstructorArgValue(converters);
+		    snapshotLoader.addConstructorArgValue(conversionManager.getBeanDefinition());
+		}
 		NodeList nodeList = element.getChildNodes();
 		ManagedMap<String, String> nsMap = new ManagedMap<String, String>();
 		boolean placeHolderSet = false;
@@ -187,6 +202,21 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
             }
         }
 	}
+
+
+    private ManagedList<Object> prepareDefaultConverters() {
+        ManagedList<Object> converters = new ManagedList<Object>();
+        List<String> converterShortNames = Arrays.asList("BigDecimalConverter", "BigIntegerConverter",
+                "BooleanConverter", "ByteConverter", "ByteArrayConverter", "CalendarConverter", "DateConverter",
+                "DoubleConverter", "ElementConverter", "FloatConverter", "IntegerConverter", "LongConverter",
+                "ShortConverter", "StringConverter", "URIConverter", "DocumentConverter");
+        for (String shortName : converterShortNames) {
+            BeanDefinitionBuilder converterBldr = BeanDefinitionBuilder.genericBeanDefinition(
+                    "org.brekka.stillingar.xmlbeans.conversion." + shortName);
+            converters.add(converterBldr.getBeanDefinition());
+        }
+        return converters;
+    }
 
 
     protected void preparePlaceholderConfigurer(String prefix, String suffix, String id, ParserContext parserContext) {

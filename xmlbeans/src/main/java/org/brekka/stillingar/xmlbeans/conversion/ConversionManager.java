@@ -16,7 +16,7 @@
 
 package org.brekka.stillingar.xmlbeans.conversion;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,33 +26,31 @@ import java.util.Map;
  */
 public class ConversionManager {
 
-    protected static final Collection<Class<? extends TypeConverter<?>>> BUILT_IN = new ArrayList<Class<? extends TypeConverter<?>>>();
-    static {
-        BUILT_IN.add(BigDecimalConverter.class);
-        BUILT_IN.add(BigIntegerConverter.class);
-        BUILT_IN.add(BooleanConverter.class);
-        BUILT_IN.add(ByteConverter.class);
-        BUILT_IN.add(ByteArrayConverter.class);
-        BUILT_IN.add(CalendarConverter.class);
-        BUILT_IN.add(DateConverter.class);
-        BUILT_IN.add(DoubleConverter.class);
-        BUILT_IN.add(ElementConverter.class);
-        BUILT_IN.add(FloatConverter.class);
-        BUILT_IN.add(IntegerConverter.class);
-        BUILT_IN.add(LongConverter.class);
-        BUILT_IN.add(ShortConverter.class);
-        BUILT_IN.add(StringConverter.class);
-        BUILT_IN.add(URIConverter.class);
-    }
-    
     private final Map<Class<?>, TypeConverter<?>> converters;
     
     public ConversionManager() {
-        this(prepare(BUILT_IN));
+        this(Arrays.<TypeConverter<?>>asList(
+            new BigDecimalConverter(),
+            new BigIntegerConverter(),
+            new BooleanConverter(),
+            new ByteConverter(),
+            new ByteArrayConverter(),
+            new CalendarConverter(),
+            new DateConverter(),
+            new DoubleConverter(),
+            new ElementConverter(),
+            new FloatConverter(),
+            new IntegerConverter(),
+            new LongConverter(),
+            new ShortConverter(),
+            new StringConverter(),
+            new URIConverter(),
+            new DocumentConverter()
+        ));
     }
     
-    protected ConversionManager(Map<Class<?>, TypeConverter<?>> converters) {
-        this.converters = converters;
+    public ConversionManager(Collection<TypeConverter<?>> converters) {
+        this.converters = prepare(converters);
     }
     
     @SuppressWarnings("unchecked")
@@ -63,20 +61,17 @@ public class ConversionManager {
         return (TypeConverter<T>) this.converters.get(targetType);
     }
     
-    protected static Map<Class<?>, TypeConverter<?>> prepare(Collection<Class<? extends TypeConverter<?>>> converters) {
+    public synchronized void addConverter(TypeConverter<?> converter) {
+        converters.put(converter.targetType(), converter);
+    }
+    
+    protected static Map<Class<?>, TypeConverter<?>> prepare(Collection<TypeConverter<?>> converters) {
         Map<Class<?>, TypeConverter<?>> converterMap = new HashMap<Class<?>, TypeConverter<?>>();
-        for (Class<? extends TypeConverter<?>> type : converters) {
-            try {
-                TypeConverter<?> converter = (TypeConverter<?>) type.newInstance();
-                converterMap.put(converter.targetType(), converter);
-                Class<?> primitiveType = converter.primitiveType();
-                if (primitiveType != null) {
-                    converterMap.put(primitiveType, converter);
-                }
-            } catch (InstantiationException e) {
-                throw new IllegalStateException(e);
-            } catch (IllegalAccessException e) {
-                throw new IllegalStateException(e);
+        for (TypeConverter<?> converter : converters) {
+            converterMap.put(converter.targetType(), converter);
+            Class<?> primitiveType = converter.primitiveType();
+            if (primitiveType != null) {
+                converterMap.put(primitiveType, converter);
             }
         }
         return converterMap;

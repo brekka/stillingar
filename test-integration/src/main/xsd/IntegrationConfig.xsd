@@ -20,6 +20,13 @@
 						</xsd:sequence>
 					</xsd:complexType>
 				</xsd:element>
+				<xsd:element name="Context">
+					<xsd:complexType>
+						<xsd:sequence>
+                            <xsd:any processContents="skip" />
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
 			</xsd:sequence>
 		</xsd:complexType>
 	</xsd:element>

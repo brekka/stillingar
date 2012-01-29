@@ -46,6 +46,7 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.context.Lifecycle;
 
 /**
  * TODO
@@ -338,7 +339,14 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
 				if (!field.isAccessible()) {
 					field.setAccessible(true);
 				}
+				Object existing = field.get(target);
+				if (existing instanceof Lifecycle) {
+				    ((Lifecycle) existing).stop();
+				}
 				field.set(target, newValue);
+				if (target instanceof Lifecycle) {
+                    ((Lifecycle) target).start();
+                }
 			} catch (IllegalAccessException e) {
 				throwError(field.getName(), newValue, e);
 			}
@@ -353,14 +361,47 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
 		}
 
 		public void onChange(T newValue, Object target) {
+		    // Attempt to locate getter to perform lifecycle check
+		    
+		    lifecycleStop(target);
 			try {
 				method.invoke(target, newValue);
+				if (target instanceof Lifecycle) {
+                    ((Lifecycle) target).start();
+                }
 			} catch (IllegalAccessException e) {
 				throwError(method.getName(), newValue, e);
 			} catch (InvocationTargetException e) {
 				throwError(method.getName(), newValue, e);
 			}
 		}
+
+		/**
+		 * Attempt to stop the current value of the property if it is set
+		 * and an instance oflifecycle.
+		 * @param target
+		 */
+        private void lifecycleStop(Object target) {
+            String name = method.getName();
+		    String getter = name.replaceFirst("set", "get");
+		    try {
+                Method getterMethod = method.getDeclaringClass().getMethod(getter);
+                Object currVal = getterMethod.invoke(target);
+                if (currVal instanceof Lifecycle) {
+                    ((Lifecycle) currVal).stop();
+                }
+            } catch (SecurityException e) {
+                // Ignore
+            } catch (NoSuchMethodException e) {
+                // Ignore
+            } catch (IllegalArgumentException e) {
+                // Ignore
+            } catch (IllegalAccessException e) {
+                // Ignore
+            } catch (InvocationTargetException e) {
+                // Ignore
+            }
+        }
 	}
 	
 	private abstract class InvocationChangeListenerSupport<T extends Object> implements ValueChangeListener<T> {

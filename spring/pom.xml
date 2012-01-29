@@ -10,7 +10,7 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>stillingar-spring</artifactId>
-	<version>0.1.2</version>
+	<version>0.2.0</version>
 
     <packaging>jar</packaging>
 
@@ -78,10 +78,17 @@
 			<artifactId>stillingar-core</artifactId>
 			<version>${stillingar-core-version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.brekka</groupId>
+			<artifactId>stillingar-xmlbeans</artifactId>
+			<version>${stillingar-xmlbeans-version}</version>
+			<optional>true</optional>
+		</dependency>
 	</dependencies>
 
 	<properties>
 		<stillingar-core-version>0.1.0</stillingar-core-version>
+		<stillingar-xmlbeans-version>0.2.0</stillingar-xmlbeans-version>
 		<spring-release-version>3.0.5.RELEASE</spring-release-version>
 		<junit-version>4.8.2</junit-version>
 		<commons-lang-version>2.6</commons-lang-version>

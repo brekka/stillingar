@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<st:Configuration xmlns:st="http://brekka.org/xml/stillingar/test/intg"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://brekka.org/xml/stillingar/test/intg ../IntegrationConfig.xsd ">
+	<st:Business>
+		<st:Frequency>69.87</st:Frequency>
+	</st:Business>
+	<st:Logging>
+		<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+			<root>
+				<priority value="warn" />
+			</root>
+		</log4j:configuration>
+	</st:Logging>
+	<st:Context>
+		<beans:beans xmlns:beans="http://www.springframework.org/schema/beans"
+			xmlns:context="http://www.springframework.org/schema/context" xmlns:p="http://www.springframework.org/schema/p"
+			xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+				http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+			<beans:bean id="fish" class="java.lang.String">
+				<beans:constructor-arg value="Lalala" />
+			</beans:bean>
+		</beans:beans>
+	</st:Context>
+</st:Configuration>
+

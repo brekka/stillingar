@@ -8,6 +8,7 @@
 
 	<context:component-scan base-package="org.brekka.stillingar.test.intg.services.impl" />
 
+	<context:annotation-config />
 <!-- 
 	<bean id="stillingar2" class="org.brekka.stillingar.core.DefaultConfigurationSource" init-method="init">
 		<constructor-arg>
@@ -68,6 +69,10 @@
         </constructor-arg>
     </bean>
     
+    <bean id="context" class="org.brekka.stillingar.test.intg.ContextBean">
+    
+    </bean>
+    
 	<bean id="dynamicBean" class="java.util.Date" scope="prototype" />
 	
 	<bean id="simpleBeanStatic" class="org.brekka.stillingar.test.intg.SimpleBean">
@@ -88,6 +93,7 @@
     <stil:configuration id="app-config" application-name="integration" reload-interval="5000" type="xmlbeans"> 
         <stil:namespace prefix="c"     url="http://brekka.org/xml/stillingar/test/intg" />
         <stil:namespace prefix="log4j" url="http://jakarta.apache.org/log4j/" />
+        <stil:namespace prefix="beans" url="http://www.springframework.org/schema/beans" />
         <stil:property-placeholder />
     </stil:configuration> 
 
