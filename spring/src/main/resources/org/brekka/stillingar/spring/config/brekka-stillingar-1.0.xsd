@@ -6,6 +6,23 @@
     <xsd:element name="configuration">
         <xsd:complexType>
             <xsd:sequence>
+                <xsd:element name="remote" minOccurs="0" maxOccurs="unbounded">
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element name="keystore" minOccurs="0" maxOccurs="1">
+                                <xsd:complexType>
+                                    <xsd:attribute name="resource" type="xsd:anyURI" />
+                                </xsd:complexType>
+                            </xsd:element>
+                            <xsd:element name="truststore" minOccurs="0" maxOccurs="1" >
+                            </xsd:element>
+                        </xsd:sequence>
+                    
+                        <xsd:attribute name="host" type="xsd:string" use="required" />
+                        <xsd:attribute name="port" type="xsd:positiveInteger" use="optional" default="443" />
+                        <xsd:attribute name="path" type="xsd:positiveInteger" use="optional" default="/stillingar" />
+                    </xsd:complexType>
+                </xsd:element>
             	<xsd:element name="namespace" minOccurs="0" maxOccurs="unbounded">
             		<xsd:complexType>
             			<xsd:attribute name="prefix" type="xsd:string" use="required" />
@@ -20,7 +37,7 @@
             	</xsd:element>
             </xsd:sequence>
             <xsd:attribute name="id" type="xsd:string" use="required" />
-            <xsd:attribute name="application-name" type="xsd:string" use="optional" />
+            <xsd:attribute name="name" type="xsd:string" use="optional" />
             <xsd:attribute name="reload-interval">
             	<xsd:simpleType>
             		<xsd:restriction base="xsd:int">

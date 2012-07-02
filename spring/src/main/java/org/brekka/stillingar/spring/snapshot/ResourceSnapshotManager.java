@@ -24,13 +24,15 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URL;
+import java.util.Date;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.brekka.stillingar.core.ConfigurationException;
+import org.brekka.stillingar.core.ConfigurationSource;
+import org.brekka.stillingar.core.ConfigurationSourceLoader;
+import org.brekka.stillingar.core.snapshot.DefaultSnapshot;
 import org.brekka.stillingar.core.snapshot.Snapshot;
-import org.brekka.stillingar.core.snapshot.SnapshotLoader;
 import org.brekka.stillingar.core.snapshot.SnapshotManager;
 import org.brekka.stillingar.spring.resource.ResourceSelector;
 import org.springframework.core.io.FileSystemResource;
@@ -47,14 +49,19 @@ public class ResourceSnapshotManager implements SnapshotManager {
 			.getLog(ResourceSnapshotManager.class);
 
 	/**
-	 * Will actually load the snapshots
+	 * Will actually load the configuration sources
 	 */
-	private final SnapshotLoader snapshotLoader;
+	private final ConfigurationSourceLoader configurationSourceLoader;
 
 	/**
 	 * Determines where the resources that the snapshots will be based on will be loaded from.
 	 */
 	private final ResourceSelector resourceSelector;
+	
+	/**
+	 * Defaults
+	 */
+	private final Snapshot defaults;
 
 	/**
 	 * The last snapshot returned by {@link #retrieveLatest()}
@@ -67,7 +74,7 @@ public class ResourceSnapshotManager implements SnapshotManager {
 	 * value.
 	 */
 	private long lastAttempt;
-
+	
 	/**
 	 * 
 	 * @param resourceSelector Determines where the resources that the snapshots will be based on will be loaded from.
@@ -75,10 +82,12 @@ public class ResourceSnapshotManager implements SnapshotManager {
 	 */
 	public ResourceSnapshotManager(
 			ResourceSelector resourceSelector,
-			SnapshotLoader snapshotLoader) {
+			ConfigurationSourceLoader configurationSourceLoader) {
 		this.resourceSelector = resourceSelector;
-		this.snapshotLoader = snapshotLoader;
-
+		this.configurationSourceLoader = configurationSourceLoader;
+		
+		Resource defaults = resourceSelector.getDefaults();
+        this.defaults = performLoad(defaults);
 	}
 
 	public Snapshot retrieveLatest() {
@@ -86,8 +95,9 @@ public class ResourceSnapshotManager implements SnapshotManager {
 		Resource original = resourceSelector.getOriginal();
 		try {
 			long lastModifiedMillis = 0;
-			if (latestSnapshot != null) {
-				lastModifiedMillis = latestSnapshot.getTimestamp();
+			if (latestSnapshot != null
+			        && latestSnapshot.getTimestamp() != null) {
+				lastModifiedMillis = latestSnapshot.getTimestamp().getTime();
 			}
 			long lastAttempt = this.lastAttempt;
 			if (original.lastModified() > lastModifiedMillis
@@ -110,6 +120,14 @@ public class ResourceSnapshotManager implements SnapshotManager {
 		Snapshot snapshot = performLoad(lastGood);
 		this.latestSnapshot = snapshot;
 		return snapshot;
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.brekka.stillingar.core.snapshot.SnapshotManager#retrieveDefaults()
+	 */
+	@Override
+	public Snapshot retrieveDefaults() {
+	    return defaults;
 	}
 
 	public void acceptLatest() {
@@ -147,15 +165,19 @@ public class ResourceSnapshotManager implements SnapshotManager {
         Snapshot snapshot = null;
         if (resourceToLoad != null && resourceToLoad.exists()
                 && resourceToLoad.isReadable()) {
+            InputStream sourceStream = null;
             try {
-                URL url = resourceToLoad.getURL();
+                sourceStream = resourceToLoad.getInputStream();
                 long timestamp = resourceToLoad.lastModified();
-                snapshot = snapshotLoader.load(url, timestamp);
+                ConfigurationSource configurationSource = configurationSourceLoader.parse(sourceStream, null);
+                snapshot = new DefaultSnapshot(configurationSource, new Date(timestamp), resourceToLoad.getURI());
             } catch (IOException e) {
                 throw new ConfigurationException(format("Resouce '%s'", resourceToLoad), e);
             } catch (RuntimeException e) {
                 // Wrap to include location details
                 throw new ConfigurationException(format("Resouce '%s' processing problem", resourceToLoad), e);
+            } finally {
+                closeQuietly(sourceStream);
             }
         }
         return snapshot;

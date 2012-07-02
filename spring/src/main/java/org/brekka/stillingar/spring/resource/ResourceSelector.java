@@ -19,7 +19,7 @@ package org.brekka.stillingar.spring.resource;
 import org.springframework.core.io.Resource;
 
 /**
- * Determines what resources will be used for the 'original' and 'last good'. Implementations may choose at
+ * Determines what resources will be used for the 'original',  'last good' and defaults. Implementations may choose at
  * initialisation from a variety of resources. 
  * 
  * @author Andrew Taylor
@@ -37,4 +37,11 @@ public interface ResourceSelector {
      * @return the last good resource
      */
     Resource getLastGood();
+    
+    /**
+     * The defaults which should normally be obtained from the classpath
+     * 
+     * @return
+     */
+    Resource getDefaults();
 }

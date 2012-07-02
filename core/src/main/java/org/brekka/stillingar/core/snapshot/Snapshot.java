@@ -16,20 +16,25 @@
 
 package org.brekka.stillingar.core.snapshot;
 
-import java.net.URL;
+import java.net.URI;
+import java.util.Date;
 
 import org.brekka.stillingar.core.ConfigurationSource;
 
 /**
- * Represents an immutable snapshot in time of a configuration resource such as a properties or XML file.
- * 
- * The snapshot implementation will be responsible for defining the format of the expression used in retrieval methods
- * as that will be specific to the underlying technology used.
+ * Represents an immutable snapshot in time of a {@link ConfigurationSource}, encapsulating details about where
+ * it was loaded from, and when it was updated.
  * 
  * @author Andrew Taylor
  */
-public interface Snapshot extends ConfigurationSource {
-
+public interface Snapshot {
+    
+    /**
+     * Retrieve the source 
+     * @return
+     */
+    ConfigurationSource getSource();
+    
     /**
      * The timestamp associated with the resource that was loaded into this snapshot. For example if the resource was a
      * file, then the lastModified date would be returned.
@@ -38,7 +43,7 @@ public interface Snapshot extends ConfigurationSource {
      * 
      * @return the timestamp of this snapshot
      */
-    long getTimestamp();
+    Date getTimestamp();
 
     /**
      * The location where this snapshot was loaded from. Used for error tracing so that information messages can include
@@ -46,6 +51,6 @@ public interface Snapshot extends ConfigurationSource {
      * 
      * @return the URL location of the resource.
      */
-    URL getLocation();
+    URI getLocation();
 
 }

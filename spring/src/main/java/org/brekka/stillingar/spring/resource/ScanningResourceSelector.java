@@ -56,14 +56,20 @@ public class ScanningResourceSelector implements ResourceSelector {
      * 'Last good' resource
      */
     private final Resource lastGood;
+    
+    /**
+     * Defaults
+     */
+    private final Resource defaultsLocation;
 
     /**
      * Scan the list of locations for the original name specified by {@link ResourceNaming}.
      * 
      * @param locations the list of resources that should identify directories
+     * @param defaultsLocation the location of the defaults file (most likely on classpath).
      * @param resourceNaming the strategy to use for naming configuration resources.
      */
-    public ScanningResourceSelector(List<Resource> locations, ResourceNaming resourceNaming) {
+    public ScanningResourceSelector(List<Resource> locations, Resource defaultsLocation, ResourceNaming resourceNaming) {
         Resource original = null;
         Resource lastGood = null;
 
@@ -99,6 +105,7 @@ public class ScanningResourceSelector implements ResourceSelector {
         }
         this.original = original;
         this.lastGood = lastGood;
+        this.defaultsLocation = defaultsLocation;
     }
 
     private Resource resolveLastGood(Resource locationBase, String lastGoodName) throws IOException {
@@ -122,5 +129,13 @@ public class ScanningResourceSelector implements ResourceSelector {
 
     public final Resource getLastGood() {
         return lastGood;
+    }
+    
+    /* (non-Javadoc)
+     * @see org.brekka.stillingar.spring.resource.ResourceSelector#getDefaults()
+     */
+    @Override
+    public Resource getDefaults() {
+        return defaultsLocation;
     }
 }

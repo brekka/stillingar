@@ -18,7 +18,6 @@ package org.brekka.stillingar.xmlbeans;
 
 import static java.lang.String.format;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -28,8 +27,8 @@ import java.util.Set;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
 import org.apache.xmlbeans.XmlObject;
+import org.brekka.stillingar.core.ConfigurationSource;
 import org.brekka.stillingar.core.ValueConfigurationException;
-import org.brekka.stillingar.core.snapshot.Snapshot;
 import org.brekka.stillingar.xmlbeans.conversion.ConversionManager;
 import org.brekka.stillingar.xmlbeans.conversion.TypeConverter;
 
@@ -38,12 +37,8 @@ import org.brekka.stillingar.xmlbeans.conversion.TypeConverter;
  * 
  * @author Andrew Taylor
  */
-class XmlBeansSnapshot implements Snapshot {
+class XmlBeansConfigurationSource implements ConfigurationSource {
 
-	private final long timestamp;
-	
-	private final URL location;
-	
 	private final XmlObject bean;
 	
 	private final ConversionManager conversionManager;
@@ -52,21 +47,40 @@ class XmlBeansSnapshot implements Snapshot {
 	
 	
 
-	public XmlBeansSnapshot(URL location, long timestamp, XmlObject bean,
+	public XmlBeansConfigurationSource(XmlObject bean,
 			Map<String, String> xpathNamespaces, ConversionManager conversionManager) {
-		this.location = location;
-		this.timestamp = timestamp;
 		this.bean = bean;
 		this.xpathNamespaces = xpathNamespaces;
 		this.conversionManager = conversionManager;
 	}
 	
-	public URL getLocation() {
-		return location;
+	/* (non-Javadoc)
+	 * @see org.brekka.stillingar.core.ConfigurationSource#isAvailable(java.lang.Class)
+	 */
+	public boolean isAvailable(Class<?> type) {
+        XmlCursor cursor = bean.newCursor();
+        try {
+            TokenType token = cursor.toNextToken();
+            while (token != TokenType.ENDDOC) {
+                if (token == TokenType.START) {
+                    XmlObject object = cursor.getObject();
+                    if (type.isAssignableFrom(object.getClass())) {
+                        return true;
+                    }
+                }
+                token = cursor.toNextToken();
+            }
+        } finally {
+            cursor.dispose();
+        }
+        return false;
 	}
 	
-	public long getTimestamp() {
-		return timestamp;
+	/* (non-Javadoc)
+	 * @see org.brekka.stillingar.core.ConfigurationSource#isAvailable(java.lang.String)
+	 */
+	public boolean isAvailable(String expression) {
+	    return evaluate(expression).length > 0;
 	}
 
 	/* (non-Javadoc)

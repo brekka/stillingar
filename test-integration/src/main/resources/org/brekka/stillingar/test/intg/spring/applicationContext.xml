@@ -10,7 +10,7 @@
 
 	<context:annotation-config />
 <!-- 
-	<bean id="stillingar2" class="org.brekka.stillingar.core.DefaultConfigurationSource" init-method="init">
+	<bean id="stillingar2" class="org.brekka.stillingar.core.snapshot.SnapshotBasedConfigurationSource" init-method="init">
 		<constructor-arg>
 			<bean class="org.brekka.stillingar.spring.snapshot.ResourceSnapshotManager">
 				<constructor-arg>

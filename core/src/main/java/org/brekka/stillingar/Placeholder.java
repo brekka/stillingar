@@ -94,7 +94,7 @@ public final class Placeholder {
 	 * @return true if <code>value</code> is a placeholder value, false otherwise.
 	 */
 	public static boolean isPlaceholder(Object value) {
-		return (value instanceof Marker);
+		return (Proxy.getInvocationHandler(value) instanceof PlaceholderInvocationHandler);
 	}
 
 	/**
@@ -128,7 +128,7 @@ public final class Placeholder {
 		cl = (cl != null ? cl : Thread.currentThread().getContextClassLoader());
 		
 		PlaceholderInvocationHandler handler = new PlaceholderInvocationHandler(type, line, fieldName, valueType);
-		return (T) Proxy.newProxyInstance(cl, new Class[] { valueType, Marker.class }, handler);
+		return (T) Proxy.newProxyInstance(cl, new Class[] { valueType }, handler);
 	}
 	
 	/**
@@ -172,12 +172,4 @@ public final class Placeholder {
 			throw exception;
 		}
 	}
-	
-	/**
-	 * Included in the proxy definition so we can identify placeholders. 
-	 */
-	private interface Marker {
-		// Just a marker
-	}
-	
 }

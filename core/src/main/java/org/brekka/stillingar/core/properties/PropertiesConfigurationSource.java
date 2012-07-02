@@ -14,67 +14,57 @@
  * limitations under the License.
  */
 
-package org.brekka.stillingar.core.snapshot;
+package org.brekka.stillingar.core.properties;
 
 import static java.lang.String.format;
 
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorManager;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
 import org.brekka.stillingar.core.ConfigurationException;
+import org.brekka.stillingar.core.ConfigurationSource;
 
 /**
- * A snapshot implementation that is backed by a {@link Properties} instance. The nature of properties is that all of
- * their values are of type {@link String}, thus the type based retrieve methods will be useless and thus have been
- * implementated as throwing {@link UnsupportedOperationException}.
+ * A {@link ConfigurationSource} implementation that is backed by a {@link Properties} instance. The nature of
+ * properties is that all of their values are of type {@link String}, thus the type based retrieve methods will be
+ * useless and thus have been implemented as throwing {@link UnsupportedOperationException}.
  * 
  * The valueType used in combination with the expression does not have to be just {@link String}, anything registered
  * with the {@link PropertyEditorManager} will be resolvable.
  * 
  * @author Andrew Taylor
  */
-public class PropertiesSnapshot implements Snapshot {
-
-    /**
-     * The location of the properties
-     */
-    private final URL location;
-
-    /**
-     * The last modified of the resource that was loaded
-     */
-    private final long timestamp;
+public class PropertiesConfigurationSource implements ConfigurationSource {
 
     /**
      * The properties from which configuration values will be resolved.
      */
     private final Properties properties;
 
+    
     /**
-     * 
-     * @param location
-     *            The location of the properties
-     * @param timestamp
-     *            The last modified of the resource that was loaded
+     * Does the specified properties contain this key?
+     */
+    public boolean isAvailable(String key) {
+        return properties.containsKey(key);
+    }
+    
+    /* (non-Javadoc)
+     * @see org.brekka.stillingar.core.ConfigurationSource#isAvailable(java.lang.Class)
+     */
+    public boolean isAvailable(Class<?> valueType) {
+        throw new ConfigurationException("A Properties coniguration source does not support lookup by type.");
+    }
+    
+    /**
      * @param properties
      *            The properties from which configuration values will be resolved.
      */
-    public PropertiesSnapshot(URL location, long timestamp, Properties properties) {
-        this.location = location;
-        this.timestamp = timestamp;
+    public PropertiesConfigurationSource(Properties properties) {
         this.properties = properties;
-    }
-
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    public URL getLocation() {
-        return location;
     }
 
     /**
@@ -106,8 +96,8 @@ public class PropertiesSnapshot implements Snapshot {
     }
 
     /**
-     * Retrieve the list of values that are defined by the indexed <code>key</code>. The valueType can be any type supported by
-     * {@link PropertyEditorManager}.
+     * Retrieve the list of values that are defined by the indexed <code>key</code>. The valueType can be any type
+     * supported by {@link PropertyEditorManager}.
      * 
      * @param key
      *            the properties key of the value to return.
@@ -134,7 +124,7 @@ public class PropertiesSnapshot implements Snapshot {
         if (valueType == String.class) {
             retVal = (T) value;
         } else if (value != null) {
-            Class<?> type = PropertiesSnapshotLoader.primitiveTypeFor(valueType);
+            Class<?> type = primitiveTypeFor(valueType);
             if (type == null) {
                 type = valueType;
             }
@@ -147,5 +137,23 @@ public class PropertiesSnapshot implements Snapshot {
             retVal = (T) editor.getValue();
         }
         return retVal;
+    }
+    
+    /**
+     * Copied from java.beans.ReflectionUtils since it is not public
+     * @param wrapper
+     * @return
+     */
+    public static Class<?> primitiveTypeFor(Class<?> wrapper) {
+        if (wrapper == Boolean.class) return Boolean.TYPE;
+        if (wrapper == Byte.class) return Byte.TYPE;
+        if (wrapper == Character.class) return Character.TYPE;
+        if (wrapper == Short.class) return Short.TYPE;
+        if (wrapper == Integer.class) return Integer.TYPE;
+        if (wrapper == Long.class) return Long.TYPE;
+        if (wrapper == Float.class) return Float.TYPE;
+        if (wrapper == Double.class) return Double.TYPE;
+        if (wrapper == Void.class) return Void.TYPE;
+        return null;
     }
 }

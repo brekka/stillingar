@@ -45,7 +45,8 @@ public class ConversionManager {
             new ShortConverter(),
             new StringConverter(),
             new URIConverter(),
-            new DocumentConverter()
+            new DocumentConverter(),
+            new UUIDConverter()
         ));
     }
     

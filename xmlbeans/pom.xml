@@ -10,7 +10,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	
 	<artifactId>stillingar-xmlbeans</artifactId>
-	<version>0.2.0</version>
+	<version>0.3.0</version>
 	
 	<packaging>jar</packaging>
 
@@ -40,6 +40,35 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+    
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.3.2</version>
+				<configuration>
+					<source>1.5</source>
+					<target>1.5</target>
+					<encoding>utf-8</encoding>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>2.1.2</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>jar-no-fork</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 
 	<properties>
 		<stillingar-core-version>0.1.0</stillingar-core-version>

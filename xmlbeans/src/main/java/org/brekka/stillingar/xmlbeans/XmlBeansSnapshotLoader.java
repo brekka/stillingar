@@ -19,7 +19,8 @@ package org.brekka.stillingar.xmlbeans;
 import static java.lang.String.format;
 
 import java.io.IOException;
-import java.net.URL;
+import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -29,8 +30,8 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.brekka.stillingar.core.ConfigurationException;
-import org.brekka.stillingar.core.snapshot.Snapshot;
-import org.brekka.stillingar.core.snapshot.SnapshotLoader;
+import org.brekka.stillingar.core.ConfigurationSource;
+import org.brekka.stillingar.core.ConfigurationSourceLoader;
 import org.brekka.stillingar.xmlbeans.conversion.ConversionManager;
 
 /**
@@ -38,7 +39,7 @@ import org.brekka.stillingar.xmlbeans.conversion.ConversionManager;
  * 
  * @author Andrew Taylor
  */
-public class XmlBeansSnapshotLoader implements SnapshotLoader {
+public class XmlBeansSnapshotLoader implements ConfigurationSourceLoader {
 
     private final ConversionManager conversionManager;
 	
@@ -57,28 +58,26 @@ public class XmlBeansSnapshotLoader implements SnapshotLoader {
     public XmlBeansSnapshotLoader(ConversionManager conversionManager) {
         this.conversionManager = conversionManager;
     }
+    
+    /* (non-Javadoc)
+     * @see org.brekka.stillingar.core.ConfigurationSourceLoader#parse(java.io.InputStream, java.nio.charset.Charset)
+     */
+    public ConfigurationSource parse(InputStream sourceStream, Charset encoding) throws ConfigurationException,
+            IOException {
+        ConfigurationSource configurationSource;
+        try {
+            XmlObject xmlBean = XmlObject.Factory.parse(sourceStream);
+            if (this.validate) {
+                validate(xmlBean);
+            }
+            configurationSource = new XmlBeansConfigurationSource(xmlBean, this.xpathNamespaces, conversionManager);
+        } catch (XmlException e) {
+            throw new ConfigurationException(format(
+                    "Illegal XML"), e);
+        }
+        return configurationSource;
+    }
 
-	
-	public Snapshot load(URL fromUrl, long timestamp) {
-		Snapshot snapshot;
-		try {
-			XmlObject xmlBean = XmlObject.Factory.parse(fromUrl);
-			
-			if (this.validate) {
-				validate(xmlBean);
-			}
-			
-			snapshot = new XmlBeansSnapshot(fromUrl, timestamp, xmlBean, this.xpathNamespaces, conversionManager);
-		} catch (IOException e) {
-			throw new ConfigurationException(format(
-					"Failed to read"), e);
-		} catch (XmlException e) {
-			throw new ConfigurationException(format(
-					"Illegal XML"), e);
-		}
-		return snapshot;
-	}
-	
 	protected void validate(XmlObject bean) {
 		List<XmlError> errors = new ArrayList<XmlError>();
 		XmlOptions validateOptions = new XmlOptions();

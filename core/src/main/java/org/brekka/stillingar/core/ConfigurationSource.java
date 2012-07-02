@@ -26,6 +26,24 @@ import java.util.List;
 public interface ConfigurationSource {
 
     /**
+     * Determine whether a value identified by the specified expression is available. A caller would treat false to mean
+     * that there is no value defined identified by the expression, and that another (default) source may be considered.
+     * 
+     * @param expression the expression to evaluate.
+     * @return true if a value is explicitly defined in this source for the given expression (even if it is set to null).
+     */
+    boolean isAvailable(String expression);
+    
+    /**
+     * Determine whether a value with the specified value type exists for this source. A caller would treat false to mean
+     * that there is no value, and that another (default) source may be considered.
+     * 
+     * @param valueType the class of the instance to find within the source.
+     * @return true if there are one or more instances of the value type in this source, false otherwise.
+     */
+    boolean isAvailable(Class<?> valueType);
+    
+    /**
      * Retrieve the value identified by <code>expression</code> which must be of (or convertible to) type
      * <code>valueType</code>. Null can be returned, but only if the expression explicitly resolves to a null value. If
      * the expression fails to resolve, a {@link ConfigurationException} will be thrown.

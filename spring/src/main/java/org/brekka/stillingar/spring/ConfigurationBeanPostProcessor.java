@@ -32,11 +32,11 @@ import java.util.Map;
 
 import org.brekka.stillingar.annotations.ConfigurationListener;
 import org.brekka.stillingar.annotations.Configured;
+import org.brekka.stillingar.core.ChangeAwareConfigurationSource;
 import org.brekka.stillingar.core.ConfigurationException;
 import org.brekka.stillingar.core.ConfigurationSource;
 import org.brekka.stillingar.core.GroupChangeListener;
 import org.brekka.stillingar.core.ReferentUpdateException;
-import org.brekka.stillingar.core.UpdatableConfigurationSource;
 import org.brekka.stillingar.core.ValueChangeListener;
 import org.brekka.stillingar.core.ValueDefinition;
 import org.brekka.stillingar.core.ValueDefinitionGroup;
@@ -78,7 +78,7 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
 			boolean singleton = beanFactory.isSingleton(beanName);
 			
 			if (singleton 
-			        && configurationSource instanceof UpdatableConfigurationSource) {
+			        && configurationSource instanceof ChangeAwareConfigurationSource) {
 			    processWithUpdates(bean, beanName);
 			} else {
 			    processOnceOnly(bean, beanName);
@@ -140,7 +140,7 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
 	 */
 	protected void processWithUpdates(Object bean, String beanName) {
 		ValueDefinitionGroup group = prepareValueGroup(beanName, bean);
-		((UpdatableConfigurationSource) configurationSource).register(group);
+		((ChangeAwareConfigurationSource) configurationSource).register(group);
 	}
 
 

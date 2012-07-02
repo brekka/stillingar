@@ -21,7 +21,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.brekka.stillingar.core.DefaultConfigurationSource;
+import org.brekka.stillingar.core.properties.PropertiesConfigurationSourceLoader;
+import org.brekka.stillingar.core.snapshot.SnapshotBasedConfigurationSource;
 import org.brekka.stillingar.spring.ConfigurationBeanPostProcessor;
 import org.brekka.stillingar.spring.ConfigurationPlaceholderConfigurer;
 import org.brekka.stillingar.spring.LoggingBackgroundUpdater;
@@ -78,13 +79,13 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
 
 	private static final Map<String, String> TYPE_ALIASES = new HashMap<String, String>();
 	static {
-	    TYPE_ALIASES.put(LOADER_TYPE_PROPS, org.brekka.stillingar.core.snapshot.PropertiesSnapshotLoader.class.getName());
+	    TYPE_ALIASES.put(LOADER_TYPE_PROPS, PropertiesConfigurationSourceLoader.class.getName());
 	    TYPE_ALIASES.put(LOADER_TYPE_XMLBEANS, "org.brekka.stillingar.xmlbeans.XmlBeansSnapshotLoader");
 	}
 
     @Override
-	protected Class<DefaultConfigurationSource> getBeanClass(Element element) {
-		return DefaultConfigurationSource.class;
+	protected Class<SnapshotBasedConfigurationSource> getBeanClass(Element element) {
+		return SnapshotBasedConfigurationSource.class;
 	}
 	
 	
@@ -104,16 +105,20 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
 		configBaseResolver.addConstructorArgValue(DEFAULT_LOCATION_LIST);
 		BeanDefinitionBuilder homeConfigBaseResolver = BeanDefinitionBuilder.genericBeanDefinition(BaseInHomeDirResolver.class);
 		homeConfigBaseResolver.addConstructorArgValue("." + applicationName);
-		BeanDefinitionBuilder classpathBaseResolver = BeanDefinitionBuilder.genericBeanDefinition(BaseDirResolver.class);
-		classpathBaseResolver.addConstructorArgValue(Arrays.asList("classpath:/stillingar/"));
+		
 		locations.add(configBaseResolver.getBeanDefinition());
 		locations.add(homeConfigBaseResolver.getBeanDefinition());
-		locations.add(classpathBaseResolver.getBeanDefinition());
+		
 		
 		BeanDefinitionBuilder resourceNameResolver = BeanDefinitionBuilder.genericBeanDefinition(org.brekka.stillingar.spring.resource.BasicResourceNaming.class);
 		resourceNameResolver.addConstructorArgValue(id);
 		
+		BeanDefinitionBuilder classpathBaseResolver = BeanDefinitionBuilder.genericBeanDefinition(BaseDirResolver.class);
+        classpathBaseResolver.addConstructorArgValue(Arrays.asList("classpath:/stillingar/"));
+        locations.add(classpathBaseResolver.getBeanDefinition());
+		
 		BeanDefinitionBuilder configSource = BeanDefinitionBuilder.genericBeanDefinition(ScanningResourceSelector.class);
+		configSource.addConstructorArgValue(locations);
 		configSource.addConstructorArgValue(locations);
 		configSource.addConstructorArgValue(resourceNameResolver.getBeanDefinition());
 		

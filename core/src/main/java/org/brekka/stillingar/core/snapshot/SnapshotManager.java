@@ -16,48 +16,39 @@
 
 package org.brekka.stillingar.core.snapshot;
 
-import org.brekka.stillingar.core.ConfigurationSource;
-
 /**
- * Responsible for loading and managing configuration snapshots for a single {@link ConfigurationSource}. Defines a
- * mechanism for preserving the last good configuration snapshot that will be used whenever the system is started.
- * 
- * The goal of the 'last good' mechanism is to avoid the situation where an administrator has updated the configuration
- * but failed to notice that it was invalid. The consequence being that when the system restarts, it would fail due to
- * the invalid configuration.
- * 
- * When the configuration subsystem starts up, it will call {@link #retrieveLastGood()} to obtain the bootstrap
- * configuration. If it returns null, then {@link #retrieveLatest()} will be called. Subsequent calls should always be
- * to {@link #retrieveLatest()}.
- * 
- * If the snapshot resolved by {@link #retrieveLatest()} is deemed to be valid then {@link #acceptLatest()} will be
- * called to indicate that the last snapshot retrieved is good and should be used as the 'last good' on the next system
- * restart.
+ * TODO
  * 
  * @author Andrew Taylor
  */
 public interface SnapshotManager {
 
     /**
-     * Retrieve the configuration that was last successfully loaded. If there is no last good configuration, then return
-     * null.
+     * Obtain the initial snapshot of the configuration. This must either return a non-null value or throw an exception.
      * 
-     * @return a snapshot of the last good configuration, or null if there is none available.
+     * @return the snapshot, never null.
+     * @throws NoSnapshotAvailableException
+     *             if there is no snapshot available.
      */
-    Snapshot retrieveLastGood();
+    Snapshot retrieveInitial() throws NoSnapshotAvailableException;
 
     /**
-     * Retrieve the latest snapshot of the configuration, but only if it has changed since the last invocation. If no
-     * change has occurred, just return null.
+     * When the underlying configuration resource changes, this method should return a new snapshot instance containing
+     * the updated configuration source. If the resource becomes unavailable or fails to validate an
+     * {@link InvalidSnapshotException} will be thrown.
      * 
-     * @return potentially the latest snapshot, or null if it has not changed since the last call.
+     * @return the latest snapshot or null if no change has occurred to the configuration resource.
+     * @throws InvalidSnapshotException
+     *             when a change to the snapshot is detected, but it is invalid
      */
-    Snapshot retrieveLatest();
+    Snapshot retrieveUpdated() throws InvalidSnapshotException;
 
     /**
-     * Signal that the latest configuration returned by {@link #retrieveLatest()} was processed correctly, so the file
-     * should be captured in a 'last good' file. What happens to the previous last good is left up the implementation
-     * that should either overwrite or archive it. Should only be called after {@link #retrieveLatest()}.
+     * Allows this manager to be informed when a snapshot failed to be loaded. The snapshot manager should not return
+     * rejected snapshots in subsequent calls to {@link #retrieveLatest()}.
+     * 
+     * @param rejectedSnapshot
+     *            the snapshot being rejected, which must have been returned by {@link #retrieveLatest()}.
      */
-    void acceptLatest();
+    void reject(Snapshot rejectedSnapshot);
 }

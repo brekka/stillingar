@@ -16,17 +16,17 @@
 
 package org.brekka.stillingar.core;
 
+
 /**
- * Support updating of the configuration source, providing methods to allow other subsystems to register for
- * notification of changes.
+ * TODO
  * 
- * Registration allows both single value and group updates. Group updates are intended to be used when a configuration
- * target (such as a bean) has multiple values that need to be updated atomically, optionally specifying a method that
- * will be invoked once all values have been set.
+ * Registration allows both single value and group notification. Group notifications are intended to be used when a
+ * configuration target (such as a bean) has multiple values that need to be updated atomically, optionally specifying a
+ * method that will be invoked once all values have been set.
  * 
  * @author Andrew Taylor
  */
-public interface UpdatableConfigurationSource extends ConfigurationSource {
+public interface ChangeAwareConfigurationSource extends ConfigurationSource {
 
     /**
      * Register a value definition which will be notified of configuration updates when they occur.
@@ -47,12 +47,4 @@ public interface UpdatableConfigurationSource extends ConfigurationSource {
      *            the value group to register.
      */
     void register(ValueDefinitionGroup valueGroup);
-
-    /**
-     * Instruct this configuration source to update itself. The report returned will contain details or any errors
-     * encountered during the update.
-     * 
-     * @return the report detailing errors encountered during the update attempt.
-     */
-    UpdateReport update();
 }

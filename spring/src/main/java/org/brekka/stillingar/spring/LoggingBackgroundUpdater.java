@@ -18,19 +18,19 @@ package org.brekka.stillingar.spring;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.net.URL;
+import java.net.URI;
 import java.util.Formatter;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.brekka.stillingar.core.ChangeAwareConfigurationSource;
 import org.brekka.stillingar.core.ConfigurationException;
 import org.brekka.stillingar.core.GroupConfigurationException;
-import org.brekka.stillingar.core.UpdatableConfigurationSource;
-import org.brekka.stillingar.core.UpdateReport;
+import org.brekka.stillingar.core.reloadable.RefreshReport;
 
 /**
- * A simple runnable that can be used perform updates on an {@link UpdatableConfigurationSource}, logging out any
+ * A simple runnable that can be used perform updates on an {@link ChangeAwareConfigurationSource}, logging out any
  * resulting report and its errors.
  * 
  * @author Andrew Taylor
@@ -45,26 +45,26 @@ public class LoggingBackgroundUpdater implements Runnable {
     /**
      * The configuration source to call each time the {@link #run()} method is called.
      */
-    private final UpdatableConfigurationSource configurationSource;
+    private final ChangeAwareConfigurationSource configurationSource;
 
     /**
      * @param configurationSource The configuration source to call each time the {@link #run()} method is called.
      */
-    public LoggingBackgroundUpdater(UpdatableConfigurationSource configurationSource) {
+    public LoggingBackgroundUpdater(ChangeAwareConfigurationSource configurationSource) {
         this.configurationSource = configurationSource;
     }
 
     @Override
     public void run() {
-        UpdateReport update = null;
+        RefreshReport update = null;
         try {
-            update = this.configurationSource.update();
+            update = this.configurationSource.refresh();
         } catch (RuntimeException e) {
             log.error("Failed to update configuration", e);
         }
         if (update != null) {
             List<GroupConfigurationException> errors = update.getErrors();
-            URL location = update.getLocation();
+            URI location = update.getLocation();
             if (!errors.isEmpty()) {
                 StringWriter writer = new StringWriter();
                 PrintWriter out = new PrintWriter(writer);
@@ -73,8 +73,8 @@ public class LoggingBackgroundUpdater implements Runnable {
                 fmt.format("Errors encountered during configuration update from '%s'. " + "%d group errors follow.%n",
                         location, errors.size());
                 for (GroupConfigurationException groupConfigurationException : errors) {
-                    fmt.format(" Group '%s' errors (total %d):%n", groupConfigurationException.getGroupName());
                     List<ConfigurationException> errorList = groupConfigurationException.getErrorList();
+                    fmt.format(" Group '%s' errors (total %d):%n", groupConfigurationException.getGroupName(), errorList.size());
                     int cnt = 1;
                     for (ConfigurationException configurationException : errorList) {
                         fmt.format("  Error %d of %d:%n", cnt, errorList.size());

@@ -16,8 +16,8 @@
 
 package org.brekka.stillingar.spring;
 
+import org.brekka.stillingar.core.ChangeAwareConfigurationSource;
 import org.brekka.stillingar.core.ConfigurationSource;
-import org.brekka.stillingar.core.UpdatableConfigurationSource;
 import org.brekka.stillingar.core.ValueChangeListener;
 import org.brekka.stillingar.core.ValueDefinition;
 import org.springframework.beans.BeanWrapper;
@@ -191,8 +191,8 @@ public class ConfigurationPlaceholderConfigurer implements BeanFactoryPostProces
                 
                 if (beanDefVisitor != null 
                         && currentProperty != null
-                        && configurationSource instanceof UpdatableConfigurationSource) {
-                    UpdatableConfigurationSource ucs = (UpdatableConfigurationSource) configurationSource;
+                        && configurationSource instanceof ChangeAwareConfigurationSource) {
+                    ChangeAwareConfigurationSource ucs = (ChangeAwareConfigurationSource) configurationSource;
                     
                     ValueChangeListener<String> listener = null;
                     if (beanDefVisitor.singleton) {

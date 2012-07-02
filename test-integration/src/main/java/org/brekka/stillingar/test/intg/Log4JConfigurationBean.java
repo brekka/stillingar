@@ -18,7 +18,7 @@ package org.brekka.stillingar.test.intg;
 
 import static java.lang.String.format;
 
-import org.brekka.stillingar.core.UpdatableConfigurationSource;
+import org.brekka.stillingar.core.ChangeAwareConfigurationSource;
 import org.brekka.stillingar.core.ValueChangeListener;
 import org.brekka.stillingar.core.ValueDefinition;
 import org.springframework.beans.BeansException;
@@ -35,7 +35,7 @@ public class Log4JConfigurationBean implements InitializingBean, BeanFactoryAwar
 
     private String expression;
     
-    private UpdatableConfigurationSource source;
+    private ChangeAwareConfigurationSource source;
     
     private BeanFactory beanFactory;
     
@@ -53,12 +53,12 @@ public class Log4JConfigurationBean implements InitializingBean, BeanFactoryAwar
             return;
         }
         
-        UpdatableConfigurationSource source = this.source;
+        ChangeAwareConfigurationSource source = this.source;
         if (source == null) {
             // See if there is only one bean available
             
             try {
-                source = beanFactory.getBean(UpdatableConfigurationSource.class);
+                source = beanFactory.getBean(ChangeAwareConfigurationSource.class);
             } catch (NoSuchBeanDefinitionException e) {
                 throw new IllegalStateException(format(
                         "Unable to resolve a configuration source for expression '%s'. " +
@@ -94,7 +94,7 @@ public class Log4JConfigurationBean implements InitializingBean, BeanFactoryAwar
     /**
      * @param source the source to set
      */
-    public void setSource(UpdatableConfigurationSource source) {
+    public void setSource(ChangeAwareConfigurationSource source) {
         this.source = source;
     }
     
