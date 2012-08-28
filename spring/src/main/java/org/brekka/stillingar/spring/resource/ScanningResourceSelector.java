@@ -18,25 +18,20 @@ package org.brekka.stillingar.spring.resource;
 
 import static java.lang.String.format;
 
-import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.brekka.stillingar.core.ConfigurationException;
-import org.springframework.core.io.FileSystemResource;
+import org.brekka.stillingar.core.snapshot.NoSnapshotAvailableException;
+import org.brekka.stillingar.core.snapshot.RejectedSnapshotLocation;
 import org.springframework.core.io.Resource;
 
 /**
- * Selector that identifies a configuration base directory based on a list of resources of which the first valid
- * location will be chosen. A valid location is deemed to be a directory which contains a resource whose name matches
- * the 'original' name returned by the {@link ResourceNaming} instance.
- * 
- * It is important to note that scanning is performed only on initialisation. Once that location has been determined, it
- * is locked in until the application is restarted.
- * 
- * Should no valid location be found, and exception will be thrown.
+ * A resource selector that will iterate a list of known directories looking for files with names determined by
+ * {@link ResourceNameResolver}. The order of directories is important with the highest priority appearing first.
  * 
  * @author Andrew Taylor
  */
@@ -46,50 +41,87 @@ public class ScanningResourceSelector implements ResourceSelector {
      * Logger
      */
     private static final Log log = LogFactory.getLog(ScanningResourceSelector.class);
-    
-    /**
-     * The 'original' resource
-     */
-    private final Resource original;
 
     /**
-     * 'Last good' resource
+     * List of directories that are to be searched for the configuration resource.
      */
-    private final Resource lastGood;
-    
-    /**
-     * Defaults
-     */
-    private final Resource defaultsLocation;
+    private final List<BaseDirectory> baseDirectories;
 
     /**
-     * Scan the list of locations for the original name specified by {@link ResourceNaming}.
+     * Will be used to generate file names to combine with the base directories in order to find resources.
+     */
+    private final ResourceNameResolver resourceNameResolver;
+
+    /**
      * 
-     * @param locations the list of resources that should identify directories
-     * @param defaultsLocation the location of the defaults file (most likely on classpath).
-     * @param resourceNaming the strategy to use for naming configuration resources.
+     * @param baseDirectories
+     * @param resourceNameResolver
      */
-    public ScanningResourceSelector(List<Resource> locations, Resource defaultsLocation, ResourceNaming resourceNaming) {
-        Resource original = null;
-        Resource lastGood = null;
+    public ScanningResourceSelector(List<BaseDirectory> baseDirectories, ResourceNameResolver resourceNameResolver) {
+        this.baseDirectories = baseDirectories;
+        this.resourceNameResolver = resourceNameResolver;
+    }
 
-        String originalName = resourceNaming.prepareOriginalName();
-        String lastGoodName = resourceNaming.prepareLastGoodName();
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.brekka.stillingar.spring.resource.ResourceSelector#getResource()
+     */
+    @Override
+    public Resource getResource() throws NoSnapshotAvailableException {
+        Set<String> names = resourceNameResolver.getNames();
+        List<RejectedSnapshotLocation> rejected = new ArrayList<RejectedSnapshotLocation>();
+        for (BaseDirectory locationBase : baseDirectories) {
+            if (locationBase == null) {
+                continue;
+            }
+            Resource resource = findInBaseDir(locationBase, names, rejected);
+            if (resource != null) {
+                return resource;
+            }
+        }
+        throw new NoSnapshotAvailableException(names, rejected);
+    }
 
-        for (Resource locationBase : locations) {
+    /**
+     * @param locationBase
+     * @return
+     */
+    protected Resource findInBaseDir(BaseDirectory locationBase, Set<String> names, List<RejectedSnapshotLocation> rejected) {
+        Resource dir = locationBase.getDirResource();
+        if (dir instanceof UnresolvableResource) {
+            UnresolvableResource res = (UnresolvableResource) dir;
+            rejected.add(new Rejected(locationBase.getDisposition(), null, res.getMessage()));
+        }
+        String dirPath = null;
+        try {
+            dirPath = dir.getURI().toString();
+        } catch (IOException e) {
+            if (log.isWarnEnabled()) {
+                log.warn(format("Resource dir '%s' has a bad uri", locationBase), e);
+            }
+        }
+        if (!dir.exists()) {
+            rejected.add(new Rejected(locationBase.getDisposition(), dirPath, 
+                    "Directory does not exist"));
+        }
+        StringBuilder message = new StringBuilder();
+        
+        for (String name : names) {
             try {
-                if (locationBase != null 
-                        && !(locationBase instanceof UnresolvableResource)
-                        && locationBase.exists()) {
-                    Resource locationOriginal = locationBase.createRelative(originalName);
-                    if (locationOriginal.exists() 
-                            && locationOriginal.isReadable()) {
-                        original = locationOriginal;
-                        lastGood = resolveLastGood(locationBase, lastGoodName);
-                        
-                        // We have found what we are looking for
-                        break;
+                Resource location = dir.createRelative(name);
+                if (location.exists()) {
+                    if (location.isReadable()) {
+                        // We have found a file
+                        return location;
+                    } else {
+                        if (message.length() > 0) {
+                            message.append(" ");
+                        }
+                        message.append("File '%s' exists but cannot be read.");
                     }
+                } else {
+                    // Fair enough, it does not exist
                 }
             } catch (IOException e) {
                 // Location could not be resolved, log as warning, then move on to the next one.
@@ -98,44 +130,51 @@ public class ScanningResourceSelector implements ResourceSelector {
                 }
             }
         }
-        if (original == null) {
-            throw new ConfigurationException(format(
-                    "Could not find configuration resource '%s' in any of the following: %s", 
-                    originalName, locations));
-        }
-        this.original = original;
-        this.lastGood = lastGood;
-        this.defaultsLocation = defaultsLocation;
-    }
-
-    private Resource resolveLastGood(Resource locationBase, String lastGoodName) throws IOException {
-        Resource lastGood = null;
-        try {
-            File base = locationBase.getFile();
-            File lastGoodFile = new File(base, lastGoodName);
-            lastGood = new FileSystemResource(lastGoodFile);
-        } catch (IllegalArgumentException e) {
-            // Not a file, just ignore.
-            if (log.isDebugEnabled()) {
-                log.debug("Unable to extra file from resource, it does not appear to be file system based.", e);
-            }
-        }
-        return lastGood;
-    }
-
-    public final Resource getOriginal() {
-        return original;
-    }
-
-    public final Resource getLastGood() {
-        return lastGood;
+        rejected.add(new Rejected(locationBase.getDisposition(), dirPath, message.toString()));
+        // No resource found
+        return null;
     }
     
-    /* (non-Javadoc)
-     * @see org.brekka.stillingar.spring.resource.ResourceSelector#getDefaults()
-     */
-    @Override
-    public Resource getDefaults() {
-        return defaultsLocation;
+    private static class Rejected implements RejectedSnapshotLocation {
+
+        private final String disposition;
+        private final String path;
+        private final String message;
+        
+        /**
+         * @param disposition
+         * @param path
+         * @param message
+         */
+        public Rejected(String disposition, String path, String message) {
+            this.disposition = disposition;
+            this.path = path;
+            this.message = message;
+        }
+
+        /* (non-Javadoc)
+         * @see org.brekka.stillingar.core.snapshot.RejectedSnapshotLocation#getDisposition()
+         */
+        @Override
+        public String getDisposition() {
+            return disposition;
+        }
+
+        /* (non-Javadoc)
+         * @see org.brekka.stillingar.core.snapshot.RejectedSnapshotLocation#getPath()
+         */
+        @Override
+        public String getPath() {
+            return path;
+        }
+
+        /* (non-Javadoc)
+         * @see org.brekka.stillingar.core.snapshot.RejectedSnapshotLocation#getMessage()
+         */
+        @Override
+        public String getMessage() {
+            return message;
+        }
+        
     }
 }

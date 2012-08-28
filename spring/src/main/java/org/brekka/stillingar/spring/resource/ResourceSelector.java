@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 the original author or authors.
+ * Copyright 2012 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,32 +16,19 @@
 
 package org.brekka.stillingar.spring.resource;
 
+import org.brekka.stillingar.core.snapshot.NoSnapshotAvailableException;
 import org.springframework.core.io.Resource;
 
 /**
- * Determines what resources will be used for the 'original',  'last good' and defaults. Implementations may choose at
- * initialisation from a variety of resources. 
+ * Select the resource which will be used to load snapshots from.
  * 
- * @author Andrew Taylor
+ * @author Andrew Taylor (andrew@brekka.org)
  */
 public interface ResourceSelector {
 
     /**
-     * The 'original' resource from which to load configuration snapshots.
-     * @return the original resource
+     * The resource selected by this implementation.
+     * @return the resource
      */
-    Resource getOriginal();
-
-    /**
-     * The 'last good' resource from which to load the initial configuration snapshot.
-     * @return the last good resource
-     */
-    Resource getLastGood();
-    
-    /**
-     * The defaults which should normally be obtained from the classpath
-     * 
-     * @return
-     */
-    Resource getDefaults();
+    Resource getResource() throws NoSnapshotAvailableException;
 }

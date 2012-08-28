@@ -25,7 +25,7 @@ import org.brekka.stillingar.core.properties.PropertiesConfigurationSourceLoader
 import org.brekka.stillingar.core.snapshot.SnapshotBasedConfigurationSource;
 import org.brekka.stillingar.spring.ConfigurationBeanPostProcessor;
 import org.brekka.stillingar.spring.ConfigurationPlaceholderConfigurer;
-import org.brekka.stillingar.spring.LoggingBackgroundUpdater;
+import org.brekka.stillingar.spring.LoggingSnapshotEventHandler;
 import org.brekka.stillingar.spring.resource.BaseDirResolver;
 import org.brekka.stillingar.spring.resource.BaseInHomeDirResolver;
 import org.brekka.stillingar.spring.resource.ScanningResourceSelector;
@@ -110,7 +110,7 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
 		locations.add(homeConfigBaseResolver.getBeanDefinition());
 		
 		
-		BeanDefinitionBuilder resourceNameResolver = BeanDefinitionBuilder.genericBeanDefinition(org.brekka.stillingar.spring.resource.BasicResourceNaming.class);
+		BeanDefinitionBuilder resourceNameResolver = BeanDefinitionBuilder.genericBeanDefinition(org.brekka.stillingar.spring.resource.BasicResourceNameResolver.class);
 		resourceNameResolver.addConstructorArgValue(id);
 		
 		BeanDefinitionBuilder classpathBaseResolver = BeanDefinitionBuilder.genericBeanDefinition(BaseDirResolver.class);
@@ -186,7 +186,7 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
             }
             if (reloadInterval >= MINIMUM_RELOAD_INTERVAL) {
                 // Update task
-                BeanDefinitionBuilder updateTask = BeanDefinitionBuilder.genericBeanDefinition(LoggingBackgroundUpdater.class);
+                BeanDefinitionBuilder updateTask = BeanDefinitionBuilder.genericBeanDefinition(LoggingSnapshotEventHandler.class);
                 updateTask.addConstructorArgReference(id);
                 
                 // Scheduled executor

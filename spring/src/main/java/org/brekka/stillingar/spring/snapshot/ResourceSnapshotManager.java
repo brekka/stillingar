@@ -19,23 +19,19 @@ package org.brekka.stillingar.spring.snapshot;
 import static java.lang.String.format;
 
 import java.io.Closeable;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Date;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.brekka.stillingar.core.ConfigurationException;
 import org.brekka.stillingar.core.ConfigurationSource;
 import org.brekka.stillingar.core.ConfigurationSourceLoader;
-import org.brekka.stillingar.core.snapshot.DefaultSnapshot;
+import org.brekka.stillingar.core.snapshot.InvalidSnapshotException;
+import org.brekka.stillingar.core.snapshot.NoSnapshotAvailableException;
 import org.brekka.stillingar.core.snapshot.Snapshot;
 import org.brekka.stillingar.core.snapshot.SnapshotManager;
+import org.brekka.stillingar.spring.resource.RejectedResourceHandler;
 import org.brekka.stillingar.spring.resource.ResourceSelector;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 
 /**
@@ -45,28 +41,25 @@ import org.springframework.core.io.Resource;
  */
 public class ResourceSnapshotManager implements SnapshotManager {
 
-	private static final Log log = LogFactory
-			.getLog(ResourceSnapshotManager.class);
-
 	/**
 	 * Will actually load the configuration sources
 	 */
 	private final ConfigurationSourceLoader configurationSourceLoader;
 
 	/**
-	 * Determines where the resources that the snapshots will be based on will be loaded from.
+	 * Determines what resource will be used to load snapshots from.
 	 */
 	private final ResourceSelector resourceSelector;
 	
 	/**
-	 * Defaults
+	 * Can listen for when a resource is rejected.
 	 */
-	private final Snapshot defaults;
-
+	private RejectedResourceHandler rejectedResourceHandler; 
+	
 	/**
-	 * The last snapshot returned by {@link #retrieveLatest()}
+	 * The configuration resource identified by the {@link ResourceSelector}.
 	 */
-	private Snapshot latestSnapshot;
+	private Resource configurationResource;
 	
 	/**
 	 * The lastModified of the original at the time we last tried to read it. If it throws an exception
@@ -85,75 +78,76 @@ public class ResourceSnapshotManager implements SnapshotManager {
 			ConfigurationSourceLoader configurationSourceLoader) {
 		this.resourceSelector = resourceSelector;
 		this.configurationSourceLoader = configurationSourceLoader;
-		
-		Resource defaults = resourceSelector.getDefaults();
-        this.defaults = performLoad(defaults);
+	}
+	
+
+	
+	/* (non-Javadoc)
+	 * @see org.brekka.stillingar.core.snapshot.SnapshotManager#retrieveInitial()
+	 */
+	@Override
+	public Snapshot retrieveInitial() throws NoSnapshotAvailableException {
+	    Snapshot snapshot = null;
+	    Resource configurationResource = resourceSelector.getResource();
+	    this.configurationResource = configurationResource;
+	    return snapshot;
 	}
 
-	public Snapshot retrieveLatest() {
-		Snapshot snapshot = null;
-		Resource original = resourceSelector.getOriginal();
-		try {
-			long lastModifiedMillis = 0;
-			if (latestSnapshot != null
-			        && latestSnapshot.getTimestamp() != null) {
-				lastModifiedMillis = latestSnapshot.getTimestamp().getTime();
-			}
-			long lastAttempt = this.lastAttempt;
-			if (original.lastModified() > lastModifiedMillis
-			        && original.lastModified() != lastAttempt) {
-			    this.lastAttempt = original.lastModified();
-				snapshot = performLoad(original);
-				latestSnapshot = snapshot;
-			}
-		} catch (IOException e) {
-			if (log.isWarnEnabled()) {
-				log.warn(format("Failed to determine last modified for resource '%s'",
-								original), e);
-			}
-		}
-		return snapshot;
-	}
 
-	public Snapshot retrieveLastGood() {
-		Resource lastGood = resourceSelector.getLastGood();
-		Snapshot snapshot = performLoad(lastGood);
-		this.latestSnapshot = snapshot;
-		return snapshot;
+    /* (non-Javadoc)
+	 * @see org.brekka.stillingar.core.snapshot.SnapshotManager#retrieveUpdated()
+	 */
+	@Override
+	public Snapshot retrieveUpdated() throws InvalidSnapshotException {
+	    if (configurationResource == null) {
+	        throw new ConfigurationException("Cannot call 'retrieveUpdated' until 'retrieveInitial' has been called" +
+	        		" for the first time");
+	    }
+	    long resourceLastModified;
+        try {
+            resourceLastModified = configurationResource.lastModified();
+        } catch (IOException e) {
+            throw new ConfigurationException(String.format(
+                    "Unable to determine the last modified for the resource '%s'", configurationResource));
+        }
+	    if (resourceLastModified <= lastAttempt) {
+	        // Resource has not changed
+	        return null;
+	    }
+	    
+	    try {
+	        Snapshot snapshot = performLoad(configurationResource);
+            snapshot = performLoad(configurationResource);
+            validate(snapshot);
+            this.lastAttempt = resourceLastModified;
+            return snapshot;
+        } catch (ConfigurationException e) {
+            throw new InvalidSnapshotException(String.format(
+                    "Error extracting snapshot from resource '%s'", configurationResource), e);
+        }
 	}
 	
 	/* (non-Javadoc)
-	 * @see org.brekka.stillingar.core.snapshot.SnapshotManager#retrieveDefaults()
-	 */
-	@Override
-	public Snapshot retrieveDefaults() {
-	    return defaults;
-	}
-
-	public void acceptLatest() {
-		Resource original = resourceSelector.getOriginal();
-		Resource lastGood = resourceSelector.getLastGood();
-		if (lastGood instanceof FileSystemResource) {
-			FileSystemResource fsResource = (FileSystemResource) lastGood;
-			File file = fsResource.getFile();
-			InputStream is = null;
-			OutputStream os = null;
-			try {
-				is = original.getInputStream();
-				os = new FileOutputStream(file);
-				copy(is, os);
-			} catch (IOException e) {
-				if (log.isWarnEnabled()) {
-					log.warn(format(
-					        "Failed to copy original resource '%s' to lastGood '%s'",
-					        original, lastGood), e);
-				}
-			} finally {
-				closeQuietly(is);
-				closeQuietly(os);
-			}
-		}
-	}
+     * @see org.brekka.stillingar.core.snapshot.SnapshotManager#reject(org.brekka.stillingar.core.snapshot.Snapshot)
+     */
+    @Override
+    public void reject(Snapshot rejectedSnapshot) {
+        if (rejectedSnapshot instanceof ResourceSnapshot) {
+            ResourceSnapshot resourceSnapshot = (ResourceSnapshot) rejectedSnapshot;
+            Resource resource = resourceSnapshot.getResource();
+            if (rejectedResourceHandler != null) {
+                rejectedResourceHandler.rejected(resource);
+            }
+        }
+    }
+	   
+    /**
+     * @param snapshot
+     */
+	protected void validate(Snapshot snapshot) {
+        // TODO Auto-generated method stub
+        
+    }
 	
     /**
      * Perform the load operation that will convert a resource into a snapshot.
@@ -170,7 +164,7 @@ public class ResourceSnapshotManager implements SnapshotManager {
                 sourceStream = resourceToLoad.getInputStream();
                 long timestamp = resourceToLoad.lastModified();
                 ConfigurationSource configurationSource = configurationSourceLoader.parse(sourceStream, null);
-                snapshot = new DefaultSnapshot(configurationSource, new Date(timestamp), resourceToLoad.getURI());
+                snapshot = new ResourceSnapshot(configurationSource, new Date(timestamp), resourceToLoad);
             } catch (IOException e) {
                 throw new ConfigurationException(format("Resouce '%s'", resourceToLoad), e);
             } catch (RuntimeException e) {
@@ -182,21 +176,6 @@ public class ResourceSnapshotManager implements SnapshotManager {
         }
         return snapshot;
     }
-
-    /**
-     * Method content based on 'copyLarge' from Apache Commons IO.
-     */
-	private static long copy(InputStream input, OutputStream output)
-			throws IOException {
-		byte[] buffer = new byte[4096];
-		long count = 0;
-		int n = 0;
-		while (-1 != (n = input.read(buffer))) {
-			output.write(buffer, 0, n);
-			count += n;
-		}
-		return count;
-	}
 	
 	/**
 	 * Close the steams

@@ -25,7 +25,7 @@
 							</list>
 						</constructor-arg>
 						<constructor-arg>
-							<bean class="org.brekka.stillingar.spring.resource.MavenVersionedResourceNaming">
+							<bean class="org.brekka.stillingar.spring.resource.VersionedResourceNameResolver">
 								<constructor-arg value="integration" />
 								<property name="groupId" value="org.brekka" />
 								<property name="artifactId" value="stillingar-test-integration" />
@@ -46,7 +46,7 @@
 		</constructor-arg>
 	</bean>
 
-    <bean id="updateTask" class="org.brekka.stillingar.spring.LoggingBackgroundUpdater">
+    <bean id="updateTask" class="org.brekka.stillingar.spring.LoggingSnapshotEventHandler">
         <constructor-arg ref="stillingar" />
     </bean>
 
