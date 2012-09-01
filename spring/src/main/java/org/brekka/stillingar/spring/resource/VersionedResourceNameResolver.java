@@ -36,7 +36,7 @@ public class VersionedResourceNameResolver extends BasicResourceNameResolver {
     /**
      * Default version pattern.
      */
-    private static final Pattern DEFAULT_VERSION_PATTERN = Pattern.compile("^(\\d+).*$");
+    private static final Pattern DEFAULT_VERSION_PATTERN = Pattern.compile("^([\\d\\.]+).*$");
     private static final String DEFAULT_NAME_FORMAT = "%s-%s.%s";
 
     /**
@@ -71,26 +71,25 @@ public class VersionedResourceNameResolver extends BasicResourceNameResolver {
     }
     
     protected List<String> prepareVersionedNames() {
-        List<String> names;
+        List<String> names = Collections.emptyList();
         String version = applicationVersionResolver.identifyVersion();
-        Matcher matcher = versionPattern.matcher(version);
-        if (matcher.matches()) {
-            version = matcher.group(1);
-            names = new ArrayList<String>();
-            int groupCount = matcher.groupCount();
-            if (groupCount == 0) {
-                // No groups, just use the whole string
-                names.add(formatWithVersion(version));
-            } else {
-                for (int i = 1; i <= groupCount; i++) {
-                    String groupVersion = matcher.group(i);
-                    names.add(formatWithVersion(groupVersion));
+        if (version != null) {
+            Matcher matcher = versionPattern.matcher(version);
+            if (matcher.matches()) {
+                names = new ArrayList<String>();
+                int groupCount = matcher.groupCount();
+                if (groupCount == 0) {
+                    // No groups, just use the whole string
+                    version = matcher.group(1);
+                    names.add(formatWithVersion(version));
+                } else {
+                    for (int i = 1; i <= groupCount; i++) {
+                        String groupVersion = matcher.group(i);
+                        names.add(formatWithVersion(groupVersion));
+                    }
                 }
             }
-        } else {
-            names = Collections.emptyList();
         }
-        
         return names;
     }
 
@@ -113,6 +112,9 @@ public class VersionedResourceNameResolver extends BasicResourceNameResolver {
      * @param versionPattern the versionPattern to set
      */
     public final void setVersionPattern(Pattern versionPattern) {
+        if (versionPattern == null) {
+            throw new IllegalArgumentException("Pattern cannot be null");
+        }
         this.versionPattern = versionPattern;
     }
     

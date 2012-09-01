@@ -16,7 +16,10 @@
 
 package org.brekka.stillingar.spring;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -24,6 +27,7 @@ import org.brekka.stillingar.core.ChangeAwareConfigurationSource;
 import org.brekka.stillingar.core.GroupConfigurationException;
 import org.brekka.stillingar.core.snapshot.InvalidSnapshotException;
 import org.brekka.stillingar.core.snapshot.NoSnapshotAvailableException;
+import org.brekka.stillingar.core.snapshot.RejectedSnapshotLocation;
 import org.brekka.stillingar.core.snapshot.Snapshot;
 import org.brekka.stillingar.core.snapshot.SnapshotEventHandler;
 
@@ -39,15 +43,51 @@ public class LoggingSnapshotEventHandler implements SnapshotEventHandler {
      * The logger to use to report errors
      */
     private static final Log log = LogFactory.getLog(LoggingSnapshotEventHandler.class);
+    
+    private final String applicationName;
+    
+    /**
+     * @param applicationName
+     */
+    public LoggingSnapshotEventHandler(String applicationName) {
+        this.applicationName = applicationName;
+    }
+
+
 
     /* (non-Javadoc)
      * @see org.brekka.stillingar.core.snapshot.SnapshotEventHandler#noInitialSnapshot(org.brekka.stillingar.core.snapshot.NoSnapshotAvailableException, boolean, boolean)
      */
     @Override
-    public void noInitialSnapshot(NoSnapshotAvailableException e, boolean defaultsAvailable,
-            boolean initialSnapshotRequired) {
-        // TODO more detail
-        log.error("No initial snapshot could be found", e);
+    public void noInitialSnapshot(NoSnapshotAvailableException e, boolean defaultsAvailable) {
+        StringWriter sw = new StringWriter();
+        PrintWriter out = new PrintWriter(sw);
+        out.printf("%nApplication '%s' - No initial configuration snapshot could be found.%n", applicationName);
+        out.println("   Looked for files with the names:");
+        Set<String> snapshotResourceNames = e.getSnapshotResourceNames();
+        for (String name : snapshotResourceNames) {
+            out.printf( "     - %s%n", name);
+        }
+        List<RejectedSnapshotLocation> locations = e.getLocations();
+        out.printf( "   in the following locations:%n", e.getSnapshotResourceNames());
+        for (RejectedSnapshotLocation r : locations) {
+            String path = "";
+            if (r.getPath() != null) {
+                path = " (" + r.getPath() + ")";
+            }
+            out.printf( "     - %s - %s%s%n", r.getDisposition(), r.getMessage(), path);
+        }
+        if (defaultsAvailable) {
+            out.println("Application will now be configured using defaults from classpath.");
+        } else {
+            out.println("There are no defaults available, so this application will fail to start.");
+        }
+        
+        if (defaultsAvailable) {
+            log.warn(sw.toString());
+        } else {
+            log.error(sw.toString());
+        }
     }
 
 

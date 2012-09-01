@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsd:schema xmlns:stil="http://brekka.org/schema/stillingar" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-    targetNamespace="http://brekka.org/schema/stillingar" elementFormDefault="qualified" attributeFormDefault="unqualified">
+<xsd:schema xmlns:stil="http://brekka.org/schema/stillingar/v1" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="http://brekka.org/schema/stillingar/v1" elementFormDefault="qualified" attributeFormDefault="unqualified">
 
     <xsd:element name="configuration">
         <xsd:complexType>
@@ -12,22 +12,6 @@
                     </xsd:complexType>
                 </xsd:element>
                 <xsd:choice minOccurs="0" maxOccurs="1">
-                    <xsd:element name="remote">
-                        <xsd:complexType>
-                            <xsd:sequence>
-                                <xsd:element name="keystore" minOccurs="0" maxOccurs="1">
-                                    <xsd:complexType>
-                                        <xsd:attribute name="resource" type="xsd:anyURI" />
-                                    </xsd:complexType>
-                                </xsd:element>
-                                <xsd:element name="truststore" minOccurs="0" maxOccurs="1"></xsd:element>
-                            </xsd:sequence>
-
-                            <xsd:attribute name="host" type="xsd:string" use="required" />
-                            <xsd:attribute name="port" type="xsd:positiveInteger" use="optional" default="443" />
-                            <xsd:attribute name="path" type="xsd:string" use="optional" default="/stillingar" />
-                        </xsd:complexType>
-                    </xsd:element>
                     <xsd:element name="selector">
                         <xsd:complexType>
                             <xsd:sequence>
@@ -46,12 +30,12 @@
                                         </xsd:attribute>
                                     </xsd:complexType>
                                 </xsd:element>
-                                <xsd:element name="location" maxOccurs="unbounded" minOccurs="0">
+                                <xsd:element name="location" maxOccurs="1" minOccurs="0">
                                     <xsd:complexType>
-                                        <xsd:choice>
-                                            <xsd:element name="environment-variable" type="xsd:string"></xsd:element>
-                                            <xsd:element name="system-property" type="xsd:string"></xsd:element>
-                                            <xsd:element name="home">
+                                        <xsd:sequence>
+                                            <xsd:element name="environment-variable" type="xsd:string" maxOccurs="unbounded" minOccurs="0"></xsd:element>
+                                            <xsd:element name="system-property" type="xsd:string" maxOccurs="unbounded" minOccurs="0"></xsd:element>
+                                            <xsd:element name="home" maxOccurs="unbounded" minOccurs="0">
                                                 <xsd:complexType>
                                                     <xsd:attribute name="path" type="xsd:string" use="optional">
                                                         <xsd:annotation>
@@ -64,21 +48,17 @@
                                                     </xsd:attribute>
                                                 </xsd:complexType>
                                             </xsd:element>
-                                            <xsd:element name="platform">
-                                                <xsd:complexType>
-                                                    <xsd:attribute name="type">
-                                                        <xsd:simpleType>
-                                                            <xsd:restriction base="xsd:string">
-                                                                <xsd:enumeration value="tomcat"></xsd:enumeration>
-                                                                <xsd:enumeration value="glassfish"></xsd:enumeration>
-                                                                <xsd:enumeration value="weblogic"></xsd:enumeration>
-                                                                <xsd:enumeration value="jboss"></xsd:enumeration>
-                                                            </xsd:restriction>
-                                                        </xsd:simpleType>
-                                                    </xsd:attribute>
-                                                </xsd:complexType>
+                                            <xsd:element name="platform" maxOccurs="1" minOccurs="0">
+                                                <xsd:simpleType>
+                                                    <xsd:restriction base="xsd:string">
+                                                        <xsd:enumeration value="Tomcat"></xsd:enumeration>
+                                                        <xsd:enumeration value="Glassfish"></xsd:enumeration>
+                                                        <xsd:enumeration value="JBoss"></xsd:enumeration>
+                                                        <xsd:enumeration value="Weblogic"></xsd:enumeration>
+                                                    </xsd:restriction>
+                                                </xsd:simpleType>
                                             </xsd:element>
-                                        </xsd:choice>
+                                        </xsd:sequence>
                                     </xsd:complexType>
                                 </xsd:element>
                                 <xsd:element name="version-maven" maxOccurs="1" minOccurs="0">
@@ -97,11 +77,24 @@
                                     </xsd:complexType>
                                 </xsd:element>
                             </xsd:sequence>
-                            <xsd:attribute name="locations" type="xsd:string" use="optional" default="auto">
-                                <xsd:annotation>
-                                    <xsd:documentation>Shortcut for specifying what locations</xsd:documentation>
-                                </xsd:annotation>
-                            </xsd:attribute>
+                        </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="remote">
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:element name="keystore" minOccurs="0" maxOccurs="1">
+                                    <xsd:complexType>
+                                        <xsd:attribute name="resource" type="xsd:anyURI" />
+                                    </xsd:complexType>
+                                </xsd:element>
+                                <xsd:element name="truststore" minOccurs="0" maxOccurs="1">
+
+                                </xsd:element>
+                            </xsd:sequence>
+
+                            <xsd:attribute name="host" type="xsd:string" use="required" />
+                            <xsd:attribute name="port" type="xsd:positiveInteger" use="optional" default="443" />
+                            <xsd:attribute name="path" type="xsd:string" use="optional" default="/stillingar" />
                         </xsd:complexType>
                     </xsd:element>
                 </xsd:choice>
@@ -111,12 +104,27 @@
                         <xsd:attribute name="suffix" type="xsd:string" use="optional" />
                     </xsd:complexType>
                 </xsd:element>
+                <xsd:element name="defaults" maxOccurs="1" minOccurs="0">
+                    <xsd:complexType>
+                        <xsd:attribute name="path" type="xsd:string" use="required"></xsd:attribute>
+                        <xsd:attribute name="encoding" type="xsd:string" use="optional"></xsd:attribute>
+                    </xsd:complexType>
+                </xsd:element>
             </xsd:sequence>
             <xsd:attribute name="id" type="xsd:string" use="required">
                 <xsd:annotation>
                     <xsd:documentation>
                         The identifier for this configuration source, enabling it to be referenced by other beans in the
                         spring configuration.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute name="name" type="xsd:string" use="optional">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        A name for the application configuration that will be used as a default for various prefixes. If
+                        not set, the value of the 'id' attribute will be used instead.
+
                     </xsd:documentation>
                 </xsd:annotation>
             </xsd:attribute>
@@ -144,19 +152,28 @@
                     </xsd:restriction>
                 </xsd:simpleType>
             </xsd:attribute>
-            <xsd:attribute name="engine" type="xsd:string" use="optional" default="auto">
+            <xsd:attribute name="engine" use="required">
                 <xsd:annotation>
                     <xsd:documentation>
-                        The type of configuration subsystem being used. Possible values currently include 'xmlbeans',
-                        'props' or 'auto'. Under the 'auto' setting the system will attempt to determine what
-                        configuration system is in use.
+                        The type of configuration subsystem being used. Possible values currently include 'xmlbeans', or
+                        'props'
                     </xsd:documentation>
                 </xsd:annotation>
+                <xsd:simpleType>
+                    <xsd:restriction base="xsd:string">
+                        <xsd:enumeration value="xmlbeans"></xsd:enumeration>
+                        <xsd:enumeration value="props"></xsd:enumeration>
+                    </xsd:restriction>
+                </xsd:simpleType>
             </xsd:attribute>
             <xsd:attribute name="scheduler-ref" type="xsd:string" use="optional">
                 <xsd:annotation>
-                    <xsd:documentation>For when reloading is enabled (via reload-interval) this attribute allows a scheduler to be set to provide the periodic reloading. If not specified then a new scheduler will be created.</xsd:documentation>
-                </xsd:annotation></xsd:attribute>
+                    <xsd:documentation>
+                        For when reloading is enabled (via reload-interval) this attribute allows a scheduler to be set
+                        to provide the periodic reloading. If not specified then a new scheduler will be created.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
         </xsd:complexType>
     </xsd:element>
 </xsd:schema>

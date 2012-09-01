@@ -1,1 +1,1 @@
-http\://brekka.org/schema/stillingar=org.brekka.stillingar.spring.config.StillingarNamespaceHandler
+http\://brekka.org/schema/stillingar/v1=org.brekka.stillingar.spring.config.StillingarNamespaceHandler

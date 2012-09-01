@@ -19,6 +19,7 @@ package org.brekka.stillingar.xmlbeans;
 import static java.lang.String.format;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -50,7 +51,11 @@ class XmlBeansConfigurationSource implements ConfigurationSource {
 	public XmlBeansConfigurationSource(XmlObject bean,
 			Map<String, String> xpathNamespaces, ConversionManager conversionManager) {
 		this.bean = bean;
-		this.xpathNamespaces = xpathNamespaces;
+		if (xpathNamespaces != null) {
+		    this.xpathNamespaces = xpathNamespaces;
+		} else {
+		    this.xpathNamespaces = Collections.emptyMap();
+		}
 		this.conversionManager = conversionManager;
 	}
 	

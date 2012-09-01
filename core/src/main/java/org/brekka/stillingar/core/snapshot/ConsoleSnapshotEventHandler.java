@@ -63,8 +63,7 @@ public class ConsoleSnapshotEventHandler implements SnapshotEventHandler {
      * org.brekka.stillingar.core.snapshot.SnapshotEventHandler#noInitialSnapshot(org.brekka.stillingar.core.snapshot
      * .NoSnapshotAvailableException, boolean)
      */
-    public void noInitialSnapshot(NoSnapshotAvailableException e, boolean defaultsAvailable,
-            boolean initialSnapshotRequired) {
+    public void noInitialSnapshot(NoSnapshotAvailableException e, boolean defaultsAvailable) {
         if (!enabled) {
             return;
         }

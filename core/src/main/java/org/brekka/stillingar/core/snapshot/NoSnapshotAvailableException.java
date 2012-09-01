@@ -34,4 +34,12 @@ public class NoSnapshotAvailableException extends Exception {
         return locations;
     }
     
+    /* (non-Javadoc)
+     * @see java.lang.Throwable#getLocalizedMessage()
+     */
+    @Override
+    public String getLocalizedMessage() {
+        return String.format("Unable to find configuration with any of the names %s in the locations: %s", 
+                snapshotResourceNames, locations);
+    }
 }

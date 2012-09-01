@@ -3,11 +3,7 @@
  */
 package org.brekka.stillingar.spring.resource.dir;
 
-import java.io.File;
-
 import org.brekka.stillingar.spring.resource.BaseDirectory;
-import org.brekka.stillingar.spring.resource.UnresolvableResource;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 
 /**
@@ -32,12 +28,7 @@ public class SystemPropertyDirectory implements BaseDirectory {
     @Override
     public Resource getDirResource() {
         String val = System.getProperty(property);
-        if (val == null) {
-            return new UnresolvableResource("Not set");
-        }
-        File dir = new File(val);
-        // TODO verify dir
-        return new FileSystemResource(dir);
+        return BaseDirUtils.resourceFromVariable(val, null);
     }
 
     /* (non-Javadoc)

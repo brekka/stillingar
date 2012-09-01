@@ -43,11 +43,6 @@ public class SnapshotBasedConfigurationSource extends AbstractChangeAwareConfigu
 	private final SnapshotManager snapshotManager;
 	
 	/**
-	 * Determine whether the system should be able to continue on defaults only if no initial snapshot is found.
-	 */
-	private final boolean initialSnapshotRequired;
-	
-	/**
 	 * Handle errors
 	 */
 	private final SnapshotEventHandler snapshotEventHandler;
@@ -63,7 +58,7 @@ public class SnapshotBasedConfigurationSource extends AbstractChangeAwareConfigu
      */
 	public SnapshotBasedConfigurationSource(SnapshotManager snapshotManager, 
 	                                             ConfigurationSource defaultConfigurationSource) {
-	    this (snapshotManager, true, defaultConfigurationSource, null);
+	    this (snapshotManager, defaultConfigurationSource, null);
 	}
 	
 	/**
@@ -77,12 +72,10 @@ public class SnapshotBasedConfigurationSource extends AbstractChangeAwareConfigu
      *            the handler to use for events
      */
 	public SnapshotBasedConfigurationSource(SnapshotManager snapshotManager,
-	                                             boolean initialSnapshotRequired,
 	                                             ConfigurationSource defaultConfigurationSource,
 	                                             SnapshotEventHandler snapshotEventHandler) {
 	    super(defaultConfigurationSource);
 		this.snapshotManager = snapshotManager;
-		this.initialSnapshotRequired = initialSnapshotRequired;
 		this.snapshotEventHandler = (snapshotEventHandler != null 
 		        ? snapshotEventHandler : new ConsoleSnapshotEventHandler());
 	}
@@ -93,12 +86,15 @@ public class SnapshotBasedConfigurationSource extends AbstractChangeAwareConfigu
 	 * available and there is no default source, an exception will be thrown.
 	 */
 	public void init() {
-	    Snapshot initial;
+	    Snapshot initial = null;
 	    try {
             initial = snapshotManager.retrieveInitial();
         } catch (NoSnapshotAvailableException e) {
-            snapshotEventHandler.noInitialSnapshot(e, getDefaultSource() != NONE, initialSnapshotRequired);
-            return;
+            boolean defaultsAvailable = getDefaultSource() != NONE;
+            snapshotEventHandler.noInitialSnapshot(e, defaultsAvailable);
+            if (!defaultsAvailable) {
+                throw new ConfigurationException("No configuration available. See logs for details.");
+            }
         }
 	    
 	    // Refresh using the initial, if it is available
@@ -108,7 +104,7 @@ public class SnapshotBasedConfigurationSource extends AbstractChangeAwareConfigu
 	            snapshotManager.reject(initial);
 	        }
 	        snapshotEventHandler.initialConfigure(initial, errors);
-	    } else if (initialSnapshotRequired) {
+	    } else if (getDefaultSource() == NONE) {
 	        // An initial snapshot was required to continue.
 	        throw new ConfigurationException("No initial configuration snapshot found. " +
 	        		"This application requires custom configuration settings in order to operate correctly.");

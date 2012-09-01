@@ -27,10 +27,8 @@ public interface SnapshotEventHandler {
      *            details about the locations searched and why they were not valid snapshots (missing, invalid, etc).
      * @param defaultsAvailable
      *            are there defaults available that the application could potentially use.
-     * @param initialSnapshotRequired
-     *            should the application abort if no snapshot is found.
      */
-    void noInitialSnapshot(NoSnapshotAvailableException e, boolean defaultsAvailable, boolean initialSnapshotRequired);
+    void noInitialSnapshot(NoSnapshotAvailableException e, boolean defaultsAvailable);
 
     /**
      * Called after the initial snapshot has been processed. If <code>errors</code> is empty then the snapshot loaded

@@ -11,48 +11,36 @@ import org.springframework.core.io.Resource;
  *
  */
 public enum PlatformDirectory implements BaseDirectory {
-
+    
     Tomcat {
-        /* (non-Javadoc)
-         * @see org.brekka.stillingar.spring.resource.BaseDirectory#getDirResource()
-         */
         @Override
         public Resource getDirResource() {
-            // TODO Auto-generated method stub
-            return null;
+            String prop = System.getProperty("catalina.base");
+            return BaseDirUtils.resourceFromVariable(prop, "conf");
         }
     },
     
     Glassfish {
-        /* (non-Javadoc)
-         * @see org.brekka.stillingar.spring.resource.BaseDirectory#getDirResource()
-         */
         @Override
         public Resource getDirResource() {
-            // TODO Auto-generated method stub
-            return null;
+            String prop = System.getProperty("com.sun.aas.instanceRoot");
+            return BaseDirUtils.resourceFromVariable(prop, "config");
         }
     },
     
     JBoss {
-        /* (non-Javadoc)
-         * @see org.brekka.stillingar.spring.resource.BaseDirectory#getDirResource()
-         */
         @Override
         public Resource getDirResource() {
-            // TODO Auto-generated method stub
-            return null;
+            String prop = System.getProperty("jboss.server.home.dir");
+            return BaseDirUtils.resourceFromVariable(prop, "conf");
         }
     },
     
     Weblogic {
-        /* (non-Javadoc)
-         * @see org.brekka.stillingar.spring.resource.BaseDirectory#getDirResource()
-         */
         @Override
         public Resource getDirResource() {
-            // TODO Auto-generated method stub
-            return null;
+            String env = System.getenv("DOMAIN_HOME");
+            return BaseDirUtils.resourceFromVariable(env, "config");
         }
     },
     

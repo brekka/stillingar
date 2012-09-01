@@ -19,6 +19,7 @@ package org.brekka.stillingar.spring.resource;
 import static java.lang.String.format;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -92,45 +93,54 @@ public class ScanningResourceSelector implements ResourceSelector {
         if (dir instanceof UnresolvableResource) {
             UnresolvableResource res = (UnresolvableResource) dir;
             rejected.add(new Rejected(locationBase.getDisposition(), null, res.getMessage()));
-        }
-        String dirPath = null;
-        try {
-            dirPath = dir.getURI().toString();
-        } catch (IOException e) {
-            if (log.isWarnEnabled()) {
-                log.warn(format("Resource dir '%s' has a bad uri", locationBase), e);
-            }
-        }
-        if (!dir.exists()) {
-            rejected.add(new Rejected(locationBase.getDisposition(), dirPath, 
-                    "Directory does not exist"));
-        }
-        StringBuilder message = new StringBuilder();
-        
-        for (String name : names) {
+        } else {
+            String dirPath = null;
             try {
-                Resource location = dir.createRelative(name);
-                if (location.exists()) {
-                    if (location.isReadable()) {
-                        // We have found a file
-                        return location;
-                    } else {
-                        if (message.length() > 0) {
-                            message.append(" ");
-                        }
-                        message.append("File '%s' exists but cannot be read.");
-                    }
-                } else {
-                    // Fair enough, it does not exist
+                URI uri = dir.getURI();
+                if (uri != null) {
+                    dirPath = uri.toString();
                 }
             } catch (IOException e) {
-                // Location could not be resolved, log as warning, then move on to the next one.
                 if (log.isWarnEnabled()) {
-                    log.warn(format("Resource location '%s' encountered problem", locationBase), e);
+                    log.warn(format("Resource dir '%s' has a bad uri", locationBase), e);
                 }
             }
+            String message;
+            if (dir.exists()) {
+                StringBuilder messageBuilder = new StringBuilder();
+                for (String name : names) {
+                    try {
+                        Resource location = dir.createRelative(name);
+                        if (location.exists()) {
+                            if (location.isReadable()) {
+                                // We have found a file
+                                return location;
+                            } else {
+                                if (messageBuilder.length() > 0) {
+                                    messageBuilder.append(" ");
+                                }
+                                messageBuilder.append("File '%s' exists but cannot be read.");
+                            }
+                        } else {
+                            // Fair enough, it does not exist
+                        }
+                    } catch (IOException e) {
+                        // Location could not be resolved, log as warning, then move on to the next one.
+                        if (log.isWarnEnabled()) {
+                            log.warn(format("Resource location '%s' encountered problem", locationBase), e);
+                        }
+                    }
+                }
+                if (messageBuilder.length() == 0) {
+                    message = "no configuration files found";
+                } else {
+                    message = messageBuilder.toString();
+                }
+            } else {
+                message = "Directory does not exist";
+            }
+            rejected.add(new Rejected(locationBase.getDisposition(), dirPath, message));
         }
-        rejected.add(new Rejected(locationBase.getDisposition(), dirPath, message.toString()));
         // No resource found
         return null;
     }
@@ -174,6 +184,14 @@ public class ScanningResourceSelector implements ResourceSelector {
         @Override
         public String getMessage() {
             return message;
+        }
+        
+        /* (non-Javadoc)
+         * @see java.lang.Object#toString()
+         */
+        @Override
+        public String toString() {
+            return "[" + getDisposition() + " - " + getPath() + " - " + getMessage() + "]";
         }
         
     }

@@ -43,6 +43,7 @@ public class BusinessServiceImpl implements BusinessService {
 
 	// Business method
 	public void doSomething() {
+	    System.out.println("Did something");
 	}
 	
 	@ConfigurationListener
