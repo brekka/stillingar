@@ -37,23 +37,38 @@ public class VersionedResourceNameResolver extends BasicResourceNameResolver {
      * Default version pattern.
      */
     private static final Pattern DEFAULT_VERSION_PATTERN = Pattern.compile("^([\\d\\.]+).*$");
-    private static final String DEFAULT_NAME_FORMAT = "%s-%s.%s";
+    
+    /**
+     * Default output name format that include version
+     */
+    private static final String DEFAULT_VERSION_NAME_FORMAT = "%s-%s.%s";
 
     /**
      * Where to obtain the version number.
      */
     protected final ApplicationVersionResolver applicationVersionResolver;
 
+    /**
+     * The version pattern to apply to the version number.
+     */
     private Pattern versionPattern = DEFAULT_VERSION_PATTERN;
     
-    private String nameFormat = DEFAULT_NAME_FORMAT;
+    /**
+     * Output formatter to create the full configuration file name.
+     */
+    private String versionNameFormat = DEFAULT_VERSION_NAME_FORMAT;
 
     /**
      * @param prefix
      *            The prefix that will be applied to the resource name. This will normally be the application name.
+     * @param applicationVersionResolver
+     *            Identifies the version string.
      */
     public VersionedResourceNameResolver(String prefix, ApplicationVersionResolver applicationVersionResolver) {
         super(prefix);
+        if (applicationVersionResolver == null) {
+            throw new IllegalArgumentException("Application version resolver must be set");
+        }
         this.applicationVersionResolver = applicationVersionResolver;
     }
     
@@ -70,6 +85,10 @@ public class VersionedResourceNameResolver extends BasicResourceNameResolver {
         return names;
     }
     
+    /**
+     * Generate a list of candidate version names.
+     * @return the list of names
+     */
     protected List<String> prepareVersionedNames() {
         List<String> names = Collections.emptyList();
         String version = applicationVersionResolver.identifyVersion();
@@ -80,7 +99,7 @@ public class VersionedResourceNameResolver extends BasicResourceNameResolver {
                 int groupCount = matcher.groupCount();
                 if (groupCount == 0) {
                     // No groups, just use the whole string
-                    version = matcher.group(1);
+                    version = matcher.group(0);
                     names.add(formatWithVersion(version));
                 } else {
                     for (int i = 1; i <= groupCount; i++) {
@@ -98,14 +117,17 @@ public class VersionedResourceNameResolver extends BasicResourceNameResolver {
      * @return
      */
     protected String formatWithVersion(String version) {
-        return String.format(nameFormat, getPrefix(), version, getExtension());
+        return String.format(getVersionNameFormat(), getPrefix(), version, getExtension());
     }
 
     /**
      * @param nameFormat the nameFormat to set
      */
-    public final void setNameFormat(String nameFormat) {
-        this.nameFormat = nameFormat;
+    public final void setVersionNameFormat(String versionNameFormat) {
+        if (versionNameFormat == null) {
+            throw new IllegalArgumentException("Output version name format cannot be null");
+        }
+        this.versionNameFormat = versionNameFormat;
     }
     
     /**
@@ -121,8 +143,8 @@ public class VersionedResourceNameResolver extends BasicResourceNameResolver {
     /**
      * @return the nameFormat
      */
-    public final String getNameFormat() {
-        return nameFormat;
+    public final String getVersionNameFormat() {
+        return versionNameFormat;
     }
     
     /**

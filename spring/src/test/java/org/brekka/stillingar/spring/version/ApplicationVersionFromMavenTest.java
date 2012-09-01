@@ -16,12 +16,27 @@
 
 package org.brekka.stillingar.spring.version;
 
-/**
- * Implementations should return a version number via some lookup mechanism. 
- * 
- * @author Andrew Taylor (andrew@brekka.org)
- */
-public interface ApplicationVersionResolver {
+import static org.junit.Assert.*;
 
-    String identifyVersion();
+import org.junit.Before;
+import org.junit.Test;
+
+/**
+ * @author Andrew Taylor (andrew@brekka.org)
+ *
+ */
+public class ApplicationVersionFromMavenTest {
+
+
+    @Test
+    public void testCommonsLang() {
+        ApplicationVersionFromMaven applicationVersionFromMaven = new ApplicationVersionFromMaven("commons-lang", "commons-lang", getClass().getClassLoader());
+        assertEquals("2.6", applicationVersionFromMaven.identifyVersion());
+    }
+
+    @Test
+    public void testNotFound() {
+        ApplicationVersionFromMaven applicationVersionFromMaven = new ApplicationVersionFromMaven("not-commons-lang", "not-commons-lang", getClass().getClassLoader());
+        assertNull(applicationVersionFromMaven.identifyVersion());
+    }
 }

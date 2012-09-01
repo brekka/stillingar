@@ -19,7 +19,7 @@ package org.brekka.stillingar.spring.config;
 import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
 
 /**
- * TODO
+ * Registers the Stillingar configuration parser under the name "configuration".
  * 
  * @author Andrew Taylor
  */

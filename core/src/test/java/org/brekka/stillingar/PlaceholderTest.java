@@ -22,42 +22,85 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Check that the {@link Placeholder} class throws the correct exception when any method of its proxies instance is called.
+ * Check that the {@link Placeholder} class throws the correct exception when any method of its proxies instance is
+ * called.
+ * 
  * @author Andrew Taylor
  */
 public class PlaceholderTest {
 
-	private PlaceholderTestBean bean;
-	
-	@Before
-	public void setUp() throws Exception {
-		bean = new PlaceholderTestBean();
-	}
+    private PlaceholderTestBean bean;
 
-	@Test(expected=IllegalStateException.class)
-	public void testOf() {
-		try {
-			bean.process1();
-		} catch (IllegalStateException e) {
-		    
-			assertEquals("Instance variable <java.lang.Runnable> at line 21 of class " +
-					"'org.brekka.stillingar.PlaceholderTestBean' has not yet been set",
-					e.getMessage());
-			throw e;
-		}
-	}
+    @Before
+    public void setUp() throws Exception {
+        bean = new PlaceholderTestBean();
+    }
 
-	@Test(expected=IllegalStateException.class)
-	public void testOfWithLabel() {
-		try {
-			bean.process2();
-		} catch (IllegalStateException e) {
-			assertEquals("Instance variable 'placedWithLabel' <java.lang.Runnable> at line 23 of class " +
-					"'org.brekka.stillingar.PlaceholderTestBean' has not yet been set", 
-					e.getMessage());
-			throw e;
-		}
-	}
+    @Test(expected = IllegalStateException.class)
+    public void testOf() {
+        try {
+            bean.process1();
+        } catch (IllegalStateException e) {
+
+            assertEquals("Instance variable <java.lang.Runnable> at line 21 of class "
+                    + "'org.brekka.stillingar.PlaceholderTestBean' has not yet been set", e.getMessage());
+            throw e;
+        }
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testOfWithLabel() {
+        try {
+            bean.process2();
+        } catch (IllegalStateException e) {
+            assertEquals("Instance variable 'placedWithLabel' <java.lang.Runnable> at line 23 of class "
+                    + "'org.brekka.stillingar.PlaceholderTestBean' has not yet been set", e.getMessage());
+            throw e;
+        }
+    }
+
+    @Test
+    public void testIsPlaceholderValid() {
+        Runnable val = Placeholder.of(Runnable.class);
+        assertTrue(Placeholder.isPlaceholder(val));
+    }
+
+    @Test
+    public void testIsPlaceholderNotValid() {
+        assertFalse(Placeholder.isPlaceholder("Not a placeholder"));
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void testNullValueType() {
+        Placeholder.of(null);
+    }
+    
+    @Test(expected=IllegalArgumentException.class)
+    public void testNotInterfaceValueType() {
+        Placeholder.of(String.class);
+    }
+    
+    @Test(expected=IllegalStateException.class)
+    public void testInvocation() {
+        Runnable val = Placeholder.of(Runnable.class);
+        val.run();
+    }
+    
+    @Test
+    public void testInvocationCached() {
+        Runnable val = Placeholder.of(Runnable.class);
+        IllegalStateException error = null;
+        try {
+            val.run();
+        } catch (IllegalStateException e) {
+            error = e;
+        }
+        IllegalStateException error2 = null;
+        try {
+            val.run();
+        } catch (IllegalStateException e) {
+            error2 = e;
+        }
+        assertSame(error, error2);
+    }
 }
-
-

@@ -63,7 +63,7 @@ import org.w3c.dom.NodeList;
  */
 public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
 
-    private static final int MINIMUM_RELOAD_INTERVAL = 1000;
+    private static final int MINIMUM_RELOAD_INTERVAL = 500;
 
     @Override
     protected Class<SnapshotBasedConfigurationSource> getBeanClass(Element element) {
@@ -87,16 +87,6 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
         prepareReloadMechanism(element, parserContext);
     }
 
-    /**
-     * @param element
-     * @return
-     */
-    private Engine determineEngine(Element element) {
-        String engine = element.getAttribute("engine");
-        engine = engine.toUpperCase();
-        return Engine.valueOf(engine);
-    }
-
     protected void preparePostProcessor(Element element, ParserContext parserContext) {
         String id = element.getAttribute("id");
         BeanDefinitionBuilder postProcessor = BeanDefinitionBuilder
@@ -110,7 +100,7 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
      * @param element
      * @param parserContext
      */
-    private void preparePlaceholderConfigurer(Element element, ParserContext parserContext) {
+    protected void preparePlaceholderConfigurer(Element element, ParserContext parserContext) {
         Element placeholderElement = selectSingleChildElement(element, "property-placeholder", true);
         if (placeholderElement != null) {
             String id = element.getAttribute("id");
@@ -144,7 +134,7 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
      * @param element
      * @param parserContext
      */
-    private void prepareLoader(Element element, ParserContext parserContext, Engine engine) {
+    protected void prepareLoader(Element element, ParserContext parserContext, Engine engine) {
         String loaderReference = getLoaderReference(element);
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(engine.getLoaderClassName());
 
@@ -211,7 +201,7 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
      * @param element
      * @return
      */
-    private AbstractBeanDefinition prepareResourceManager(Element element, Engine engine) {
+    protected AbstractBeanDefinition prepareResourceManager(Element element, Engine engine) {
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(ResourceSnapshotManager.class);
         builder.addConstructorArgValue(prepareResourceSelector(element, engine));
         builder.addConstructorArgReference(getLoaderReference(element));
@@ -222,7 +212,7 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
      * @param element
      * @return
      */
-    private AbstractBeanDefinition prepareResourceSelector(Element element, Engine engine) {
+    protected AbstractBeanDefinition prepareResourceSelector(Element element, Engine engine) {
         String path = element.getAttribute("path");
         BeanDefinitionBuilder builder;
         if (path != null && !path.isEmpty()) {
@@ -240,7 +230,7 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
      * @param element
      * @return
      */
-    private AbstractBeanDefinition prepareResourceNameResolver(Element element, Engine engine) {
+    protected AbstractBeanDefinition prepareResourceNameResolver(Element element, Engine engine) {
         Element selectorElement = selectSingleChildElement(element, "selector", true);
         BeanDefinitionBuilder builder = null;
         String prefix = getName(element);
@@ -271,7 +261,7 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
      * @param extension
      * @return
      */
-    private BeanDefinitionBuilder buildMavenVersionedResourceNameResolver(Element versionMavenElement, String prefix,
+    protected BeanDefinitionBuilder buildMavenVersionedResourceNameResolver(Element versionMavenElement, String prefix,
             String extension) {
         BeanDefinitionBuilder builder = BeanDefinitionBuilder
                 .genericBeanDefinition(VersionedResourceNameResolver.class);
@@ -285,7 +275,7 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
      * @param versionMavenElement
      * @return
      */
-    private AbstractBeanDefinition prepareApplicationVersionFromMaven(Element versionMavenElement) {
+    protected AbstractBeanDefinition prepareApplicationVersionFromMaven(Element versionMavenElement) {
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(ApplicationVersionFromMaven.class);
         builder.addConstructorArgValue(versionMavenElement.getAttribute("groupId"));
         builder.addConstructorArgValue(versionMavenElement.getAttribute("artifactId"));
@@ -293,86 +283,26 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
         return builder.getBeanDefinition();
     }
 
-    /**
-     * @param naming
-     * @param string
-     * @param prefix
-     * @return
-     */
-    private String attribute(Element elem, String attributeName, String defaultValue) {
-        String value = elem.getAttribute(attributeName);
-        if (value == null) {
-            value = defaultValue;
-        }
-        return value;
-    }
+
 
     /**
      * @param prefix
      * @param extension
      * @return
      */
-    private BeanDefinitionBuilder buildBasicResourceNameResolver(String prefix, Object extension) {
+    protected BeanDefinitionBuilder buildBasicResourceNameResolver(String prefix, Object extension) {
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(BasicResourceNameResolver.class);
         builder.addConstructorArgValue(prefix);
         builder.addPropertyValue("extension", extension);
         return builder;
     }
 
-    /**
-     * @param element
-     * @param string
-     * @return
-     */
-    private Element selectSingleChildElement(Element element, String tagName, boolean optional) {
-        Element singleChild = null;
-        NodeList children = element.getElementsByTagNameNS("*", tagName);
-        if (children.getLength() == 1) {
-            Node node = children.item(0);
-            if (node instanceof Element) {
-                singleChild = (Element) node;
-            } else {
-                throw new IllegalArgumentException(String.format(
-                        "Expected child node '%s' of element '%s' to be itself an instance of Element, "
-                                + "it is instead '%s'", tagName, element.getTagName(), node.getClass().getName()));
-            }
-        } else if (children.getLength() == 0) {
-            if (!optional) {
-                throw new IllegalArgumentException(String.format(
-                        "Failed to find a single child element named '%s' for parent element '%s'", tagName,
-                        element.getTagName()));
-            }
-        } else {
-            throw new IllegalArgumentException(String.format(
-                    "Expected element '%s' to have a single child element named '%s', found however %d elements",
-                    element.getTagName(), tagName, children.getLength()));
-        }
-        return singleChild;
-    }
-    
-    private List<Element> selectChildElements(Element element, String tagName) {
-        NodeList children = element.getElementsByTagNameNS("*", tagName);
-        List<Element> elementList = new ArrayList<Element>(children.getLength());
-        for (int i = 0; i < children.getLength(); i++) {
-            Node item = children.item(i);
-            if (item instanceof Element) {
-                elementList.add((Element) item);
-            } else {
-                throw new IllegalArgumentException(String.format(
-                        "The child node '%s' of element '%s' at index %d is not an instance of Element, "
-                                + "it is instead '%s'", tagName, element.getTagName(), 
-                                i, item.getClass().getName()));
-            }
-            
-        }
-        return elementList;
-    }
 
     /**
      * @param element
      * @return
      */
-    private ManagedList<Object> prepareBaseDirectoryList(Element element) {
+    protected ManagedList<Object> prepareBaseDirectoryList(Element element) {
         ManagedList<Object> list = new ManagedList<Object>();
         Element locationElement = selectSingleChildElement(element, "location", true);
         if (locationElement != null) {
@@ -406,7 +336,7 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
      * @param textContent
      * @return
      */
-    private Object preparePlatformLocation(String type) {
+    protected PlatformDirectory preparePlatformLocation(String type) {
         return PlatformDirectory.valueOf(type);
     }
 
@@ -415,7 +345,7 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
      * @param class1
      * @return
      */
-    private AbstractBeanDefinition prepareHomeLocation(Element element, String path) {
+    protected AbstractBeanDefinition prepareHomeLocation(Element element, String path) {
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(HomeDirectory.class);
         if (path == null) {
             path = ".config/" + getName(element);
@@ -429,7 +359,7 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
      * @param class1
      * @return
      */
-    private AbstractBeanDefinition prepareLocation(String value, Class<?> baseDirectoryClass) {
+    protected AbstractBeanDefinition prepareLocation(String value, Class<?> baseDirectoryClass) {
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(baseDirectoryClass);
         builder.addConstructorArgValue(value);
         return builder.getBeanDefinition();
@@ -439,7 +369,7 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
      * @param element
      * @return
      */
-    private AbstractBeanDefinition prepareSnapshotEventHandler(Element element) {
+    protected AbstractBeanDefinition prepareSnapshotEventHandler(Element element) {
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(LoggingSnapshotEventHandler.class);
         builder.addConstructorArgValue(getName(element));
         return builder.getBeanDefinition();
@@ -449,7 +379,7 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
      * @param element
      * @return
      */
-    private AbstractBeanDefinition prepareDefaultConfigurationSource(Element element, Engine engine) {
+    protected AbstractBeanDefinition prepareDefaultConfigurationSource(Element element, Engine engine) {
         Element defaultsElement = selectSingleChildElement(element, "defaults", true);
         String defaultsPath = null;
         String encoding = null;
@@ -480,37 +410,21 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
      * @param defaultsPath
      * @return
      */
-    private AbstractBeanDefinition prepareClassPathResource(String path) {
+    protected AbstractBeanDefinition prepareClassPathResource(String path) {
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(ClassPathResource.class);
         builder.addConstructorArgValue(path);
         return builder.getBeanDefinition();
     }
 
-    private AbstractBeanDefinition prepareFileSystemResource(String path) {
+    protected AbstractBeanDefinition prepareFileSystemResource(String path) {
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(FileSystemResource.class);
         builder.addConstructorArgValue(path);
         return builder.getBeanDefinition();
     }
 
-    /**
-     * @param element
-     * @return
-     */
-    private String getLoaderReference(Element element) {
-        String id = element.getAttribute("id");
-        return id + "-loader";
-    }
 
-    private String getName(Element element) {
-        // Optional application name, will use the id if not specified.
-        String name = element.getAttribute("name");
-        if (name == null) {
-            name = element.getAttribute("id");
-        }
-        return name;
-    }
     
-    private AbstractBeanDefinition prepareConversionManager() {
+    protected AbstractBeanDefinition prepareConversionManager() {
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition("org.brekka.stillingar.xmlbeans.conversion.ConversionManager");
         ManagedList<Object> converters = new ManagedList<Object>();
         List<String> converterShortNames = Arrays.asList("BigDecimalConverter", "BigIntegerConverter",
@@ -526,6 +440,97 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
         converters.add(BeanDefinitionBuilder.genericBeanDefinition(ApplicationContextConverter.class).getBeanDefinition());
         builder.addConstructorArgValue(converters);
         return builder.getBeanDefinition();
+    }
+    
+    /**
+     * @param element
+     * @return
+     */
+    private Engine determineEngine(Element element) {
+        String engine = element.getAttribute("engine");
+        engine = engine.toUpperCase();
+        return Engine.valueOf(engine);
+    }
+    
+    /**
+     * @param naming
+     * @param string
+     * @param prefix
+     * @return
+     */
+    protected static String attribute(Element elem, String attributeName, String defaultValue) {
+        String value = elem.getAttribute(attributeName);
+        if (value == null) {
+            value = defaultValue;
+        }
+        return value;
+    }
+    
+    /**
+     * @param element
+     * @return
+     */
+    protected static String getLoaderReference(Element element) {
+        String id = element.getAttribute("id");
+        return id + "-loader";
+    }
+
+    protected static String getName(Element element) {
+        // Optional application name, will use the id if not specified.
+        String name = element.getAttribute("name");
+        if (name == null) {
+            name = element.getAttribute("id");
+        }
+        return name;
+    }
+
+    /**
+     * @param element
+     * @param string
+     * @return
+     */
+    protected static Element selectSingleChildElement(Element element, String tagName, boolean optional) {
+        Element singleChild = null;
+        NodeList children = element.getElementsByTagNameNS("*", tagName);
+        if (children.getLength() == 1) {
+            Node node = children.item(0);
+            if (node instanceof Element) {
+                singleChild = (Element) node;
+            } else {
+                throw new IllegalArgumentException(String.format(
+                        "Expected child node '%s' of element '%s' to be itself an instance of Element, "
+                                + "it is instead '%s'", tagName, element.getTagName(), node.getClass().getName()));
+            }
+        } else if (children.getLength() == 0) {
+            if (!optional) {
+                throw new IllegalArgumentException(String.format(
+                        "Failed to find a single child element named '%s' for parent element '%s'", tagName,
+                        element.getTagName()));
+            }
+        } else {
+            throw new IllegalArgumentException(String.format(
+                    "Expected element '%s' to have a single child element named '%s', found however %d elements",
+                    element.getTagName(), tagName, children.getLength()));
+        }
+        return singleChild;
+    }
+    
+    protected static List<Element> selectChildElements(Element element, String tagName) {
+        NodeList children = element.getElementsByTagNameNS("*", tagName);
+        List<Element> elementList = new ArrayList<Element>(children.getLength());
+        for (int i = 0; i < children.getLength(); i++) {
+            Node item = children.item(i);
+            if (item instanceof Element) {
+                elementList.add((Element) item);
+            } else {
+                throw new IllegalArgumentException(String.format(
+                        "The child node '%s' of element '%s' at index %d is not an instance of Element, "
+                                + "it is instead '%s'", tagName, element.getTagName(), 
+                                i, item.getClass().getName()));
+            }
+            
+        }
+        return elementList;
     }
 
     enum Engine {

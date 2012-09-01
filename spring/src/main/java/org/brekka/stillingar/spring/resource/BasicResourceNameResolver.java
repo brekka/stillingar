@@ -33,6 +33,11 @@ public class BasicResourceNameResolver implements ResourceNameResolver {
      * The default extension
      */
     private static final String DEFAULT_EXTENSION = "xml";
+    
+    /**
+     * Default output name format
+     */
+    private static final String DEFAULT_NAME_FORMAT = "%s.%s";
 
     /**
      * The prefix that will be applied to the resource name. This will normally be the application name.
@@ -43,12 +48,20 @@ public class BasicResourceNameResolver implements ResourceNameResolver {
      * The extension to use which by default is 'xml'.
      */
     private String extension = DEFAULT_EXTENSION;
+    
+    /**
+     * The default name format
+     */
+    private String nameFormat = DEFAULT_NAME_FORMAT;
 
     /**
      * @param prefix
      *            The prefix that will be applied to the resource name. This will normally be the application name.
      */
     public BasicResourceNameResolver(String prefix) {
+        if (prefix == null) {
+            throw new IllegalArgumentException("Prefix is required");
+        }
         this.prefix = prefix;
     }
     
@@ -61,7 +74,7 @@ public class BasicResourceNameResolver implements ResourceNameResolver {
     }
     
     protected String prepareBasicName() {
-        return format("%s.%s", prefix, extension);
+        return format(getNameFormat(), prefix, extension);
     }
     
     /**
@@ -82,6 +95,26 @@ public class BasicResourceNameResolver implements ResourceNameResolver {
      * @param extension the extension to set
      */
     public final void setExtension(String extension) {
+        if (extension == null) {
+            throw new IllegalArgumentException("Extension cannot be null");
+        }
         this.extension = extension;
+    }
+    
+    /**
+     * @return the nameFormat
+     */
+    public final String getNameFormat() {
+        return nameFormat;
+    }
+    
+    /**
+     * @param nameFormat the nameFormat to set
+     */
+    public final void setNameFormat(String nameFormat) {
+        if (nameFormat == null) {
+            throw new IllegalArgumentException("Output name format cannot be null");
+        }
+        this.nameFormat = nameFormat;
     }
 }

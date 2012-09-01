@@ -23,7 +23,6 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.brekka.stillingar.core.ChangeAwareConfigurationSource;
 import org.brekka.stillingar.core.GroupConfigurationException;
 import org.brekka.stillingar.core.snapshot.InvalidSnapshotException;
 import org.brekka.stillingar.core.snapshot.NoSnapshotAvailableException;
@@ -32,8 +31,8 @@ import org.brekka.stillingar.core.snapshot.Snapshot;
 import org.brekka.stillingar.core.snapshot.SnapshotEventHandler;
 
 /**
- * A simple runnable that can be used perform updates on an {@link ChangeAwareConfigurationSource}, logging out any
- * resulting report and its errors.
+ * Enhances the standard {@link SnapshotEventHandler} to use commons logging as the output mechanism (giving 
+ * control of output to a standard logging framework).
  * 
  * @author Andrew Taylor
  */

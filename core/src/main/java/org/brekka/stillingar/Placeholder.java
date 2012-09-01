@@ -48,6 +48,11 @@ public final class Placeholder {
 	private static final int TARGET_DEPTH = 3;
 	
 	/**
+     * Utility non-constructor
+     */
+    private Placeholder() { }
+	
+	/**
 	 * Create a new placeholder for the type <code>valueType</code> which must
 	 * be an interface. When any method of the returned instance is invoked, an
 	 * {@link IllegalStateException} will be thrown whose message indicates the
@@ -94,7 +99,11 @@ public final class Placeholder {
 	 * @return true if <code>value</code> is a placeholder value, false otherwise.
 	 */
 	public static boolean isPlaceholder(Object value) {
-		return (Proxy.getInvocationHandler(value) instanceof PlaceholderInvocationHandler);
+		try {
+            return (Proxy.getInvocationHandler(value) instanceof PlaceholderInvocationHandler);
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
 	}
 
 	/**
