@@ -4,13 +4,15 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
+		<groupId>org.brekka.stillingar</groupId>
 		<artifactId>stillingar</artifactId>
-		<groupId>org.brekka</groupId>
 		<version>1.0</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<artifactId>stillingar-test-integration</artifactId>
+    
+    <name>Stillingar - Integration tests</name>
     
 	<version>1.0.0</version>
 
