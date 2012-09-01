@@ -91,10 +91,10 @@
 	<bean class="org.brekka.stillingar.test.intg.PrototypeConfiguredBean"></bean>
 
     <stil:configuration id="integration-config" name="integration" reload-interval="5000" engine="xmlbeans"> 
+        <stil:property-placeholder />
         <stil:namespace prefix="c"     url="http://brekka.org/xml/stillingar/test/intg" />
         <stil:namespace prefix="log4j" url="http://jakarta.apache.org/log4j/" />
         <stil:namespace prefix="beans" url="http://www.springframework.org/schema/beans" />
-        <stil:property-placeholder />
     </stil:configuration> 
 
 <!--     <bean class="org.brekka.stillingar.spring.ConfigurationPlaceholderConfigurer"> -->

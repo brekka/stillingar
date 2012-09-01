@@ -5,12 +5,6 @@
     <xsd:element name="configuration">
         <xsd:complexType>
             <xsd:sequence>
-                <xsd:element name="namespace" minOccurs="0" maxOccurs="unbounded">
-                    <xsd:complexType>
-                        <xsd:attribute name="prefix" type="xsd:string" use="required" />
-                        <xsd:attribute name="url" type="xsd:string" use="required" />
-                    </xsd:complexType>
-                </xsd:element>
                 <xsd:choice minOccurs="0" maxOccurs="1">
                     <xsd:element name="selector">
                         <xsd:complexType>
@@ -108,6 +102,12 @@
                     <xsd:complexType>
                         <xsd:attribute name="path" type="xsd:string" use="required"></xsd:attribute>
                         <xsd:attribute name="encoding" type="xsd:string" use="optional"></xsd:attribute>
+                    </xsd:complexType>
+                </xsd:element>
+                <xsd:element name="namespace" minOccurs="0" maxOccurs="unbounded">
+                    <xsd:complexType>
+                        <xsd:attribute name="prefix" type="xsd:string" use="required" />
+                        <xsd:attribute name="url" type="xsd:string" use="required" />
                     </xsd:complexType>
                 </xsd:element>
             </xsd:sequence>

@@ -8,24 +8,19 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
         http://brekka.org/schema/stillingar/v1 http://brekka.org/schema/stillingar/brekka-stillingar-1.0.xsd">
     
-    <context:component-scan base-package="org.brekka.stillingar.test.intg.services.impl" />
+<!--     <context:component-scan base-package="org.brekka.stillingar.test.intg.services.impl" /> -->
 
     <context:annotation-config />
     
-    <bean id="dynamicBean" class="java.util.Date" scope="prototype" />
-
-    <stil:configuration id="integration-config" name="integration" engine="xmlbeans"> 
+    <stil:configuration id="integration-config" engine="xmlbeans" reload-interval="500"> 
         <stil:selector>
-            <stil:naming prefix="bob" />
+            <stil:naming prefix="updates" />
             <stil:location>
-                <stil:environment-variable>TEST_APP</stil:environment-variable>
-                <stil:home path=".config/fish" />
-                <stil:platform>Tomcat</stil:platform>
+                <stil:system-property>target.path</stil:system-property>
             </stil:location>
-            <stil:version-maven groupId="commons-lang" artifactId="commons-lang" pattern="^((\\d+)\\.\\d+).*$"/>
         </stil:selector>
         <stil:property-placeholder />
-        <stil:namespace prefix="c"     url="http://brekka.org/xml/stillingar/test/intg" />
+        <stil:namespace prefix="c"     url="http://brekka.org/xml/stillingar/test/intg/v1" />
         <stil:namespace prefix="log4j" url="http://jakarta.apache.org/log4j/" />
         <stil:namespace prefix="beans" url="http://www.springframework.org/schema/beans" />
     </stil:configuration> 

@@ -87,9 +87,9 @@ public class ResourceSnapshotManager implements SnapshotManager {
 	 */
 	@Override
 	public Snapshot retrieveInitial() throws NoSnapshotAvailableException {
-	    Snapshot snapshot = null;
 	    Resource configurationResource = resourceSelector.getResource();
 	    this.configurationResource = configurationResource;
+	    Snapshot snapshot = performLoad(configurationResource);
 	    return snapshot;
 	}
 
