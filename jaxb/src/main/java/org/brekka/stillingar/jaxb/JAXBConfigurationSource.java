@@ -18,7 +18,17 @@ package org.brekka.stillingar.jaxb;
 
 import java.util.List;
 
+import javax.xml.bind.JAXBException;
+import javax.xml.namespace.NamespaceContext;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+
 import org.brekka.stillingar.core.ConfigurationSource;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 /**
  * TODO Description of JAXBConfigurationSource
@@ -27,13 +37,19 @@ import org.brekka.stillingar.core.ConfigurationSource;
  */
 public class JAXBConfigurationSource implements ConfigurationSource {
 
+    private final Document document;
+    
     private final Object object;
+    
+    private final NamespaceContext xPathNamespaceContext;
     
     /**
      * @param object
      */
-    public JAXBConfigurationSource(Object object) {
+    public JAXBConfigurationSource(Document document, Object object, NamespaceContext xPathNamespaceContext) {
+        this.document = document;
         this.object = object;
+        this.xPathNamespaceContext = xPathNamespaceContext;
     }
 
     /* (non-Javadoc)
@@ -57,8 +73,23 @@ public class JAXBConfigurationSource implements ConfigurationSource {
     /* (non-Javadoc)
      * @see org.brekka.stillingar.core.ConfigurationSource#retrieve(java.lang.String, java.lang.Class)
      */
+    @SuppressWarnings("unchecked")
     @Override
     public <T> T retrieve(String expression, Class<T> valueType) {
+        XPathFactory xFactory = XPathFactory.newInstance();
+        XPath xpath = xFactory.newXPath();
+        xpath.setNamespaceContext(xPathNamespaceContext);
+        try {
+            XPathExpression expr = xpath.compile(expression);
+            Object result = expr.evaluate(document, XPathConstants.NODE);
+            if (result instanceof Node) {
+                Node node = (Node) result;
+            }
+            System.out.println(result);
+        } catch (XPathExpressionException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } 
         // TODO Auto-generated method stub
         return null;
     }

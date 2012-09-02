@@ -16,12 +16,14 @@
 
 package org.brekka.stillingar.spring.config;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.brekka.stillingar.core.ConfigurationException;
 import org.brekka.stillingar.core.properties.PropertiesConfigurationSourceLoader;
 import org.brekka.stillingar.core.snapshot.SnapshotBasedConfigurationSource;
 import org.brekka.stillingar.spring.ConfigurationBeanPostProcessor;
@@ -52,6 +54,7 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.scheduling.concurrent.ScheduledExecutorFactoryBean;
 import org.springframework.scheduling.concurrent.ScheduledExecutorTask;
 import org.springframework.util.PropertyPlaceholderHelper;
+import org.springframework.util.xml.SimpleNamespaceContext;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -138,27 +141,73 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
         String loaderReference = getLoaderReference(element);
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(engine.getLoaderClassName());
 
-        if (engine == Engine.XMLBEANS) {
-            builder.addConstructorArgValue(prepareConversionManager());
-            prepareNamespaces(element, builder);
+        switch (engine) {
+            case XMLBEANS:
+                builder.addConstructorArgValue(prepareConversionManager());
+                prepareXMLBeanNamespaces(element, builder);
+                break;
+            case JAXB:
+                prepareJAXB(element, builder);
+                break;
+            case PROPS:
+                // No extra handling for properties
+                break;
+            default:
+                // No special requirements
+                break;
         }
-        
 
         parserContext.registerBeanComponent(new BeanComponentDefinition(builder.getBeanDefinition(), loaderReference));
     }
 
-    protected void prepareNamespaces(Element element, BeanDefinitionBuilder builder) {
-        ManagedMap<String, String> namespaceMap = new ManagedMap<String, String>();
-        List<Element> namespaceElements = selectChildElements(element, "namespace");
-        for (Element namespaceElement : namespaceElements) {
-            String prefix = namespaceElement.getAttribute("prefix");
-            String url = namespaceElement.getAttribute("url");
-            namespaceMap.put(prefix, url);
+    /**
+     * @param element
+     * @param builder
+     */
+    protected void prepareJAXB(Element element, BeanDefinitionBuilder builder) {
+        Element jaxbElement = selectSingleChildElement(element, "jaxb", false);
+        
+        // Path
+        String contextPath = jaxbElement.getAttribute("context-path");
+        builder.addConstructorArgValue(contextPath);
+        
+        // Schemas
+        List<Element> schemaElementList = selectChildElements(jaxbElement, "schema");
+        ManagedList<URL> schemaUrlList = new ManagedList<URL>(schemaElementList.size());
+        for (Element schemaElement : schemaElementList) {
+            String schemaPath = schemaElement.getTextContent();
+            try {
+                URL url = new URL(schemaPath);
+                schemaUrlList.add(url);
+            } catch (MalformedURLException e) {
+                throw new ConfigurationException(String.format(
+                        "Failed to parse schema location '%s'", schemaPath), e);
+            }
         }
+        builder.addConstructorArgValue(schemaUrlList);
+        
+        // Namespaces
+        builder.addConstructorArgValue(prepareJAXBNamespaces(element));
+    }
+
+    /**
+     * @param element
+     * @return
+     */
+    protected AbstractBeanDefinition prepareJAXBNamespaces(Element element) {
+        BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(SimpleNamespaceContext.class);
+        builder.addPropertyValue("bindings", toNamespaceMap(element));
+        return builder.getBeanDefinition();
+    }
+
+    protected void prepareXMLBeanNamespaces(Element element, BeanDefinitionBuilder builder) {
+        ManagedMap<String, String> namespaceMap = toNamespaceMap(element);
         if (!namespaceMap.isEmpty()) {
             builder.addPropertyValue("xpathNamespaces", namespaceMap);
         }
     }
+
+    
 
     protected void prepareReloadMechanism(Element element, ParserContext parserContext) {
         String id = element.getAttribute("id");
@@ -446,6 +495,21 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
      * @param element
      * @return
      */
+    private static ManagedMap<String, String> toNamespaceMap(Element element) {
+        ManagedMap<String, String> namespaceMap = new ManagedMap<String, String>();
+        List<Element> namespaceElements = selectChildElements(element, "namespace");
+        for (Element namespaceElement : namespaceElements) {
+            String prefix = namespaceElement.getAttribute("prefix");
+            String url = namespaceElement.getAttribute("url");
+            namespaceMap.put(prefix, url);
+        }
+        return namespaceMap;
+    }
+    
+    /**
+     * @param element
+     * @return
+     */
     private static Engine determineEngine(Element element) {
         String engine = element.getAttribute("engine");
         engine = engine.toUpperCase();
@@ -534,8 +598,13 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
     }
 
     enum Engine {
-        PROPS(PropertiesConfigurationSourceLoader.class.getName(), "properties"), XMLBEANS(
-                "org.brekka.stillingar.xmlbeans.XmlBeansSnapshotLoader", "xml"), ;
+        PROPS(PropertiesConfigurationSourceLoader.class.getName(), "properties"), 
+        
+        XMLBEANS("org.brekka.stillingar.xmlbeans.XmlBeansSnapshotLoader", "xml"), 
+        
+        JAXB("org.brekka.stillingar.jaxb.JAXBSnapshotLoader", "xml")
+        
+        ;
 
         private final String loaderClassName;
         private final String defaultExtension;

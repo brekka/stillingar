@@ -27,8 +27,12 @@
                                 <xsd:element name="location" maxOccurs="1" minOccurs="0">
                                     <xsd:complexType>
                                         <xsd:sequence>
-                                            <xsd:element name="environment-variable" type="xsd:string" maxOccurs="unbounded" minOccurs="0"></xsd:element>
-                                            <xsd:element name="system-property" type="xsd:string" maxOccurs="unbounded" minOccurs="0"></xsd:element>
+                                            <xsd:element name="environment-variable" type="xsd:string"
+                                                maxOccurs="unbounded" minOccurs="0">
+                                            </xsd:element>
+                                            <xsd:element name="system-property" type="xsd:string" maxOccurs="unbounded"
+                                                minOccurs="0">
+                                            </xsd:element>
                                             <xsd:element name="home" maxOccurs="unbounded" minOccurs="0">
                                                 <xsd:complexType>
                                                     <xsd:attribute name="path" type="xsd:string" use="optional">
@@ -104,6 +108,14 @@
                         <xsd:attribute name="encoding" type="xsd:string" use="optional"></xsd:attribute>
                     </xsd:complexType>
                 </xsd:element>
+                <xsd:element name="jaxb" maxOccurs="1" minOccurs="0">
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element name="schema" type="xsd:anyURI" maxOccurs="unbounded" minOccurs="0"></xsd:element>
+                        </xsd:sequence>
+                        <xsd:attribute name="context-path" type="xsd:string" use="required"></xsd:attribute>
+                    </xsd:complexType>
+                </xsd:element>
                 <xsd:element name="namespace" minOccurs="0" maxOccurs="unbounded">
                     <xsd:complexType>
                         <xsd:attribute name="prefix" type="xsd:string" use="required" />
@@ -163,6 +175,7 @@
                     <xsd:restriction base="xsd:string">
                         <xsd:enumeration value="xmlbeans"></xsd:enumeration>
                         <xsd:enumeration value="props"></xsd:enumeration>
+                        <xsd:enumeration value="jaxb"></xsd:enumeration>
                     </xsd:restriction>
                 </xsd:simpleType>
             </xsd:attribute>
