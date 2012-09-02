@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://brekka.org/xml/stillingar/test/intg/v1"
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://brekka.org/xml/stillingar/test/v1"
     xmlns:log4j="http://jakarta.apache.org/log4j/"
-	xmlns:st="http://brekka.org/xml/stillingar/test/intg/v1" elementFormDefault="qualified" 
+	xmlns:st="http://brekka.org/xml/stillingar/test/v1" elementFormDefault="qualified" 
     attributeFormDefault="unqualified">
 
 	<xsd:element name="Configuration">

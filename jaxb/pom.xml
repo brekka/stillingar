@@ -82,6 +82,22 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>jaxb2-maven-plugin</artifactId>
+                <version>1.5</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>testXjc</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <packageName>org.brekka.stillingar.test.jaxb</packageName>
+                    <schemaDirectory>../core/src/test/xsd</schemaDirectory>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 

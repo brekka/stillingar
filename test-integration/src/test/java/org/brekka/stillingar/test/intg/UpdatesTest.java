@@ -3,18 +3,15 @@
  */
 package org.brekka.stillingar.test.intg;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.io.File;
-import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.brekka.stillingar.core.ConfigurationSource;
-import org.brekka.xml.stillingar.test.intg.v1.ConfigurationDocument.Configuration.CompanyY;
+import org.brekka.xml.stillingar.test.v1.ConfigurationDocument.Configuration.CompanyY;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.test.context.ContextConfiguration;
 
 /**
  * @author Andrew Taylor (andrew@brekka.org)

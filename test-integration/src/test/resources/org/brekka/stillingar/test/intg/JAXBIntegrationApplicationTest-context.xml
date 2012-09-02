@@ -13,10 +13,10 @@
     
     <stil:configuration id="integration-config" name="integration" engine="jaxb"> 
         <stil:property-placeholder />
-        <stil:jaxb context-path="org.brekka.stillingar.jaxb.test.intg">
-            <stil:schema>http://brekka.org/schema/stillingar/test/intg/IntegrationTestConfig-1.0.xsd</stil:schema>
+        <stil:jaxb context-path="org.brekka.stillingar.test.jaxb">
+            <stil:schema>http://brekka.org/schema/stillingar/test/TestConfiguration-1.0.xsd</stil:schema>
         </stil:jaxb>
-        <stil:namespace prefix="c"     url="http://brekka.org/xml/stillingar/test/intg/v1" />
+        <stil:namespace prefix="c"     url="http://brekka.org/xml/stillingar/test/v1" />
         <stil:namespace prefix="log4j" url="http://jakarta.apache.org/log4j/" />
         <stil:namespace prefix="beans" url="http://www.springframework.org/schema/beans" />
     </stil:configuration> 

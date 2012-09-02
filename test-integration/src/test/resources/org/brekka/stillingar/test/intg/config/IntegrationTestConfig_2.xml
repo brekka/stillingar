@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration xmlns="http://brekka.org/xml/stillingar/test/intg/v1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://brekka.org/xml/stillingar/test/intg/v1 http://brekka.org/schema/stillingar/test/intg/IntegrationTestConfig-1.0.xsd">
+<Configuration xmlns="http://brekka.org/xml/stillingar/test/v1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://brekka.org/xml/stillingar/test/v1 http://brekka.org/schema/stillingar/test/TestConfiguration-1.0.xsd">
     <MOTD>
         <Message>A different test message</Message>
         <Expires>2013-01-31T12:00:00</Expires>
@@ -55,13 +55,13 @@
         </log4j:configuration>
     </Logging>
     <ApplicationContext>
-		<beans:beans xmlns:beans="http://www.springframework.org/schema/beans"
-			xmlns:context="http://www.springframework.org/schema/context" xmlns:p="http://www.springframework.org/schema/p"
-			xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-				http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+        <beans:beans xmlns:beans="http://www.springframework.org/schema/beans"
+            xmlns:context="http://www.springframework.org/schema/context" xmlns:p="http://www.springframework.org/schema/p"
+            xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
             <beans:bean id="name" class="java.lang.String">
                 <beans:constructor-arg value="Stillingar" />
             </beans:bean>
-		</beans:beans>
+        </beans:beans>
     </ApplicationContext>
 </Configuration>

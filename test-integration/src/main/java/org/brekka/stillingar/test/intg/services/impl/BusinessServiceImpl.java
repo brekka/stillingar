@@ -24,7 +24,7 @@ import java.util.Date;
 import org.brekka.stillingar.annotations.ConfigurationListener;
 import org.brekka.stillingar.annotations.Configured;
 import org.brekka.stillingar.test.intg.services.BusinessService;
-import org.brekka.xml.stillingar.test.intg.v1.ConfigurationDocument.Configuration.CompanyX;
+import org.brekka.xml.stillingar.test.v1.ConfigurationDocument.Configuration.CompanyX;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 

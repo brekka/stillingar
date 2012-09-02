@@ -25,9 +25,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.brekka.stillingar.core.ConfigurationSource;
-import org.brekka.stillingar.jaxb.test.intg.Configuration.CompanyX;
-import org.brekka.stillingar.jaxb.test.intg.Configuration.CompanyY;
-import org.brekka.stillingar.jaxb.test.intg.Configuration.Services.Rules;
+import org.brekka.stillingar.test.jaxb.Configuration.CompanyX;
+import org.brekka.stillingar.test.jaxb.Configuration.CompanyY;
+import org.brekka.stillingar.test.jaxb.Configuration.Services.Rules;
 import org.junit.Test;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
@@ -37,7 +37,6 @@ public class JAXBIntegrationApplicationTest extends AbstractJUnit4SpringContextT
 
 	@Test
 	public void test() throws Exception {
-		
 		ConfigurationSource configurationSource = applicationContext.getBean("integration-config", ConfigurationSource.class);
 		
 		CompanyY companyY = configurationSource.retrieve("/c:Configuration/c:CompanyY", CompanyY.class);

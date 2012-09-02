@@ -92,7 +92,7 @@
 
     <stil:configuration id="integration-config" name="integration" reload-interval="5000" engine="xmlbeans"> 
         <stil:property-placeholder />
-        <stil:namespace prefix="c"     url="http://brekka.org/xml/stillingar/test/intg/v1" />
+        <stil:namespace prefix="c"     url="http://brekka.org/xml/stillingar/test/v1" />
         <stil:namespace prefix="log4j" url="http://jakarta.apache.org/log4j/" />
         <stil:namespace prefix="beans" url="http://www.springframework.org/schema/beans" />
     </stil:configuration> 

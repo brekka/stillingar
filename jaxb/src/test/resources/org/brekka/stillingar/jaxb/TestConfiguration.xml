@@ -8,18 +8,6 @@
     <Database>
         <DataSource>jdbc/test</DataSource>
     </Database>
-    <CompanyX>
-        <SalesWebService>
-            <URL>http://example.org/CompanyX</URL>
-            <Username>Username</Username>
-            <Password>Password</Password>
-            <Proxy>
-                <URL>http://example.org/Proxy</URL>
-                <Username>Username</Username>
-                <Password>Password</Password>
-            </Proxy>
-        </SalesWebService>
-    </CompanyX>
     <CompanyY>
         <WarehouseWebService>
             <URL>http://example.org/CompanyY</URL>
@@ -53,10 +41,10 @@
         </log4j:configuration>
     </Logging>
     <ApplicationContext>
-        <beans:beans xmlns:beans="http://www.springframework.org/schema/beans"
-            xmlns:context="http://www.springframework.org/schema/context" xmlns:p="http://www.springframework.org/schema/p"
-            xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-                http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
-        </beans:beans>
+		<beans:beans xmlns:beans="http://www.springframework.org/schema/beans"
+			xmlns:context="http://www.springframework.org/schema/context" xmlns:p="http://www.springframework.org/schema/p"
+			xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+				http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+		</beans:beans>
     </ApplicationContext>
 </Configuration>
