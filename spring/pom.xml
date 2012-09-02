@@ -10,7 +10,7 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>stillingar-spring</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.0-SNAPSHOT</version>
 
     <packaging>jar</packaging>
 
@@ -75,22 +75,24 @@
 		</plugins>
 	</build>
 	<dependencies>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-beans</artifactId>
-			<version>${spring-release-version}</version>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>${junit-version}</version>
-			<scope>test</scope>
-		</dependency>
+        <dependency>
+            <groupId>org.brekka.stillingar</groupId>
+            <artifactId>stillingar-core</artifactId>
+            <version>${stillingar-core-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.brekka.stillingar</groupId>
+            <artifactId>stillingar-xmlbeans</artifactId>
+            <version>${stillingar-xmlbeans-version}</version>
+            <optional>true</optional>
+        </dependency>
+        
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
 			<version>${spring-release-version}</version>
 		</dependency>
+        
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-test</artifactId>
@@ -103,22 +105,17 @@
 			<version>${commons-lang-version}</version>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>org.brekka</groupId>
-			<artifactId>stillingar-core</artifactId>
-			<version>${stillingar-core-version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.brekka</groupId>
-			<artifactId>stillingar-xmlbeans</artifactId>
-			<version>${stillingar-xmlbeans-version}</version>
-			<optional>true</optional>
-		</dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit-version}</version>
+            <scope>test</scope>
+        </dependency>
 	</dependencies>
 
 	<properties>
-		<stillingar-core-version>1.0.0</stillingar-core-version>
-		<stillingar-xmlbeans-version>1.0.0</stillingar-xmlbeans-version>
+		<stillingar-core-version>1.0.0-SNAPSHOT</stillingar-core-version>
+		<stillingar-xmlbeans-version>1.0.0-SNAPSHOT</stillingar-xmlbeans-version>
 		<spring-release-version>3.0.5.RELEASE</spring-release-version>
 		<junit-version>4.8.2</junit-version>
 		<commons-lang-version>2.6</commons-lang-version>
