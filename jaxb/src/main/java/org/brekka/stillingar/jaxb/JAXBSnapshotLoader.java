@@ -106,13 +106,13 @@ public class JAXBSnapshotLoader implements ConfigurationSourceLoader {
             IOException {
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            factory.setNamespaceAware(true);
+            factory.setNamespaceAware(xPathNamespaceContext != null);
             DocumentBuilder documentBuilder = factory.newDocumentBuilder();
             Document document = documentBuilder.parse(sourceStream);
             JAXBContext jc = JAXBContext.newInstance(this.contextPath);
             Unmarshaller u = jc.createUnmarshaller();
-            Object object = u.unmarshal(document);
             u.setSchema( this.schema );
+            Object object = u.unmarshal(document);
             return new JAXBConfigurationSource(document, object, xPathNamespaceContext);
         } catch (JAXBException e) {
             throw new ConfigurationException(String.format(

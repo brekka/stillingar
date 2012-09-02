@@ -16,7 +16,7 @@
 
 package org.brekka.stillingar.spring.config;
 
-import java.net.MalformedURLException;
+import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -51,6 +51,7 @@ import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.scheduling.concurrent.ScheduledExecutorFactoryBean;
 import org.springframework.scheduling.concurrent.ScheduledExecutorTask;
 import org.springframework.util.PropertyPlaceholderHelper;
@@ -147,7 +148,7 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
                 prepareXMLBeanNamespaces(element, builder);
                 break;
             case JAXB:
-                prepareJAXB(element, builder);
+                prepareJAXB(element, parserContext, builder);
                 break;
             case PROPS:
                 // No extra handling for properties
@@ -164,7 +165,7 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
      * @param element
      * @param builder
      */
-    protected void prepareJAXB(Element element, BeanDefinitionBuilder builder) {
+    protected void prepareJAXB(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
         Element jaxbElement = selectSingleChildElement(element, "jaxb", false);
         
         // Path
@@ -177,9 +178,9 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
         for (Element schemaElement : schemaElementList) {
             String schemaPath = schemaElement.getTextContent();
             try {
-                URL url = new URL(schemaPath);
-                schemaUrlList.add(url);
-            } catch (MalformedURLException e) {
+                Resource resource = parserContext.getReaderContext().getResourceLoader().getResource(schemaPath);
+                schemaUrlList.add(resource.getURL());
+            } catch (IOException e) {
                 throw new ConfigurationException(String.format(
                         "Failed to parse schema location '%s'", schemaPath), e);
             }
@@ -195,8 +196,12 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
      * @return
      */
     protected AbstractBeanDefinition prepareJAXBNamespaces(Element element) {
+        ManagedMap<String,String> namespaceMap = toNamespaceMap(element);
+        if (namespaceMap.isEmpty()) {
+            return null;
+        }
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(SimpleNamespaceContext.class);
-        builder.addPropertyValue("bindings", toNamespaceMap(element));
+        builder.addPropertyValue("bindings", namespaceMap);
         return builder.getBeanDefinition();
     }
 

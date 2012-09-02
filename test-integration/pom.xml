@@ -159,7 +159,7 @@
 
 	<properties>
 		<stillingar-core-version>1.0.0-SNAPSHOT</stillingar-core-version>
-		<stillingar-jaxb-version>0.0.1-SNAPSHOT</stillingar-jaxb-version>
+		<stillingar-jaxb-version>1.0.0-SNAPSHOT</stillingar-jaxb-version>
 		<stillingar-xmlbeans-version>1.0.0-SNAPSHOT</stillingar-xmlbeans-version>
 		<spring-release-version>3.0.5.RELEASE</spring-release-version>
 		<junit-version>4.8.2</junit-version>
