@@ -34,8 +34,7 @@ import org.brekka.stillingar.core.GroupConfigurationException;
  * 
  * @author Andrew Taylor (andrew@brekka.org)
  */
-public class SnapshotBasedConfigurationSource extends AbstractChangeAwareConfigurationSource 
-                                            implements ChangeAwareConfigurationSource {
+public class SnapshotBasedConfigurationSource extends AbstractChangeAwareConfigurationSource {
 	
     /**
      * Where all snapshots will be obtained from

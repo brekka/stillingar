@@ -24,7 +24,7 @@ import java.util.Date;
 import org.brekka.stillingar.annotations.ConfigurationListener;
 import org.brekka.stillingar.annotations.Configured;
 import org.brekka.stillingar.test.intg.services.BusinessService;
-import org.brekka.xml.stillingar.test.intg.ConfigurationDocument.Configuration.Business;
+import org.brekka.xml.stillingar.test.intg.v1.ConfigurationDocument.Configuration.CompanyX;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -32,14 +32,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class BusinessServiceImpl implements BusinessService {
 
-	@Configured("/c:Configuration/c:Business/c:Frequency")
+	@Configured("//c:Fraud/c:TriggerFactor")
 	private BigDecimal frequency;
 	
 	private int configureCount = 0;
 	
 	private Date configureDate;
 	
-	private Business configureBusiness;
+	private CompanyX configureBusiness;
 
 	// Business method
 	public void doSomething() {
@@ -50,7 +50,7 @@ public class BusinessServiceImpl implements BusinessService {
 	public void configure(@Qualifier("dynamicBean") 
 	                      Date theDate, 
 	                      @Configured 
-	                      Business business) {
+	                      CompanyX business) {
 	    configureCount++;
 	    this.configureDate = theDate;
 	    this.configureBusiness = business;
@@ -60,7 +60,7 @@ public class BusinessServiceImpl implements BusinessService {
         return configureCount;
     }
 	
-	public Business getConfigureBusiness() {
+	public CompanyX getConfigureBusiness() {
         return configureBusiness;
     }
 	

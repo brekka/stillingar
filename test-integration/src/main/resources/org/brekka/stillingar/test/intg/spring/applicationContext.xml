@@ -65,7 +65,7 @@
 	
 
     <bean id="something" class="java.lang.Float">
-        <constructor-arg value="$integration{/c:Configuration/c:Business/c:Frequency}">
+        <constructor-arg value="$integration{//c:Fraud/c:TriggerFactor}">
         </constructor-arg>
     </bean>
     
@@ -76,11 +76,11 @@
 	<bean id="dynamicBean" class="java.util.Date" scope="prototype" />
 	
 	<bean id="simpleBeanStatic" class="org.brekka.stillingar.test.intg.SimpleBean">
-	   <property name="value" value="$integration{/c:Configuration/c:Business/c:Frequency}" />
+	   <property name="value" value="$integration{//c:Fraud/c:TriggerFactor}" />
 	</bean>
 	
 	<bean id="simpleBeanPrototype" class="org.brekka.stillingar.test.intg.SimpleBean" scope="prototype">
-	    <property name="value" value="$integration{/c:Configuration/c:Business/c:Frequency}" />
+	    <property name="value" value="$integration{//c:Fraud/c:TriggerFactor}" />
 	</bean>
 	
 	<bean id="logging" class="org.brekka.stillingar.test.intg.Log4JConfigurationBean">
@@ -92,7 +92,7 @@
 
     <stil:configuration id="integration-config" name="integration" reload-interval="5000" engine="xmlbeans"> 
         <stil:property-placeholder />
-        <stil:namespace prefix="c"     url="http://brekka.org/xml/stillingar/test/intg" />
+        <stil:namespace prefix="c"     url="http://brekka.org/xml/stillingar/test/intg/v1" />
         <stil:namespace prefix="log4j" url="http://jakarta.apache.org/log4j/" />
         <stil:namespace prefix="beans" url="http://www.springframework.org/schema/beans" />
     </stil:configuration> 

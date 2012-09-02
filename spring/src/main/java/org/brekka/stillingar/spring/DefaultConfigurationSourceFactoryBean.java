@@ -62,7 +62,9 @@ public class DefaultConfigurationSourceFactoryBean implements FactoryBean<Config
             is = resource.getInputStream();
             return loader.parse(is, encoding);
         } finally {
-            is.close();
+            if (is != null) {
+                is.close();
+            }
         }
     }
 

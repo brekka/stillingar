@@ -133,7 +133,7 @@ public class PropertiesConfigurationSource implements ConfigurationSource {
                 throw new ConfigurationException(format("Unable to find PropertyEditor "
                         + "to convert value '%s' to requested type '%s' for key '%s'", value, valueType.getName(), key));
             }
-            editor.setAsText((String) value);
+            editor.setAsText(value);
             retVal = (T) editor.getValue();
         }
         return retVal;

@@ -115,12 +115,11 @@ public class ScanningResourceSelector implements ResourceSelector {
                             if (location.isReadable()) {
                                 // We have found a file
                                 return location;
-                            } else {
-                                if (messageBuilder.length() > 0) {
-                                    messageBuilder.append(" ");
-                                }
-                                messageBuilder.append("File '%s' exists but cannot be read.");
                             }
+                            if (messageBuilder.length() > 0) {
+                                messageBuilder.append(" ");
+                            }
+                            messageBuilder.append("File '%s' exists but cannot be read.");
                         } else {
                             // Fair enough, it does not exist
                         }

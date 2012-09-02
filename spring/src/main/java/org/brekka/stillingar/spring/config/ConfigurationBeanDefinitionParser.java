@@ -446,7 +446,7 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
      * @param element
      * @return
      */
-    private Engine determineEngine(Element element) {
+    private static Engine determineEngine(Element element) {
         String engine = element.getAttribute("engine");
         engine = engine.toUpperCase();
         return Engine.valueOf(engine);

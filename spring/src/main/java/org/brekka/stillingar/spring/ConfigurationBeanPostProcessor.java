@@ -282,18 +282,6 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
 		return new PostUpdateChangeListener(target, method, argList);
 	}
 
-	
-	@SuppressWarnings("rawtypes")
-	private Class<?> listType(Type listType) {
-		Class<?> type = null;
-		if (listType instanceof ParameterizedType) {
-			ParameterizedType pType = (ParameterizedType) listType;
-			Type[] actualTypeArguments = pType.getActualTypeArguments();
-			type = (Class) actualTypeArguments[0];
-		}
-		return type;
-	}
-	
 	/**
 	 * Determine if the bean class or any of its super types have a {@link Configured}
 	 * annotation set.
@@ -325,6 +313,17 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
 	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
 		this.beanFactory = beanFactory;
 	}
+	
+	@SuppressWarnings("rawtypes")
+    private static Class<?> listType(Type listType) {
+        Class<?> type = null;
+        if (listType instanceof ParameterizedType) {
+            ParameterizedType pType = (ParameterizedType) listType;
+            Type[] actualTypeArguments = pType.getActualTypeArguments();
+            type = (Class) actualTypeArguments[0];
+        }
+        return type;
+    }
 
 	private class FieldValueChangeListener<T extends Object> extends InvocationChangeListenerSupport<T> {
 		private final Field field;

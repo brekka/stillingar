@@ -95,7 +95,7 @@ class XmlBeansConfigurationSource implements ConfigurationSource {
 		T result = null;
 		XmlObject[] found = find(valueType, true);
 		if (found.length == 1) {
-			result = (T) convert(valueType, found[0], null);
+			result = convert(valueType, found[0], null);
 		}
 		return result;
 	}
@@ -127,7 +127,7 @@ class XmlBeansConfigurationSource implements ConfigurationSource {
 		List<T> results = new ArrayList<T>();
 		XmlObject[] found = find(valueType, true);
 		for (XmlObject xmlObject : found) {
-			T value = (T) convert(valueType, xmlObject, null);
+			T value = convert(valueType, xmlObject, null);
 			results.add(value);
 		}
 		return results;
@@ -140,7 +140,7 @@ class XmlBeansConfigurationSource implements ConfigurationSource {
 		List<T> results = new ArrayList<T>();
 		XmlObject[] found = evaluate(expression);
 		for (XmlObject xmlObject : found) {
-			T value = (T) convert(valueType, xmlObject, expression);
+			T value = convert(valueType, xmlObject, expression);
 			results.add(value);
 		}
 		return results;
@@ -205,7 +205,7 @@ class XmlBeansConfigurationSource implements ConfigurationSource {
 				&& value == null) {
 			throw new ValueConfigurationException(format(
 					"no conversion from type '%s' to '%s'",
-					object.getClass().getName(), expectedType.getName()),
+					object != null ? object.getClass().getName() : "null", expectedType.getName()),
 					expectedType, expression);
 		}
 		return value;

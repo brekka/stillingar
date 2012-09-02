@@ -22,7 +22,7 @@ import org.brekka.stillingar.annotations.Configured;
 @Configured
 public class PrototypeConfiguredBean {
 
-    @Configured("/c:Configuration/c:Business/c:Frequency")
+    @Configured("//c:Fraud/c:TriggerFactor")
     private float frequency;
     
     private boolean configureCalled;
