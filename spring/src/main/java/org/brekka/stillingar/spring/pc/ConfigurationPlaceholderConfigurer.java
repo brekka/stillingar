@@ -14,16 +14,13 @@
  * limitations under the License.
  */
 
-package org.brekka.stillingar.spring;
+package org.brekka.stillingar.spring.pc;
 
 import org.brekka.stillingar.core.ChangeAwareConfigurationSource;
 import org.brekka.stillingar.core.ConfigurationSource;
 import org.brekka.stillingar.core.ValueChangeListener;
 import org.brekka.stillingar.core.ValueDefinition;
-import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.MutablePropertyValues;
-import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.beans.PropertyValue;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.BeanFactory;
@@ -35,7 +32,6 @@ import org.springframework.beans.factory.config.BeanDefinitionVisitor;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
-import org.springframework.util.ObjectUtils;
 import org.springframework.util.PropertyPlaceholderHelper;
 import org.springframework.util.PropertyPlaceholderHelper.PlaceholderResolver;
 import org.springframework.util.StringValueResolver;
@@ -138,44 +134,8 @@ public class ConfigurationPlaceholderConfigurer implements BeanFactoryPostProces
         this.placeholderHelper = placeholderHelper;
     }
 
-    private class CustomBeanDefinitionVisitor extends BeanDefinitionVisitor {
-        private final String beanName;
-        private final boolean singleton;
-
-        private PropertyValue currentProperty;
-        
-
-        public CustomBeanDefinitionVisitor(String beanName, boolean singleton, CustomStringValueResolver valueResolver) {
-            super(valueResolver);
-            this.singleton = singleton;
-            this.beanName = beanName;
-            valueResolver.setBeanDefVisitor(this);
-        }
-
-        @Override
-        protected void visitPropertyValues(MutablePropertyValues pvs) {
-            PropertyValue[] pvArray = pvs.getPropertyValues();
-            for (PropertyValue pv : pvArray) {
-                currentProperty = pv;
-                Object newVal = resolveValue(pv.getValue());
-                
-                // Change the value for the first time.
-                if (!ObjectUtils.nullSafeEquals(newVal, pv.getValue())) {
-                    pvs.add(pv.getName(), newVal);
-                }
-                currentProperty = null;
-            }
-        }
-    }
-
-    private class CustomPlaceholderResolver implements PlaceholderResolver {
-        @Override
-        public String resolvePlaceholder(String expression) {
-            return expression;
-        }
-    }
-
-    private class CustomStringValueResolver implements StringValueResolver {
+    
+    class CustomStringValueResolver implements StringValueResolver {
         private CustomBeanDefinitionVisitor beanDefVisitor;
 
         @Override
@@ -186,8 +146,8 @@ public class ConfigurationPlaceholderConfigurer implements BeanFactoryPostProces
                 // Something changed
                 value = configurationSource.retrieve(expression, String.class);
                 
-                PropertyValue currentProperty = beanDefVisitor.currentProperty;
-                String beanName = beanDefVisitor.beanName;
+                PropertyValue currentProperty = beanDefVisitor.getCurrentProperty();
+                String beanName = beanDefVisitor.getBeanName();
                 
                 if (beanDefVisitor != null 
                         && currentProperty != null
@@ -195,7 +155,7 @@ public class ConfigurationPlaceholderConfigurer implements BeanFactoryPostProces
                     ChangeAwareConfigurationSource ucs = (ChangeAwareConfigurationSource) configurationSource;
                     
                     ValueChangeListener<String> listener = null;
-                    if (beanDefVisitor.singleton) {
+                    if (beanDefVisitor.isSingleton()) {
                         // Singleton, we update the single bean instance
                         listener = new BeanPropertyChangeListener(beanName,
                                 currentProperty.getName(), beanFactory);
@@ -214,56 +174,6 @@ public class ConfigurationPlaceholderConfigurer implements BeanFactoryPostProces
 
         public void setBeanDefVisitor(CustomBeanDefinitionVisitor beanDefVisitor) {
             this.beanDefVisitor = beanDefVisitor;
-        }
-    }
-
-    /**
-     * A value change listener that will resolve property changes by looking up the named bean in the 
-     * {@link BeanFactory} and then updating the instance directly.
-     */
-    private static class BeanPropertyChangeListener implements ValueChangeListener<String> {
-        private final String beanName;
-        private final String property;
-        private final BeanFactory beanFactory;
-
-        public BeanPropertyChangeListener(String beanName, String property, BeanFactory beanFactory) {
-            this.beanName = beanName;
-            this.property = property;
-            this.beanFactory = beanFactory;
-        }
-
-        public void onChange(String newValue) {
-            Object bean = beanFactory.getBean(beanName);
-            BeanWrapper beanWrapper = PropertyAccessorFactory.forBeanPropertyAccess(bean);
-            beanWrapper.setPropertyValue(new PropertyValue(property, newValue));
-        }
-    }
-    
-    /**
-     * A value change listener that will resolve property changes by looking up the named bean in the 
-     * {@link BeanFactory} and then updating the instance directly.
-     */
-    private static class PropertyDefChangeListener implements ValueChangeListener<String> {
-        private final String beanName;
-        private final String propertyName;
-        private final ConfigurableListableBeanFactory beanFactory;
-
-        
-
-        public PropertyDefChangeListener(String beanName, String propertyName,
-                ConfigurableListableBeanFactory beanFactory) {
-            this.beanName = beanName;
-            this.propertyName = propertyName;
-            this.beanFactory = beanFactory;
-        }
-
-        public void onChange(String newValue) {
-            BeanDefinition beanDef = beanFactory.getMergedBeanDefinition(beanName);
-            MutablePropertyValues mutablePropertyValues = beanDef.getPropertyValues();
-            PropertyValue propertyValue = mutablePropertyValues.getPropertyValue(propertyName);
-            if (!ObjectUtils.nullSafeEquals(newValue, propertyValue.getValue())) {
-                mutablePropertyValues.add(propertyValue.getName(), newValue);
-            }
         }
     }
 }

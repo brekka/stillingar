@@ -10,6 +10,7 @@
 			    <xsd:element name="MOTD" maxOccurs="1" minOccurs="0">
 			        <xsd:complexType>
 			            <xsd:sequence>
+			                <xsd:element name="ID" type="st:UUIDType" maxOccurs="1" minOccurs="0"></xsd:element>
 			                <xsd:element name="Message" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
 			                <xsd:element name="Expires" type="xsd:dateTime" maxOccurs="1" minOccurs="0"></xsd:element>
 			            </xsd:sequence>
@@ -49,6 +50,8 @@
 			                                    <xsd:sequence>
 			                                        <xsd:element name="Enabled" type="xsd:boolean"></xsd:element>
 			                                        <xsd:element name="TriggerFactor" type="xsd:float"></xsd:element>
+			                                        <xsd:element name="Scale" type="xsd:short"></xsd:element>
+			                                        <xsd:element name="Length" type="xsd:long"></xsd:element>
 			                                        <xsd:element name="Keyword" type="xsd:string" maxOccurs="unbounded" minOccurs="0"></xsd:element>
 			                                    </xsd:sequence>
 			                                </xsd:complexType>
@@ -63,6 +66,8 @@
 			        <xsd:complexType>
 			            <xsd:sequence>
 			                <xsd:element name="PublicKey" type="xsd:base64Binary"></xsd:element>
+                            <xsd:element name="Factor" type="xsd:integer"></xsd:element>
+                            <xsd:element name="Flag" type="xsd:byte"></xsd:element>
 			            </xsd:sequence>
 			        </xsd:complexType>
 			    </xsd:element>
@@ -114,4 +119,10 @@
     	    </xsd:sequence>
         </xsd:choice>
 	</xsd:complexType>
+
+	<xsd:simpleType name="UUIDType">
+        <xsd:restriction base="xsd:string">
+    	    <xsd:pattern value="[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}" />
+        </xsd:restriction>
+	</xsd:simpleType>
 </xsd:schema>

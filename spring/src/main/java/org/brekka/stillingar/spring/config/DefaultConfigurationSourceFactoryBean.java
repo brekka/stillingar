@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.brekka.stillingar.spring;
+package org.brekka.stillingar.spring.config;
 
 import java.io.InputStream;
 import java.nio.charset.Charset;

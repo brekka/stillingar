@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.brekka.stillingar.spring;
+package org.brekka.stillingar.spring.snapshot;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;

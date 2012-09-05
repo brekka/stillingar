@@ -36,6 +36,8 @@
             <Fraud>
                 <Enabled>false</Enabled>
                 <TriggerFactor>0.23</TriggerFactor>
+                <Scale>163</Scale>
+                <Length>85697412963323</Length>
                 <Keyword>KeywordA</Keyword>
                 <Keyword>KeywordB</Keyword>
                 <Keyword>KeywordC</Keyword>
@@ -46,6 +48,8 @@
     </Services>
     <Security>
         <PublicKey>U3RpbGxpbmdhcjI=</PublicKey>
+        <Factor>33513</Factor>
+        <Flag>121</Flag>
     </Security>
     <Logging>
         <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">

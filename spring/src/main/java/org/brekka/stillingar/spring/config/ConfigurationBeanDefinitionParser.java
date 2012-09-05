@@ -26,10 +26,8 @@ import java.util.List;
 import org.brekka.stillingar.core.ConfigurationException;
 import org.brekka.stillingar.core.properties.PropertiesConfigurationSourceLoader;
 import org.brekka.stillingar.core.snapshot.SnapshotBasedConfigurationSource;
-import org.brekka.stillingar.spring.ConfigurationBeanPostProcessor;
-import org.brekka.stillingar.spring.ConfigurationPlaceholderConfigurer;
-import org.brekka.stillingar.spring.DefaultConfigurationSourceFactoryBean;
-import org.brekka.stillingar.spring.LoggingSnapshotEventHandler;
+import org.brekka.stillingar.spring.bpp.ConfigurationBeanPostProcessor;
+import org.brekka.stillingar.spring.pc.ConfigurationPlaceholderConfigurer;
 import org.brekka.stillingar.spring.resource.BasicResourceNameResolver;
 import org.brekka.stillingar.spring.resource.FixedResourceSelector;
 import org.brekka.stillingar.spring.resource.ScanningResourceSelector;
@@ -39,6 +37,7 @@ import org.brekka.stillingar.spring.resource.dir.HomeDirectory;
 import org.brekka.stillingar.spring.resource.dir.PlatformDirectory;
 import org.brekka.stillingar.spring.resource.dir.SystemPropertyDirectory;
 import org.brekka.stillingar.spring.snapshot.ConfigurationSnapshotRefresher;
+import org.brekka.stillingar.spring.snapshot.LoggingSnapshotEventHandler;
 import org.brekka.stillingar.spring.snapshot.ResourceSnapshotManager;
 import org.brekka.stillingar.spring.version.ApplicationVersionFromMaven;
 import org.brekka.stillingar.spring.xmlbeans.ApplicationContextConverter;
@@ -80,6 +79,8 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
         Engine engine = determineEngine(element);
 
         builder.addConstructorArgValue(prepareResourceManager(element, engine));
+        // TODO choose name for this attribute.
+        builder.addConstructorArgValue("true".equals(element.getAttribute("initial-snapshot-required")));
         builder.addConstructorArgValue(prepareDefaultConfigurationSource(element, engine));
         builder.addConstructorArgValue(prepareSnapshotEventHandler(element));
         builder.getRawBeanDefinition().setInitMethodName("init");

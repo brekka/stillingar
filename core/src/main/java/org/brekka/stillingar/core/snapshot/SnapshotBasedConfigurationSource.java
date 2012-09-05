@@ -45,6 +45,12 @@ public class SnapshotBasedConfigurationSource extends AbstractChangeAwareConfigu
 	 * Handle errors
 	 */
 	private final SnapshotEventHandler snapshotEventHandler;
+	
+	/**
+	 * Is an initial snapshot required? Should be set to true if the application
+	 * cannot just rely on the defaults to load correctly.
+	 */
+	private final boolean initialSnapshotRequired;
 
 	
     /**
@@ -57,7 +63,7 @@ public class SnapshotBasedConfigurationSource extends AbstractChangeAwareConfigu
      */
 	public SnapshotBasedConfigurationSource(SnapshotManager snapshotManager, 
 	                                             ConfigurationSource defaultConfigurationSource) {
-	    this (snapshotManager, defaultConfigurationSource, null);
+	    this (snapshotManager, false, defaultConfigurationSource, null);
 	}
 	
 	/**
@@ -71,10 +77,12 @@ public class SnapshotBasedConfigurationSource extends AbstractChangeAwareConfigu
      *            the handler to use for events
      */
 	public SnapshotBasedConfigurationSource(SnapshotManager snapshotManager,
+	                                             boolean initialSnapshotRequired,
 	                                             ConfigurationSource defaultConfigurationSource,
 	                                             SnapshotEventHandler snapshotEventHandler) {
 	    super(defaultConfigurationSource);
 		this.snapshotManager = snapshotManager;
+		this.initialSnapshotRequired = initialSnapshotRequired;
 		this.snapshotEventHandler = (snapshotEventHandler != null 
 		        ? snapshotEventHandler : new ConsoleSnapshotEventHandler());
 	}
@@ -93,6 +101,10 @@ public class SnapshotBasedConfigurationSource extends AbstractChangeAwareConfigu
             snapshotEventHandler.noInitialSnapshot(e, defaultsAvailable);
             if (!defaultsAvailable) {
                 throw new ConfigurationException("No configuration available. See logs for details.");
+            }
+            if (initialSnapshotRequired) {
+                throw new ConfigurationException("Could not find a configuration file with which to load the application. " +
+                		" See the application logs for details of the locations being searched for configuration.");
             }
         }
 	    

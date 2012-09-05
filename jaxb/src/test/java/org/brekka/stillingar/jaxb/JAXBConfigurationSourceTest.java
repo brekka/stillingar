@@ -21,11 +21,18 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.net.URI;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
@@ -33,12 +40,16 @@ import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import net.iharder.Base64;
+
 import org.brekka.stillingar.test.jaxb.Configuration.CompanyX;
 import org.brekka.stillingar.test.jaxb.Configuration.CompanyY;
 import org.brekka.stillingar.test.jaxb.Configuration.Services.Rules.Fraud;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * TODO Description of JAXBConfigurationSourceTest
@@ -59,22 +70,10 @@ public class JAXBConfigurationSourceTest {
         JAXBContext jc = JAXBContext.newInstance("org.brekka.stillingar.test.jaxb");
         Unmarshaller u = jc.createUnmarshaller();
         Object object = u.unmarshal(document);
-        NamespaceContext namespaceContext = new NamespaceContext() {
-            @Override
-            public Iterator getPrefixes(String namespaceURI) {
-                return Arrays.asList("c").iterator();
-            }
-            
-            @Override
-            public String getPrefix(String namespaceURI) {
-                return "c";
-            }
-            
-            @Override
-            public String getNamespaceURI(String prefix) {
-                return "http://brekka.org/xml/stillingar/test/v1";
-            }
-        };
+        Map<String, String> nsMap = new HashMap<String, String>();
+        nsMap.put("c", "http://brekka.org/xml/stillingar/test/v1");
+        nsMap.put("b", "http://www.springframework.org/schema/beans");
+        NamespaceContext namespaceContext = new TestNamespaceContext(nsMap);
         configurationSource = new JAXBConfigurationSource(document, object, namespaceContext);
     }
 
@@ -149,5 +148,91 @@ public class JAXBConfigurationSourceTest {
         assertNotNull(list);
         assertEquals(Arrays.asList("KeywordA", "KeywordB", "KeywordC"), list);
     }
+    
+    
 
+    @Test
+    public void testRetrieveShort() {
+        assertEquals(Short.valueOf((short) 169), configurationSource.retrieve("//c:Scale", Short.class));
+    }
+    
+    @Test
+    public void testRetrieveByte() {
+        assertEquals(Byte.valueOf((byte) 126), configurationSource.retrieve("//c:Flag", Byte.class));
+    }
+    
+    @Test
+    public void testRetrieveInt() {
+        assertEquals(Integer.valueOf(42), configurationSource.retrieve("//c:MaxQuantity", Integer.class));
+    }
+    
+    @Test
+    public void testRetrieveLong() {
+        assertEquals(Long.valueOf(85697458963323L), configurationSource.retrieve("//c:Length", Long.class));
+    }
+    
+    @Test
+    public void testRetrieveFloat() {
+        assertEquals(Float.valueOf(0.89f), configurationSource.retrieve("//c:TriggerFactor", Float.class));
+    }
+    
+    @Test
+    public void testRetrieveDecimal() {
+        assertEquals(new BigDecimal("50000.73"), configurationSource.retrieve("//c:MaxAmount", BigDecimal.class));
+    }
+    
+    @Test
+    public void testRetrieveInteger() {
+        assertEquals(new BigInteger("33543"), configurationSource.retrieve("//c:Factor", BigInteger.class));
+    }
+    
+    // TODO URI conversion
+    @Ignore("Need to add URI conversion")
+    @Test
+    public void testRetrieveURI() throws Exception {
+        assertEquals(new URI("http://example.org/CompanyY"), configurationSource.retrieve("//c:CompanyY//c:URL", URI.class));
+    }
+    
+    @Test
+    public void testRetrieveBoolean() throws Exception {
+        assertTrue(configurationSource.retrieve("//c:Fraud//c:Enabled", Boolean.class));
+    }
+    
+    @Test
+    public void testRetrieveBytes() throws Exception {
+        byte[] expected = Base64.decode("U3RpbGxpbmdhcg==");
+        assertTrue(Arrays.equals(expected, configurationSource.retrieve("//c:PublicKey", byte[].class)));
+    }
+    
+    // TODO calendar conversion
+    @Ignore("Need to add calendar conversion")
+    @Test
+    public void testRetrieveCalendar() throws Exception {
+        Date expected = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse("2012-12-31T12:00:00");
+        assertEquals(expected, configurationSource.retrieve("//c:Expires", Calendar.class).getTime());
+    }
+    
+    // TODO UUID conversion
+    @Ignore("Need to add UUID conversion")
+    @Test
+    public void testRetrieveUUID() throws Exception {
+        assertEquals(UUID.fromString("64829ee9-d265-47bb-8fb4-4ab4ada0cdfc"), configurationSource.retrieve("//c:MOTD//c:ID", UUID.class));
+    }
+    
+
+    @Test
+    public void testRetrieveElement() throws Exception {
+        Element element = configurationSource.retrieve("//c:Rules", Element.class);
+        assertEquals("Rules", element.getNodeName());
+        assertEquals(1, element.getElementsByTagNameNS("*", "Transaction").getLength());
+        assertEquals(1, element.getElementsByTagNameNS("*", "Fraud").getLength());
+    }
+    
+    // TODO document handling
+    @Ignore("Need to add document conversion")
+    @Test
+    public void testRetrieveDocument() throws Exception {
+        Document document = configurationSource.retrieve("//c:ApplicationContext/b:beans", Document.class);
+        assertEquals("beans", document.getDocumentElement().getLocalName());
+    }
 }

@@ -18,11 +18,22 @@ package org.brekka.stillingar.xmlbeans;
 
 import static org.junit.Assert.*;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.net.URI;
+import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
+import net.iharder.Base64;
+
+import org.brekka.stillingar.core.ValueConfigurationException;
 import org.brekka.stillingar.xmlbeans.conversion.ConversionManager;
 import org.brekka.xml.stillingar.test.v1.ConfigurationDocument;
 import org.brekka.xml.stillingar.test.v1.ConfigurationDocument.Configuration.CompanyX;
@@ -30,6 +41,8 @@ import org.brekka.xml.stillingar.test.v1.ConfigurationDocument.Configuration.Com
 import org.brekka.xml.stillingar.test.v1.ConfigurationDocument.Configuration.Services.Rules.Fraud;
 import org.junit.Before;
 import org.junit.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * TODO Description of XmlBeansConfigurationSourceTest
@@ -45,6 +58,7 @@ public class XmlBeansConfigurationSourceTest {
         ConfigurationDocument document = ConfigurationDocument.Factory.parse(getClass().getResourceAsStream("TestConfiguration.xml"));
         Map<String, String> nsMap = new HashMap<String, String>();
         nsMap.put("c", "http://brekka.org/xml/stillingar/test/v1");
+        nsMap.put("b", "http://www.springframework.org/schema/beans");
         configurationSource = new XmlBeansConfigurationSource(document, nsMap, new ConversionManager());
     }
 
@@ -60,7 +74,7 @@ public class XmlBeansConfigurationSourceTest {
     public void testIsAvailableClassFalse() {
         assertFalse(configurationSource.isAvailable(CompanyX.class));
     }
-
+    
     /**
      * Test method for {@link org.brekka.stillingar.xmlbeans.XmlBeansConfigurationSource#isAvailable(java.lang.String)}.
      */
@@ -119,5 +133,93 @@ public class XmlBeansConfigurationSourceTest {
         assertNotNull(list);
         assertEquals(Arrays.asList("KeywordA", "KeywordB", "KeywordC"), list);
     }
+    
+    @Test
+    public void testRetrieveShort() {
+        assertEquals(Short.valueOf((short) 169), configurationSource.retrieve("//c:Scale", Short.class));
+    }
+    
+    @Test
+    public void testRetrieveByte() {
+        assertEquals(Byte.valueOf((byte) 126), configurationSource.retrieve("//c:Flag", Byte.class));
+    }
+    
+    @Test
+    public void testRetrieveInt() {
+        assertEquals(Integer.valueOf(42), configurationSource.retrieve("//c:MaxQuantity", Integer.class));
+    }
+    
+    @Test
+    public void testRetrieveLong() {
+        assertEquals(Long.valueOf(85697458963323L), configurationSource.retrieve("//c:Length", Long.class));
+    }
+    
+    @Test
+    public void testRetrieveFloat() {
+        assertEquals(Float.valueOf(0.89f), configurationSource.retrieve("//c:TriggerFactor", Float.class));
+    }
+    
+    @Test
+    public void testRetrieveDecimal() {
+        assertEquals(new BigDecimal("50000.73"), configurationSource.retrieve("//c:MaxAmount", BigDecimal.class));
+    }
+    
+    @Test
+    public void testRetrieveInteger() {
+        assertEquals(new BigInteger("33543"), configurationSource.retrieve("//c:Factor", BigInteger.class));
+    }
+    
+    @Test
+    public void testRetrieveBoolean() throws Exception {
+        assertTrue(configurationSource.retrieve("//c:Fraud//c:Enabled", Boolean.class));
+    }
+    
+    @Test
+    public void testRetrieveBytes() throws Exception {
+        byte[] expected = Base64.decode("U3RpbGxpbmdhcg==");
+        assertTrue(Arrays.equals(expected, configurationSource.retrieve("//c:PublicKey", byte[].class)));
+    }
+    
+    @Test
+    public void testRetrieveDate() throws Exception {
+        Date expected = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse("2012-12-31T12:00:00");
+        assertEquals(expected, configurationSource.retrieve("//c:Expires", Date.class));
+    }
+    
+    @Test
+    public void testRetrieveCalendar() throws Exception {
+        Date expected = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse("2012-12-31T12:00:00");
+        assertEquals(expected, configurationSource.retrieve("//c:Expires", Calendar.class).getTime());
+    }
+    
+    
+    @Test
+    public void testRetrieveURI() throws Exception {
+        assertEquals(new URI("http://example.org/CompanyY"), configurationSource.retrieve("//c:CompanyY//c:URL", URI.class));
+    }
+    
+    @Test
+    public void testRetrieveUUID() throws Exception {
+        assertEquals(UUID.fromString("64829ee9-d265-47bb-8fb4-4ab4ada0cdfc"), configurationSource.retrieve("//c:MOTD//c:ID", UUID.class));
+    }
 
+    @Test
+    public void testRetrieveElement() throws Exception {
+        Element element = configurationSource.retrieve("//c:Rules", Element.class);
+        assertEquals("Rules", element.getNodeName());
+        assertEquals(1, element.getElementsByTagNameNS("*", "Transaction").getLength());
+        assertEquals(1, element.getElementsByTagNameNS("*", "Fraud").getLength());
+    }
+    
+    @Test
+    public void testRetrieveDocument() throws Exception {
+        Document document = configurationSource.retrieve("//c:ApplicationContext/b:beans", Document.class);
+        assertEquals("beans", document.getDocumentElement().getLocalName());
+    }
+    
+    @Test(expected=ValueConfigurationException.class)
+    public void testRetrieveIncorrectType() throws Exception {
+        configurationSource.retrieve("//c:MaxQuantity", URL.class);
+    }
+    
 }

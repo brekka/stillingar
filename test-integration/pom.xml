@@ -1,25 +1,25 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-	<modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>org.brekka.stillingar</groupId>
-		<artifactId>stillingar</artifactId>
-		<version>1.0</version>
-		<relativePath>../pom.xml</relativePath>
-	</parent>
+    <parent>
+        <groupId>org.brekka.stillingar</groupId>
+        <artifactId>stillingar</artifactId>
+        <version>1.0</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
 
-	<artifactId>stillingar-test-integration</artifactId>
-    
+    <artifactId>stillingar-test-integration</artifactId>
+
     <name>Stillingar - Integration tests</name>
-    
-	<version>1.0.0-SNAPSHOT</version>
+
+    <version>1.0.0-SNAPSHOT</version>
 
     <inceptionYear>2011</inceptionYear>
 
     <url>https://github.com/brekka/stillingar/wiki</url>
-    
+
     <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
@@ -27,7 +27,7 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
-    
+
     <scm>
         <url>https://github.com/brekka/stillingar.git</url>
         <connection>https://github.com/brekka/stillingar.git</connection>
@@ -41,89 +41,94 @@
         </developer>
     </developers>
 
-	<dependencies>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-beans</artifactId>
-			<version>${spring-release-version}</version>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>${junit-version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-context</artifactId>
-			<version>${spring-release-version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-test</artifactId>
-			<version>${spring-release-version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>commons-lang</groupId>
-			<artifactId>commons-lang</artifactId>
-			<version>${commons-lang-version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.brekka.stillingar</groupId>
-			<artifactId>stillingar-spring</artifactId>
-			<version>${stillingar-core-version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.brekka.stillingar</groupId>
-			<artifactId>stillingar-xmlbeans</artifactId>
-			<version>${stillingar-xmlbeans-version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.brekka.stillingar</groupId>
-			<artifactId>stillingar-jaxb</artifactId>
-			<version>${stillingar-jaxb-version}</version>
-		</dependency>
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>1.2.16</version>
-			<optional>true</optional>
-		</dependency>
-		<dependency>
-		    <groupId>commons-io</groupId>
-		    <artifactId>commons-io</artifactId>
-		    <version>2.4</version>
-		</dependency>
-	</dependencies>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+            <version>${spring-release-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit-version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>${spring-release-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>${spring-release-version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>${commons-lang-version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.brekka.stillingar</groupId>
+            <artifactId>stillingar-spring</artifactId>
+            <version>${stillingar-core-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.brekka.stillingar</groupId>
+            <artifactId>stillingar-xmlbeans</artifactId>
+            <version>${stillingar-xmlbeans-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.brekka.stillingar</groupId>
+            <artifactId>stillingar-jaxb</artifactId>
+            <version>${stillingar-jaxb-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.16</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.4</version>
+        </dependency>
+    </dependencies>
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.3.2</version>
-				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
-					<encoding>utf-8</encoding>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-				<version>2.1.2</version>
-				<executions>
-					<execution>
-						<id>attach-sources</id>
-						<phase>verify</phase>
-						<goals>
-							<goal>jar-no-fork</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                    <encoding>utf-8</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.1.2</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.8.1</version>
+            </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>xmlbeans-maven-plugin</artifactId>
@@ -156,15 +161,15 @@
                     <schemaDirectory>../core/src/test/xsd</schemaDirectory>
                 </configuration>
             </plugin>
-		</plugins>
-	</build>
+        </plugins>
+    </build>
 
-	<properties>
-		<stillingar-core-version>1.0.0-SNAPSHOT</stillingar-core-version>
-		<stillingar-jaxb-version>1.0.0-SNAPSHOT</stillingar-jaxb-version>
-		<stillingar-xmlbeans-version>1.0.0-SNAPSHOT</stillingar-xmlbeans-version>
-		<spring-release-version>3.0.5.RELEASE</spring-release-version>
-		<junit-version>4.8.2</junit-version>
-		<commons-lang-version>2.6</commons-lang-version>
-	</properties>
+    <properties>
+        <stillingar-core-version>1.0.0-SNAPSHOT</stillingar-core-version>
+        <stillingar-jaxb-version>1.0.0-SNAPSHOT</stillingar-jaxb-version>
+        <stillingar-xmlbeans-version>1.0.0-SNAPSHOT</stillingar-xmlbeans-version>
+        <spring-release-version>3.0.5.RELEASE</spring-release-version>
+        <junit-version>4.8.2</junit-version>
+        <commons-lang-version>2.6</commons-lang-version>
+    </properties>
 </project>

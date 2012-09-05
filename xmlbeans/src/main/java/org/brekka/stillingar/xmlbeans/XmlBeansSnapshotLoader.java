@@ -35,67 +35,69 @@ import org.brekka.stillingar.core.ConfigurationSourceLoader;
 import org.brekka.stillingar.xmlbeans.conversion.ConversionManager;
 
 /**
- * Loader of Apache XmlBean based snapshots.
+ * Loader of Apache XMLBeans based snapshots.
  * 
  * @author Andrew Taylor
  */
 public class XmlBeansSnapshotLoader implements ConfigurationSourceLoader {
 
     private final ConversionManager conversionManager;
-	
-	private Map<String, String> xpathNamespaces;
-	
-	private boolean validate = true;
-	
-	
-	/**
-     * 
-     */
+
+    private Map<String, String> xpathNamespaces;
+
+    private boolean validate = true;
+
     public XmlBeansSnapshotLoader() {
         this(new ConversionManager());
     }
-    
+
     public XmlBeansSnapshotLoader(ConversionManager conversionManager) {
+        if (conversionManager == null) {
+            throw new IllegalArgumentException("null passed for conversion manager");
+        }
         this.conversionManager = conversionManager;
     }
-    
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.brekka.stillingar.core.ConfigurationSourceLoader#parse(java.io.InputStream, java.nio.charset.Charset)
      */
-    public ConfigurationSource parse(InputStream sourceStream, Charset encoding) throws ConfigurationException,
-            IOException {
-        ConfigurationSource configurationSource;
+    public ConfigurationSource parse(InputStream sourceStream, Charset encoding) throws IOException {
+        if (sourceStream == null) {
+            throw new IllegalArgumentException("A source stream is required");
+        }
         try {
             XmlObject xmlBean = XmlObject.Factory.parse(sourceStream);
             if (this.validate) {
                 validate(xmlBean);
             }
-            configurationSource = new XmlBeansConfigurationSource(xmlBean, this.xpathNamespaces, conversionManager);
+            return new XmlBeansConfigurationSource(xmlBean, this.xpathNamespaces, conversionManager);
         } catch (XmlException e) {
             throw new ConfigurationException(format(
-                    "Illegal XML"), e);
+                    "This does not appear to be an XML document"), e);
         }
-        return configurationSource;
     }
 
-	protected void validate(XmlObject bean) {
-		List<XmlError> errors = new ArrayList<XmlError>();
-		XmlOptions validateOptions = new XmlOptions();
-		validateOptions.setErrorListener(errors);
-		
-		if (!bean.validate(validateOptions)) {
-			throw new ConfigurationException(format(
-					"Configuration XML does not validate. " +
-					"Errors: %s", errors));
-		}
-	}
+    protected void validate(XmlObject bean) {
+        List<XmlError> errors = new ArrayList<XmlError>();
+        XmlOptions validateOptions = new XmlOptions();
+        validateOptions.setErrorListener(errors);
+        if (!bean.validate(validateOptions)) {
+            throw new ConfigurationException(format(
+                    "Configuration XML does not validate. Errors: %s", errors));
+        }
+    }
 
-	
-	public void setXpathNamespaces(Map<String, String> xpathNamespaces) {
-		this.xpathNamespaces = xpathNamespaces;
-	}
-	
-	public void setValidate(boolean validate) {
-		this.validate = validate;
-	}
+    public void setXpathNamespaces(Map<String, String> xpathNamespaces) {
+        if (xpathNamespaces == null) {
+            throw new IllegalArgumentException(
+                    "Must be set to a map of namespaces (not null)");
+        }
+        this.xpathNamespaces = xpathNamespaces;
+    }
+
+    public void setValidate(boolean validate) {
+        this.validate = validate;
+    }
 }
