@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.brekka.stillingar.core.ConfigurationException;
+import org.brekka.stillingar.core.ConfigurationSource;
 import org.brekka.stillingar.core.GroupChangeListener;
 
 /**
@@ -44,11 +45,11 @@ class PostUpdateChangeListener implements GroupChangeListener {
 		this.argValues = argValues;
 	}
 	
-	public void onChange() {
-        onChange(target);
+	public void onChange(ConfigurationSource configurationSource) {
+        onChange(configurationSource, target);
     }
 	
-	public void onChange(Object target) {
+	public void onChange(ConfigurationSource configurationSource, Object target) {
 		Object[] args = new Object[argValues.size()];
 		for (int i = 0; i < argValues.size(); i++) {
 			ValueResolver arg = argValues.get(i);

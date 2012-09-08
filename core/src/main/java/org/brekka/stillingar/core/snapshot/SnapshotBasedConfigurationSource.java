@@ -22,6 +22,7 @@ import org.brekka.stillingar.core.AbstractChangeAwareConfigurationSource;
 import org.brekka.stillingar.core.ChangeAwareConfigurationSource;
 import org.brekka.stillingar.core.ConfigurationException;
 import org.brekka.stillingar.core.ConfigurationSource;
+import org.brekka.stillingar.core.FallbackConfigurationSource;
 import org.brekka.stillingar.core.GroupConfigurationException;
 
 /**
@@ -97,7 +98,7 @@ public class SnapshotBasedConfigurationSource extends AbstractChangeAwareConfigu
 	    try {
             initial = snapshotManager.retrieveInitial();
         } catch (NoSnapshotAvailableException e) {
-            boolean defaultsAvailable = getDefaultSource() != NONE;
+            boolean defaultsAvailable = getDelegate().getSecondarySource() != FallbackConfigurationSource.NONE;
             snapshotEventHandler.noInitialSnapshot(e, defaultsAvailable);
             if (!defaultsAvailable) {
                 throw new ConfigurationException("No configuration available. See logs for details.");
@@ -115,15 +116,15 @@ public class SnapshotBasedConfigurationSource extends AbstractChangeAwareConfigu
 	            snapshotManager.reject(initial);
 	        }
 	        snapshotEventHandler.initialConfigure(initial, errors);
-	    } else if (getDefaultSource() == NONE) {
+	    } else if (getDelegate().getSecondarySource() == FallbackConfigurationSource.NONE) {
 	        // An initial snapshot was required to continue.
 	        throw new ConfigurationException("No initial configuration snapshot found. " +
 	        		"This application requires custom configuration settings in order to operate correctly.");
 	    }
 	    
 	    // Failsafe - We must have at least one configuration source so make sure of it
-	    if (getActiveSource() == NONE 
-	            && getDefaultSource() == NONE) {
+	    if (getDelegate().getPrimarySource() == FallbackConfigurationSource.NONE 
+	            && getDelegate().getSecondarySource() == FallbackConfigurationSource.NONE) {
 	        throw new ConfigurationException("No default or custom configuration sources could be located.");
 	    }
 	}

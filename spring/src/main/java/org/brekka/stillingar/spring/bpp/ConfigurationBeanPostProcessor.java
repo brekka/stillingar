@@ -125,7 +125,7 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
 	        /*
 	         * Note we are deliberately not obtaining the semaphore.
 	         */
-	        changeListener.onChange();
+	        changeListener.onChange(configurationSource);
 	    }
 	}
 
@@ -136,7 +136,7 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
 	 */
 	protected void processWithUpdates(Object bean, String beanName) {
 		ValueDefinitionGroup group = prepareValueGroup(beanName, bean);
-		((ChangeAwareConfigurationSource) configurationSource).register(group);
+		((ChangeAwareConfigurationSource) configurationSource).register(group, true);
 	}
 
 

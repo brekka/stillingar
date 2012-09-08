@@ -16,10 +16,16 @@
 
 package org.brekka.stillingar.spring.pc;
 
+import java.util.List;
+
 import org.brekka.stillingar.core.ChangeAwareConfigurationSource;
 import org.brekka.stillingar.core.ConfigurationSource;
-import org.brekka.stillingar.core.ValueChangeListener;
+import org.brekka.stillingar.core.GroupChangeListener;
 import org.brekka.stillingar.core.ValueDefinition;
+import org.brekka.stillingar.core.ValueDefinitionGroup;
+import org.brekka.stillingar.spring.pc.expr.ExpressionPlaceholderHelper;
+import org.brekka.stillingar.spring.pc.expr.Fragment;
+import org.brekka.stillingar.spring.pc.expr.StringFragment;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.PropertyValue;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
@@ -31,9 +37,8 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionVisitor;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.config.ConstructorArgumentValues.ValueHolder;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
-import org.springframework.util.PropertyPlaceholderHelper;
-import org.springframework.util.PropertyPlaceholderHelper.PlaceholderResolver;
 import org.springframework.util.StringValueResolver;
 
 /**
@@ -53,11 +58,6 @@ public class ConfigurationPlaceholderConfigurer implements BeanFactoryPostProces
     private final ConfigurationSource configurationSource;
 
     /**
-     * Simply returns the value within the placeholder.
-     */
-    private final PlaceholderResolver resolver = new CustomPlaceholderResolver();
-
-    /**
      * The bean factory that loaded this instance
      */
     private BeanFactory beanFactory;
@@ -70,7 +70,7 @@ public class ConfigurationPlaceholderConfigurer implements BeanFactoryPostProces
     /**
      * Used to parse the placeholder string.
      */
-    private PropertyPlaceholderHelper placeholderHelper;
+    private ExpressionPlaceholderHelper placeholderHelper;
 
     public ConfigurationPlaceholderConfigurer(ConfigurationSource configurationSource) {
         this.configurationSource = configurationSource;
@@ -79,7 +79,7 @@ public class ConfigurationPlaceholderConfigurer implements BeanFactoryPostProces
     @Override
     public void afterPropertiesSet() throws Exception {
         if (placeholderHelper == null) {
-            placeholderHelper = new PropertyPlaceholderHelper("${", "}");
+            placeholderHelper = new ExpressionPlaceholderHelper("${", "}");
         }
     }
 
@@ -104,7 +104,7 @@ public class ConfigurationPlaceholderConfigurer implements BeanFactoryPostProces
                     BeanDefinitionVisitor visitor = new CustomBeanDefinitionVisitor(curName, beanDef.isSingleton(), valueResolver);
                     visitor.visitBeanDefinition(beanDef);
                 } catch (Exception ex) {
-                    throw new BeanDefinitionStoreException(beanDef.getResourceDescription(), curName, ex.getMessage());
+                    throw new BeanDefinitionStoreException(beanDef.getResourceDescription(), curName, ex);
                 }
             }
         }
@@ -130,7 +130,7 @@ public class ConfigurationPlaceholderConfigurer implements BeanFactoryPostProces
         this.beanName = name;
     }
 
-    public void setPlaceholderHelper(PropertyPlaceholderHelper placeholderHelper) {
+    public void setPlaceholderHelper(ExpressionPlaceholderHelper placeholderHelper) {
         this.placeholderHelper = placeholderHelper;
     }
 
@@ -140,33 +140,41 @@ public class ConfigurationPlaceholderConfigurer implements BeanFactoryPostProces
 
         @Override
         public String resolveStringValue(String strVal) {
-            String value = strVal;
-            String expression = placeholderHelper.replacePlaceholders(strVal, resolver);
-            if (!expression.equals(strVal)) {
-                // Something changed
-                value = configurationSource.retrieve(expression, String.class);
-                
+            Fragment fragment = placeholderHelper.parse(strVal);
+            if (fragment instanceof StringFragment) {
+                return ((StringFragment) fragment).evaluate(null, null);
+            }
+            
+            String value = ExpressionPlaceholderHelper.evaluate(fragment, configurationSource);
+            
+            if (beanDefVisitor != null
+                    && configurationSource instanceof ChangeAwareConfigurationSource) {
+                ChangeAwareConfigurationSource ucs = (ChangeAwareConfigurationSource) configurationSource;
                 PropertyValue currentProperty = beanDefVisitor.getCurrentProperty();
+                ValueHolder currentConstructorValue = beanDefVisitor.getCurrentConstructorValue();
                 String beanName = beanDefVisitor.getBeanName();
-                
-                if (beanDefVisitor != null 
-                        && currentProperty != null
-                        && configurationSource instanceof ChangeAwareConfigurationSource) {
-                    ChangeAwareConfigurationSource ucs = (ChangeAwareConfigurationSource) configurationSource;
-                    
-                    ValueChangeListener<String> listener = null;
+                GroupChangeListener listener = null;
+                if (currentProperty != null) {
                     if (beanDefVisitor.isSingleton()) {
                         // Singleton, we update the single bean instance
                         listener = new BeanPropertyChangeListener(beanName,
-                                currentProperty.getName(), beanFactory);
+                                currentProperty.getName(), beanFactory, fragment);
                     } else if (beanFactory instanceof ConfigurableListableBeanFactory) {
                         // Prototype (or other) - we update the definition.
-                        listener = new PropertyDefChangeListener(beanName, currentProperty.getName(), (ConfigurableListableBeanFactory) beanFactory);
+                        listener = new PropertyDefChangeListener(beanName, currentProperty.getName(), 
+                                (ConfigurableListableBeanFactory) beanFactory, fragment);
                     }
-                    if (listener != null) {
-                        ValueDefinition<String> vd = new ValueDefinition<String>(String.class, expression, listener, false);
-                        ucs.register(vd, false);
-                    }
+                } else if (currentConstructorValue != null) {
+                    // Constructor handling. Can't change the value, but can change the definition
+                    listener = new ConstructorArgDefChangeListener(beanName, 
+                            beanDefVisitor.getCurrentConstructorIndex(),
+                            currentConstructorValue.getType(),
+                            (ConfigurableListableBeanFactory) beanFactory, fragment);
+                }
+                if (listener != null) {
+                    List<ValueDefinition<?>> values = placeholderHelper.toValueDefinitions(fragment);
+                    ValueDefinitionGroup group = new ValueDefinitionGroup(beanName, values, listener);
+                    ucs.register(group, false);
                 }
             }
             return value;

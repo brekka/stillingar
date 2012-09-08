@@ -187,6 +187,16 @@
                     </xsd:documentation>
                 </xsd:annotation>
             </xsd:attribute>
+            <xsd:attribute name="snapshot-required" type="xsd:boolean" use="optional" default="false">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        Setting to true will require that the application find an external configuration
+                        snapshot to load from. For situations where loading exclusively from defaults is 
+                        not possible. For instance, if the system requires a database to be configured, then
+                        a custom file containing that part must be specified.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
         </xsd:complexType>
     </xsd:element>
 </xsd:schema>

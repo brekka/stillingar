@@ -26,8 +26,9 @@ import org.brekka.stillingar.core.GroupConfigurationException.Phase;
  * 
  * @author Andrew Taylor (andrew@brekka.org)
  */
-public abstract class AbstractChangeAwareConfigurationSource extends AbstractDefaultedConfigurationSource 
-                                                            implements ChangeAwareConfigurationSource {
+public abstract class AbstractChangeAwareConfigurationSource 
+                extends AbstractDelegatingConfigurationSource<FallbackConfigurationSource>
+             implements ChangeAwareConfigurationSource {
     
     /**
      * The group that will contain all of the {@link ValueDefinition}s that were registered via
@@ -41,16 +42,11 @@ public abstract class AbstractChangeAwareConfigurationSource extends AbstractDef
     private List<ValueDefinitionGroup> valueGroups = new ArrayList<ValueDefinitionGroup>();
     
     /**
-     * The active configuration source
-     */
-    private ConfigurationSource activeConfigurationSource = NONE;
-    
-    /**
      * 
      * @param defaultConfigurationSource the defaults to use (can be NONE).
      */
     protected AbstractChangeAwareConfigurationSource(ConfigurationSource defaultConfigurationSource) {
-        super(defaultConfigurationSource);
+        setDelegate(new FallbackConfigurationSource(null, defaultConfigurationSource));
         this.standaloneGroup = new ValueDefinitionGroup("_standalone", 
                 new ArrayList<ValueDefinition<?>>(), null, null);
         this.valueGroups.add(standaloneGroup);
@@ -65,11 +61,15 @@ public abstract class AbstractChangeAwareConfigurationSource extends AbstractDef
         standaloneGroup.getValues().add(valueDefinition);
     }
 
-    public synchronized void register(ValueDefinitionGroup valueDefinitionGroup) {
+    public synchronized void register(ValueDefinitionGroup valueDefinitionGroup, boolean fireImmediately) {
         GroupChangeAction groupUpdateAction = prepareGroupChange(valueDefinitionGroup, this);
-        enactGroupChange(groupUpdateAction);
+        if (fireImmediately) {
+            enactGroupChange(groupUpdateAction, this);
+        }
         valueGroups.add(valueDefinitionGroup);
     }
+    
+    
 
     
     /**
@@ -80,26 +80,20 @@ public abstract class AbstractChangeAwareConfigurationSource extends AbstractDef
      */
     protected synchronized List<GroupConfigurationException> refresh(ConfigurationSource latest) {
         List<GroupConfigurationException> groupErrors = new ArrayList<GroupConfigurationException>();
+        FallbackConfigurationSource newSource = new FallbackConfigurationSource(latest, 
+                getDelegate().getSecondarySource());
         List<GroupChangeAction> updateActionList = phaseOneUpdate(this, groupErrors);
 
         // If there are no errors, move on to phase two
         if (groupErrors.isEmpty()) {
-            phaseTwoUpdate(updateActionList, groupErrors);
+            phaseTwoUpdate(updateActionList, groupErrors, newSource);
         }
         
         // Still no errors, make the snapshot active.
         if (groupErrors.isEmpty()) {
-            this.activeConfigurationSource = latest;
+            setDelegate(newSource);
         }
         return groupErrors;
-    }
-    
-    /* (non-Javadoc)
-     * @see org.brekka.stillingar.core.AbstractDefaultedConfigurationSource#getActiveSource()
-     */
-    @Override
-    protected ConfigurationSource getActiveSource() {
-        return activeConfigurationSource;
     }
     
     /**
@@ -123,11 +117,12 @@ public abstract class AbstractChangeAwareConfigurationSource extends AbstractDef
         return updateActionList;
     }
     
-    protected void phaseTwoUpdate(List<GroupChangeAction> updateActionList, List<GroupConfigurationException> groupErrors) {
+    protected void phaseTwoUpdate(List<GroupChangeAction> updateActionList, List<GroupConfigurationException> groupErrors,
+            ConfigurationSource latest) {
         // No errors encountered, proceed to the next phase
         for (GroupChangeAction groupUpdateAction : updateActionList) {
             try {
-                enactGroupChange(groupUpdateAction);
+                enactGroupChange(groupUpdateAction, latest);
             } catch (GroupConfigurationException e) {
                 groupErrors.add(e);
             }
@@ -162,7 +157,7 @@ public abstract class AbstractChangeAwareConfigurationSource extends AbstractDef
         return new GroupChangeAction(valueDefinitionGroup, updateActions);
     }
     
-    protected void enactGroupChange(GroupChangeAction groupUpdateAction) {
+    protected void enactGroupChange(GroupChangeAction groupUpdateAction, ConfigurationSource latest) {
         ValueDefinitionGroup valueDefinitionGroup = groupUpdateAction.getGroup();
         List<ValueChangeAction> actionList = groupUpdateAction.getActionList();
         List<ConfigurationException> valueUpdateErrors = new ArrayList<ConfigurationException>();
@@ -200,7 +195,7 @@ public abstract class AbstractChangeAwareConfigurationSource extends AbstractDef
              */
             if (valueDefinitionGroup.getChangeListener() != null) {
                 try {
-                    valueDefinitionGroup.getChangeListener().onChange();
+                    valueDefinitionGroup.getChangeListener().onChange(latest);
                 } catch (RuntimeException e) {
                     throw new GroupConfigurationException(valueDefinitionGroup.getName(), 
                             Phase.LISTENER_INVOCATION, e);

@@ -16,10 +16,16 @@
 
 package org.brekka.stillingar.spring.pc;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
 import org.brekka.stillingar.spring.pc.ConfigurationPlaceholderConfigurer.CustomStringValueResolver;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.PropertyValue;
 import org.springframework.beans.factory.config.BeanDefinitionVisitor;
+import org.springframework.beans.factory.config.ConstructorArgumentValues.ValueHolder;
 import org.springframework.util.ObjectUtils;
 
 /**
@@ -33,6 +39,10 @@ class CustomBeanDefinitionVisitor extends BeanDefinitionVisitor {
     private final boolean singleton;
 
     private PropertyValue currentProperty;
+    
+    private ValueHolder currentConstructorValue;
+    
+    private Integer currentConstructorIndex;
     
 
     public CustomBeanDefinitionVisitor(String beanName, boolean singleton, CustomStringValueResolver valueResolver) {
@@ -57,11 +67,59 @@ class CustomBeanDefinitionVisitor extends BeanDefinitionVisitor {
         }
     }
     
+    /* (non-Javadoc)
+     * @see org.springframework.beans.factory.config.BeanDefinitionVisitor#visitGenericArgumentValues(java.util.List)
+     */
+    @Override
+    protected void visitGenericArgumentValues(List<ValueHolder> gas) {
+        for (ValueHolder valueHolder : gas) {
+            currentConstructorValue = valueHolder;
+            Object newVal = resolveValue(valueHolder.getValue());
+            if (!ObjectUtils.nullSafeEquals(newVal, valueHolder.getValue())) {
+                valueHolder.setValue(newVal);
+            }
+            currentConstructorValue = null;
+        }
+    }
+    
+    /* (non-Javadoc)
+     * @see org.springframework.beans.factory.config.BeanDefinitionVisitor#visitIndexedArgumentValues(java.util.Map)
+     */
+    @Override
+    protected void visitIndexedArgumentValues(Map<Integer, ValueHolder> ias) {
+        Set<Entry<Integer,ValueHolder>> entrySet = ias.entrySet();
+        for (Entry<Integer, ValueHolder> entry : entrySet) {
+            ValueHolder valueHolder = entry.getValue();
+            currentConstructorValue = valueHolder;
+            currentConstructorIndex = entry.getKey();
+            Object newVal = resolveValue(valueHolder.getValue());
+            if (!ObjectUtils.nullSafeEquals(newVal, valueHolder.getValue())) {
+                valueHolder.setValue(newVal);
+            }
+            currentConstructorValue = null;
+            currentConstructorIndex = null;
+        }
+    }
+    
     /**
      * @return the currentProperty
      */
     public PropertyValue getCurrentProperty() {
         return currentProperty;
+    }
+    
+    /**
+     * @return the currentConstructorValue
+     */
+    public ValueHolder getCurrentConstructorValue() {
+        return currentConstructorValue;
+    }
+    
+    /**
+     * @return the currentConstructorIndex
+     */
+    public Integer getCurrentConstructorIndex() {
+        return currentConstructorIndex;
     }
     
     /**

@@ -28,6 +28,7 @@ import org.brekka.stillingar.core.properties.PropertiesConfigurationSourceLoader
 import org.brekka.stillingar.core.snapshot.SnapshotBasedConfigurationSource;
 import org.brekka.stillingar.spring.bpp.ConfigurationBeanPostProcessor;
 import org.brekka.stillingar.spring.pc.ConfigurationPlaceholderConfigurer;
+import org.brekka.stillingar.spring.pc.expr.ExpressionPlaceholderHelper;
 import org.brekka.stillingar.spring.resource.BasicResourceNameResolver;
 import org.brekka.stillingar.spring.resource.FixedResourceSelector;
 import org.brekka.stillingar.spring.resource.ScanningResourceSelector;
@@ -78,9 +79,8 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
 
         Engine engine = determineEngine(element);
 
-        builder.addConstructorArgValue(prepareResourceManager(element, engine));
-        // TODO choose name for this attribute.
-        builder.addConstructorArgValue("true".equals(element.getAttribute("initial-snapshot-required")));
+        builder.addConstructorArgValue(prepareResourceManager(element, engine, parserContext));
+        builder.addConstructorArgValue("true".equals(element.getAttribute("snapshot-required")));
         builder.addConstructorArgValue(prepareDefaultConfigurationSource(element, engine));
         builder.addConstructorArgValue(prepareSnapshotEventHandler(element));
         builder.getRawBeanDefinition().setInitMethodName("init");
@@ -124,7 +124,7 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
                 suffix = "}";
             }
             BeanDefinitionBuilder placeholderHelper = BeanDefinitionBuilder
-                    .genericBeanDefinition(PropertyPlaceholderHelper.class);
+                    .genericBeanDefinition(ExpressionPlaceholderHelper.class);
             placeholderHelper.addConstructorArgValue(prefix);
             placeholderHelper.addConstructorArgValue(suffix);
 
@@ -256,9 +256,9 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
      * @param element
      * @return
      */
-    protected AbstractBeanDefinition prepareResourceManager(Element element, Engine engine) {
+    protected AbstractBeanDefinition prepareResourceManager(Element element, Engine engine, ParserContext parserContext) {
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(ResourceSnapshotManager.class);
-        builder.addConstructorArgValue(prepareResourceSelector(element, engine));
+        builder.addConstructorArgValue(prepareResourceSelector(element, engine, parserContext));
         builder.addConstructorArgReference(getLoaderReference(element));
         return builder.getBeanDefinition();
     }
@@ -267,12 +267,12 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
      * @param element
      * @return
      */
-    protected AbstractBeanDefinition prepareResourceSelector(Element element, Engine engine) {
+    protected AbstractBeanDefinition prepareResourceSelector(Element element, Engine engine, ParserContext parserContext) {
         String path = element.getAttribute("path");
         BeanDefinitionBuilder builder;
         if (path != null && !path.isEmpty()) {
             builder = BeanDefinitionBuilder.genericBeanDefinition(FixedResourceSelector.class);
-            builder.addConstructorArgValue(prepareFileSystemResource(path));
+            builder.addConstructorArgValue(parserContext.getReaderContext().getResourceLoader().getResource(path));
         } else {
             builder = BeanDefinitionBuilder.genericBeanDefinition(ScanningResourceSelector.class);
             builder.addConstructorArgValue(prepareBaseDirectoryList(element));
@@ -548,7 +548,7 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
     protected static String getName(Element element) {
         // Optional application name, will use the id if not specified.
         String name = element.getAttribute("name");
-        if (name == null) {
+        if (name == null || name.isEmpty()) {
             name = element.getAttribute("id");
         }
         return name;

@@ -45,6 +45,9 @@ public interface ChangeAwareConfigurationSource extends ConfigurationSource {
      * 
      * @param valueGroup
      *            the value group to register.
+     * @param fireImmediately
+     *            determines whether the listener within the group definition should be called prior to control being
+     *            returned to the caller.
      */
-    void register(ValueDefinitionGroup valueGroup);
+    void register(ValueDefinitionGroup valueGroup, boolean fireImmediately);
 }

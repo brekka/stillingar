@@ -25,6 +25,8 @@ public interface GroupChangeListener {
     
     /**
      * The configuration of the group has changed.
+     * 
+     * @param the source that can be used to lookup additional values if necessary.
      */
-	void onChange();
+	void onChange(ConfigurationSource configurationSource);
 }

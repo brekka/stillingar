@@ -56,7 +56,7 @@ public class PropertiesConfigurationSource implements ConfigurationSource {
      * @see org.brekka.stillingar.core.ConfigurationSource#isAvailable(java.lang.Class)
      */
     public boolean isAvailable(Class<?> valueType) {
-        throw new ConfigurationException("A Properties coniguration source does not support lookup by type.");
+        throw new ConfigurationException("A Properties configuration source does not support lookup by type.");
     }
     
     /**

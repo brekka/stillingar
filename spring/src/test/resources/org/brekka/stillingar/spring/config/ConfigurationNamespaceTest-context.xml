@@ -7,22 +7,20 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
         http://brekka.org/schema/stillingar/v1 http://brekka.org/schema/stillingar/brekka-stillingar-1.0.xsd">
-    
-<!--     <context:component-scan base-package="org.brekka.stillingar.test.intg.services.impl" /> -->
 
-    <context:annotation-config />
-    
-    <stil:configuration id="integration-config" engine="xmlbeans" reload-interval="500" snapshot-required="true"> 
-        <stil:selector>
-            <stil:naming prefix="updates" />
-            <stil:location>
-                <stil:system-property>target.path</stil:system-property>
-            </stil:location>
-        </stil:selector>
+
+    <stil:configuration id="config" path="classpath:org/brekka/stillingar/spring/config/config.properties" engine="props"> 
         <stil:property-placeholder />
-        <stil:namespace prefix="c"     url="http://brekka.org/xml/stillingar/test/v1" />
-        <stil:namespace prefix="log4j" url="http://jakarta.apache.org/log4j/" />
-        <stil:namespace prefix="beans" url="http://www.springframework.org/schema/beans" />
     </stil:configuration> 
+    
+    <bean id="standardBean" class="org.brekka.stillingar.spring.config.TheBean">
+        <constructor-arg value="$config{standard.constructor}" />
+        <property name="property" value="$config{standard.property}" />
+    </bean>
+    
+    <bean id="nestedBean" class="org.brekka.stillingar.spring.config.TheBean" scope="prototype">
+        <constructor-arg value="$config{nested.constructor}" />
+        <property name="property" value="$config{nested.property}" />
+    </bean>
     
 </beans>

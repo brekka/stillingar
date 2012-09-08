@@ -16,7 +16,7 @@
 
 package org.brekka.stillingar.spring.pc;
 
-import org.brekka.stillingar.core.ValueChangeListener;
+import org.brekka.stillingar.spring.pc.expr.Fragment;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.beans.PropertyValue;
@@ -28,12 +28,13 @@ import org.springframework.beans.factory.BeanFactory;
  *
  * @author Andrew Taylor (andrew@brekka.org)
  */
-class BeanPropertyChangeListener implements ValueChangeListener<String> {
+class BeanPropertyChangeListener extends AbstractExpressionGroupListener {
     private final String beanName;
     private final String property;
     private final BeanFactory beanFactory;
 
-    public BeanPropertyChangeListener(String beanName, String property, BeanFactory beanFactory) {
+    public BeanPropertyChangeListener(String beanName, String property, BeanFactory beanFactory, Fragment fragment) {
+        super(fragment);
         this.beanName = beanName;
         this.property = property;
         this.beanFactory = beanFactory;
