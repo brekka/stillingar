@@ -82,7 +82,7 @@ public abstract class AbstractChangeAwareConfigurationSource
         List<GroupConfigurationException> groupErrors = new ArrayList<GroupConfigurationException>();
         FallbackConfigurationSource newSource = new FallbackConfigurationSource(latest, 
                 getDelegate().getSecondarySource());
-        List<GroupChangeAction> updateActionList = phaseOneUpdate(this, groupErrors);
+        List<GroupChangeAction> updateActionList = phaseOneUpdate(latest, groupErrors);
 
         // If there are no errors, move on to phase two
         if (groupErrors.isEmpty()) {

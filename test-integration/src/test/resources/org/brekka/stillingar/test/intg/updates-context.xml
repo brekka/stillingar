@@ -12,7 +12,7 @@
 
     <context:annotation-config />
     
-    <stil:configuration id="integration-config" engine="xmlbeans" reload-interval="500" snapshot-required="true"> 
+    <stil:configuration id="integration-config" name="integration" engine="xmlbeans" reload-interval="500" snapshot-required="true"> 
         <stil:selector>
             <stil:naming prefix="updates" />
             <stil:location>
@@ -25,4 +25,11 @@
         <stil:namespace prefix="beans" url="http://www.springframework.org/schema/beans" />
     </stil:configuration> 
     
+    <bean id="simpleBean" class="java.lang.String" scope="prototype">
+        <constructor-arg value="$integration{//c:Fraud/c:TriggerFactor}-$integration{//c:Transaction/c:MaxAmount}" />
+    </bean>
+    
+    <bean id="motd" class="java.lang.String" scope="prototype">
+        <constructor-arg value="$integration{//c:Message}" />
+    </bean>
 </beans>

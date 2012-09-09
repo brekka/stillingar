@@ -16,8 +16,11 @@
 
 package org.brekka.stillingar.spring.pc;
 
+import java.lang.reflect.Field;
 import java.util.List;
 
+
+import org.brekka.stillingar.core.ConfigurationException;
 import org.brekka.stillingar.spring.pc.expr.Fragment;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -26,7 +29,8 @@ import org.springframework.beans.factory.config.ConstructorArgumentValues.ValueH
 import org.springframework.util.ObjectUtils;
 
 /**
- * TODO Description of ConstructorArgDefChangeListener
+ * A listener that will update Spring's internal definition of a prototype bean. This allows
+ * new bean instances to be created with the latest configuration.
  *
  * @author Andrew Taylor (andrew@brekka.org)
  */
@@ -82,6 +86,23 @@ public class ConstructorArgDefChangeListener extends AbstractExpressionGroupList
         }
         if (!ObjectUtils.nullSafeEquals(newValue, valueHolder.getValue())) {
             valueHolder.setValue(newValue);
+            try {
+                /*
+                 * Spring implements caching of constructor values, which can be reset by clearing
+                 * the package-private field 'resolvedConstructorOrFactoryMethod' on RootBeanDefinition.
+                 * Naturally this will fail if a security manager is present but there doesn't seem to 
+                 * be any other way to do it. Make sure to warn about this in the documentation!
+                 */
+                Field field = beanDef.getClass().getDeclaredField("resolvedConstructorOrFactoryMethod");
+                field.setAccessible(true);
+                field.set(beanDef, null);
+            } catch (Exception e) {
+                throw new ConfigurationException(String.format(
+                        "Unable to update value for constructor argument '%s'. " +
+                        "Failed to reset the cached constructor state for bean '%s'", 
+                        (constructorArgIndex != null ? constructorArgIndex.toString() : constructorArgType), 
+                        beanName), e);
+            }
         }
     }
 
