@@ -54,16 +54,18 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.scheduling.concurrent.ScheduledExecutorFactoryBean;
 import org.springframework.scheduling.concurrent.ScheduledExecutorTask;
-import org.springframework.util.PropertyPlaceholderHelper;
+import org.springframework.util.StringUtils;
 import org.springframework.util.xml.SimpleNamespaceContext;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * TODO
+ * Parser that converts the stil:configuration XML element into bean definitions for the Spring container. A bean
+ * definition for the {@link SnapshotBasedConfigurationSource} class will be prepared as the primary bean, but
+ * additional bean definitions may also be added as required.
  * 
- * @author Andrew Taylor
+ * @author Andrew Taylor (andrew@brekka.org)
  */
 public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
 
@@ -117,10 +119,10 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
                     .genericBeanDefinition(ConfigurationPlaceholderConfigurer.class);
             placeholderConfigurer.addConstructorArgReference(id);
 
-            if (prefix == null || prefix.isEmpty()) {
+            if (StringUtils.hasText(prefix)) {
                 prefix = "$" + name + "{";
             }
-            if (suffix == null || suffix.isEmpty()) {
+            if (StringUtils.hasText(suffix)) {
                 suffix = "}";
             }
             BeanDefinitionBuilder placeholderHelper = BeanDefinitionBuilder
@@ -168,11 +170,11 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
      */
     protected void prepareJAXB(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
         Element jaxbElement = selectSingleChildElement(element, "jaxb", false);
-        
+
         // Path
         String contextPath = jaxbElement.getAttribute("context-path");
         builder.addConstructorArgValue(contextPath);
-        
+
         // Schemas
         List<Element> schemaElementList = selectChildElements(jaxbElement, "schema");
         ManagedList<URL> schemaUrlList = new ManagedList<URL>(schemaElementList.size());
@@ -182,12 +184,11 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
                 Resource resource = parserContext.getReaderContext().getResourceLoader().getResource(schemaPath);
                 schemaUrlList.add(resource.getURL());
             } catch (IOException e) {
-                throw new ConfigurationException(String.format(
-                        "Failed to parse schema location '%s'", schemaPath), e);
+                throw new ConfigurationException(String.format("Failed to parse schema location '%s'", schemaPath), e);
             }
         }
         builder.addConstructorArgValue(schemaUrlList);
-        
+
         // Namespaces
         builder.addConstructorArgValue(prepareJAXBNamespaces(element));
     }
@@ -197,7 +198,7 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
      * @return
      */
     protected AbstractBeanDefinition prepareJAXBNamespaces(Element element) {
-        ManagedMap<String,String> namespaceMap = toNamespaceMap(element);
+        ManagedMap<String, String> namespaceMap = toNamespaceMap(element);
         if (namespaceMap.isEmpty()) {
             return null;
         }
@@ -212,8 +213,6 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
             builder.addPropertyValue("xpathNamespaces", namespaceMap);
         }
     }
-
-    
 
     protected void prepareReloadMechanism(Element element, ParserContext parserContext) {
         String id = element.getAttribute("id");
@@ -338,8 +337,6 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
         return builder.getBeanDefinition();
     }
 
-
-
     /**
      * @param prefix
      * @param extension
@@ -351,7 +348,6 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
         builder.addPropertyValue("extension", extension);
         return builder;
     }
-
 
     /**
      * @param element
@@ -452,7 +448,7 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
         if (defaultsPath != null) {
             BeanDefinitionBuilder builder = BeanDefinitionBuilder
                     .genericBeanDefinition(DefaultConfigurationSourceFactoryBean.class);
-            
+
             builder.addConstructorArgValue(prepareClassPathResource(defaultsPath));
             builder.addConstructorArgReference(getLoaderReference(element));
             builder.addConstructorArgValue(encoding == null ? null : Charset.forName(encoding));
@@ -477,26 +473,26 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
         return builder.getBeanDefinition();
     }
 
-
-    
     protected AbstractBeanDefinition prepareConversionManager() {
-        BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition("org.brekka.stillingar.xmlbeans.conversion.ConversionManager");
+        BeanDefinitionBuilder builder = BeanDefinitionBuilder
+                .genericBeanDefinition("org.brekka.stillingar.xmlbeans.conversion.ConversionManager");
         ManagedList<Object> converters = new ManagedList<Object>();
         List<String> converterShortNames = Arrays.asList("BigDecimalConverter", "BigIntegerConverter",
                 "BooleanConverter", "ByteConverter", "ByteArrayConverter", "CalendarConverter", "DateConverter",
                 "DoubleConverter", "ElementConverter", "FloatConverter", "IntegerConverter", "LongConverter",
                 "ShortConverter", "StringConverter", "URIConverter", "DocumentConverter");
         for (String shortName : converterShortNames) {
-            BeanDefinitionBuilder converterBldr = BeanDefinitionBuilder.genericBeanDefinition(
-                    "org.brekka.stillingar.xmlbeans.conversion." + shortName);
+            BeanDefinitionBuilder converterBldr = BeanDefinitionBuilder
+                    .genericBeanDefinition("org.brekka.stillingar.xmlbeans.conversion." + shortName);
             converters.add(converterBldr.getBeanDefinition());
         }
-        
-        converters.add(BeanDefinitionBuilder.genericBeanDefinition(ApplicationContextConverter.class).getBeanDefinition());
+
+        converters.add(BeanDefinitionBuilder.genericBeanDefinition(ApplicationContextConverter.class)
+                .getBeanDefinition());
         builder.addConstructorArgValue(converters);
         return builder.getBeanDefinition();
     }
-    
+
     /**
      * @param element
      * @return
@@ -511,7 +507,7 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
         }
         return namespaceMap;
     }
-    
+
     /**
      * @param element
      * @return
@@ -521,7 +517,7 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
         engine = engine.toUpperCase();
         return Engine.valueOf(engine);
     }
-    
+
     /**
      * @param naming
      * @param string
@@ -535,7 +531,7 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
         }
         return value;
     }
-    
+
     /**
      * @param element
      * @return
@@ -584,7 +580,7 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
         }
         return singleChild;
     }
-    
+
     protected static List<Element> selectChildElements(Element element, String tagName) {
         NodeList children = element.getElementsByTagNameNS("*", tagName);
         List<Element> elementList = new ArrayList<Element>(children.getLength());
@@ -595,21 +591,20 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
             } else {
                 throw new IllegalArgumentException(String.format(
                         "The child node '%s' of element '%s' at index %d is not an instance of Element, "
-                                + "it is instead '%s'", tagName, element.getTagName(), 
-                                i, item.getClass().getName()));
+                                + "it is instead '%s'", tagName, element.getTagName(), i, item.getClass().getName()));
             }
-            
+
         }
         return elementList;
     }
 
     enum Engine {
-        PROPS(PropertiesConfigurationSourceLoader.class.getName(), "properties"), 
-        
-        XMLBEANS("org.brekka.stillingar.xmlbeans.XmlBeansSnapshotLoader", "xml"), 
-        
+        PROPS(PropertiesConfigurationSourceLoader.class.getName(), "properties"),
+
+        XMLBEANS("org.brekka.stillingar.xmlbeans.XmlBeansSnapshotLoader", "xml"),
+
         JAXB("org.brekka.stillingar.jaxb.JAXBSnapshotLoader", "xml")
-        
+
         ;
 
         private final String loaderClassName;

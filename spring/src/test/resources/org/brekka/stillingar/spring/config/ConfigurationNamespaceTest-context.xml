@@ -9,7 +9,7 @@
         http://brekka.org/schema/stillingar/v1 http://brekka.org/schema/stillingar/brekka-stillingar-1.0.xsd">
 
 
-    <stil:configuration id="config" path="classpath:org/brekka/stillingar/spring/config/config.properties" engine="props"> 
+    <stil:configuration id="config" path="classpath:org/brekka/stillingar/spring/config/config.properties" engine="props">
         <stil:property-placeholder />
     </stil:configuration> 
     

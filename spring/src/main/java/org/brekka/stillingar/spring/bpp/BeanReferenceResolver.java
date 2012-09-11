@@ -16,36 +16,52 @@
 
 package org.brekka.stillingar.spring.bpp;
 
+import org.brekka.stillingar.annotations.ConfigurationListener;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 /**
- * TODO Description of BeanReferenceResolver
- *
+ * Resolves a normal Spring managed bean from a {@link BeanFactory}. This is used by the {@link ConfigurationListener}
+ * mechanism to allow the caller to request (most likely prototype) bean instances from the container. Those bean instances
+ * might be standard beans (not Stillingar-aware) that are configured using the property placeholder mechanism.
+ * 
  * @author Andrew Taylor (andrew@brekka.org)
  */
 class BeanReferenceResolver implements ValueResolver {
+    /**
+     * Bean factory in which to resolve the bean.
+     */
     private final BeanFactory beanFactory;
-	private final Qualifier qualifier;
-	private final Class<?> type;
-	
-	public BeanReferenceResolver(BeanFactory beanFactory, Qualifier qualifier, Class<?> type) {
-	    this.beanFactory = beanFactory;
-		this.qualifier = qualifier;
-		this.type = type;
-	}
+    /**
+     * Optional qualifier to single out the bean by name
+     */
+    private final Qualifier qualifier;
+    /**
+     * The expected bean value type
+     */
+    private final Class<?> type;
 
-	public BeanReferenceResolver(BeanFactory beanFactory, Class<?> type) {
-		this(beanFactory, null, type);
-	}
+    
+    public BeanReferenceResolver(BeanFactory beanFactory, Qualifier qualifier, Class<?> type) {
+        this.beanFactory = beanFactory;
+        this.qualifier = qualifier;
+        this.type = type;
+    }
 
-	public Object getValue() {
-		Object value;
-		if (qualifier != null) {
-			value = beanFactory.getBean(qualifier.value(), type);
-		} else {
-			value = beanFactory.getBean(type);
-		}
-		return value;
-	}
+    public BeanReferenceResolver(BeanFactory beanFactory, Class<?> type) {
+        this(beanFactory, null, type);
+    }
+
+    /**
+     * Perform the lookup of the bean via {@link BeanFactory#getBean(...)}
+     */
+    public Object getValue() {
+        Object value;
+        if (qualifier != null) {
+            value = beanFactory.getBean(qualifier.value(), type);
+        } else {
+            value = beanFactory.getBean(type);
+        }
+        return value;
+    }
 }
