@@ -401,7 +401,7 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
         if (path == null) {
             path = ".config/" + getName(element);
         }
-        builder.addPropertyValue("path", path);
+        builder.addConstructorArgValue(path);
         return builder.getBeanDefinition();
     }
 

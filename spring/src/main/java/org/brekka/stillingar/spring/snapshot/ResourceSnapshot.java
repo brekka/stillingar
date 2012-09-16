@@ -26,40 +26,61 @@ import org.brekka.stillingar.core.snapshot.Snapshot;
 import org.springframework.core.io.Resource;
 
 /**
- * Immutable implementation of {@link Snapshot}.
+ * A snapshot of a {@link Resource}, retaining the moment in time the contents of the mutable resource were parsed and
+ * loaded in the the {@link ConfigurationSource}.
  * 
  * @author Andrew Taylor (andrew@brekka.org)
  */
 public final class ResourceSnapshot implements Snapshot {
 
+    /**
+     * The source representation of the resource.
+     */
     private final ConfigurationSource configurationSource;
-    
+
+    /**
+     * Value of the resource's last modified timestamp at the moment this snapshot was created.
+     */
     private final Date timestamp;
-    
+
+    /**
+     * A reference to the underlying (mutable) resource
+     */
     private final Resource resource;
-    
-    
+
+    /**
+     * 
+     * @param configurationSource The source representation of the resource.
+     * @param timestamp Value of the resource's last modified timestamp at the moment this snapshot was created.
+     * @param resource A reference to the underlying (mutable) resource
+     */
     public ResourceSnapshot(ConfigurationSource configurationSource, Date timestamp, Resource resource) {
         this.configurationSource = configurationSource;
         this.timestamp = timestamp;
         this.resource = resource;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.brekka.stillingar.core.snapshot.Snapshot#getSource()
      */
     public ConfigurationSource getSource() {
         return configurationSource;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.brekka.stillingar.core.snapshot.Snapshot#getTimestamp()
      */
     public Date getTimestamp() {
         return timestamp;
     }
-    
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.brekka.stillingar.core.snapshot.Snapshot#getLocation()
      */
     @Override
@@ -67,11 +88,10 @@ public final class ResourceSnapshot implements Snapshot {
         try {
             return getResource().getURI();
         } catch (IOException e) {
-            throw new ConfigurationException(String.format(
-                    "Failed to get location from resource '%s'", getResource()));
+            throw new ConfigurationException(String.format("Failed to get location from resource '%s'", getResource()));
         }
     }
-    
+
     /**
      * @return the resource
      */

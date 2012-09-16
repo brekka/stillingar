@@ -25,17 +25,39 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.util.ObjectUtils;
 
 /**
- * A value change listener that will resolve property changes by looking up the named bean in the 
- * {@link BeanFactory} and then updating the instance directly.
- *
+ * A value change listener that will resolve property changes by looking up the named bean in the {@link BeanFactory}
+ * and then updating the instance directly.
+ * 
  * @author Andrew Taylor (andrew@brekka.org)
  */
 class PropertyDefChangeListener extends AbstractExpressionGroupListener {
-    
+    /**
+     * The name of the bean within the Spring context. Will be used to lookup its current definition.
+     */
     private final String beanName;
+
+    /**
+     * The name of the property being updated.
+     */
     private final String propertyName;
+
+    /**
+     * The bean factory in which to resolve the bean definition of bean identified by <code>beanName</code>
+     */
     private final ConfigurableListableBeanFactory beanFactory;
 
+    
+    /**
+     * @param beanName
+     *            The name of the bean within the Spring context. Will be used to lookup its current definition.
+     * @param propertyName
+     *            The name of the property being updated.
+     * @param beanFactory
+     *            The bean factory in which to resolve the bean definition of bean identified by <code>beanName</code>
+     * @param fragment
+     *            the fragment that will be used to evaluate and obtain the value which will be passed to
+     *            {@link #onChange(String)}
+     */
     public PropertyDefChangeListener(String beanName, String propertyName, ConfigurableListableBeanFactory beanFactory,
             Fragment fragment) {
         super(fragment);
@@ -44,6 +66,9 @@ class PropertyDefChangeListener extends AbstractExpressionGroupListener {
         this.beanFactory = beanFactory;
     }
 
+    /**
+     * Update the property with the new value
+     */
     public void onChange(String newValue) {
         BeanDefinition beanDef = beanFactory.getMergedBeanDefinition(beanName);
         MutablePropertyValues mutablePropertyValues = beanDef.getPropertyValues();

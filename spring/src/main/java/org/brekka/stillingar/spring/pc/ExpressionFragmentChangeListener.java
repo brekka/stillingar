@@ -31,7 +31,7 @@ public class ExpressionFragmentChangeListener implements ValueChangeListener<Str
     private final ExpressionFragment expressionFragment;
     
     /**
-     * @param expressionFragment
+     * @param expressionFragment The fragment to update
      */
     public ExpressionFragmentChangeListener(ExpressionFragment expressionFragment) {
         this.expressionFragment = expressionFragment;
@@ -44,5 +44,4 @@ public class ExpressionFragmentChangeListener implements ValueChangeListener<Str
     public void onChange(String newValue) {
         expressionFragment.setValue(newValue);
     }
-
 }

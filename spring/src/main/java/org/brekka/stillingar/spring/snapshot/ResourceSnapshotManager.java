@@ -69,9 +69,8 @@ public class ResourceSnapshotManager implements SnapshotManager {
 	private long lastAttempt;
 	
 	/**
-	 * 
 	 * @param resourceSelector Determines where the resources that the snapshots will be based on will be loaded from.
-	 * @param snapshotLoader Will actually load the snapshots
+	 * @param configurationSourceLoader Will actually load the snapshots
 	 */
 	public ResourceSnapshotManager(
 			ResourceSelector resourceSelector,
@@ -118,7 +117,6 @@ public class ResourceSnapshotManager implements SnapshotManager {
 	    try {
 	        Snapshot snapshot = performLoad(configurationResource);
             snapshot = performLoad(configurationResource);
-            validate(snapshot);
             this.lastAttempt = resourceLastModified;
             return snapshot;
         } catch (ConfigurationException e) {
@@ -141,14 +139,6 @@ public class ResourceSnapshotManager implements SnapshotManager {
         }
     }
 	   
-    /**
-     * @param snapshot
-     */
-	protected void validate(Snapshot snapshot) {
-        // TODO Auto-generated method stub
-        
-    }
-	
     /**
      * Perform the load operation that will convert a resource into a snapshot.
      * @param resourceToLoad the resouce to load into a snapshot

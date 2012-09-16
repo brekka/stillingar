@@ -23,16 +23,38 @@ import org.springframework.beans.PropertyValue;
 import org.springframework.beans.factory.BeanFactory;
 
 /**
- * A value change listener that will resolve property changes by looking up the named bean in the 
- * {@link BeanFactory} and then updating the instance directly.
- *
+ * A value change listener that will resolve property changes by looking up the named bean in the {@link BeanFactory}
+ * and then updating the instance directly.
+ * 
  * @author Andrew Taylor (andrew@brekka.org)
  */
 class BeanPropertyChangeListener extends AbstractExpressionGroupListener {
+    /**
+     * The name of the bean that will be used to lookup its bean definition in the beanFactory.
+     */
     private final String beanName;
+
+    /**
+     * The name of the property being updated.
+     */
     private final String property;
+
+    /**
+     * Bean factory to lookup the bean in.
+     */
     private final BeanFactory beanFactory;
 
+    /**
+     * @param beanName
+     *            The name of the bean that will be used to lookup its bean definition in the beanFactory.
+     * @param property
+     *            The name of the property being updated.
+     * @param beanFactory
+     *            Bean factory to lookup the bean in.
+     * @param fragment
+     *            the fragment that will be used to evaluate and obtain the value which will be passed to
+     *            {@link #onChange(String)}
+     */
     public BeanPropertyChangeListener(String beanName, String property, BeanFactory beanFactory, Fragment fragment) {
         super(fragment);
         this.beanName = beanName;
@@ -40,6 +62,9 @@ class BeanPropertyChangeListener extends AbstractExpressionGroupListener {
         this.beanFactory = beanFactory;
     }
 
+    /**
+     * Handle the change by using reflection to change the bean property.
+     */
     public void onChange(String newValue) {
         Object bean = beanFactory.getBean(beanName);
         BeanWrapper beanWrapper = PropertyAccessorFactory.forBeanPropertyAccess(bean);

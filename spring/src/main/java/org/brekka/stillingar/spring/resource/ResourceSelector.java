@@ -28,7 +28,10 @@ public interface ResourceSelector {
 
     /**
      * The resource selected by this implementation.
+     * 
      * @return the resource
+     * @throws NoSnapshotAvailableException
+     *             if no resource could be resolved
      */
     Resource getResource() throws NoSnapshotAvailableException;
 }

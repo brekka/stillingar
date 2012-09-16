@@ -20,14 +20,37 @@ import org.brekka.stillingar.spring.resource.BaseDirectory;
 import org.springframework.core.io.Resource;
 
 /**
+ * A base directory that is either the user's home or a directory relative to it.
+ * 
  * @author Andrew Taylor (andrew@brekka.org)
- *
  */
 public class HomeDirectory implements BaseDirectory {
 
-    private String path;
-    
-    /* (non-Javadoc)
+    /**
+     * The relative path within the user home.
+     */
+    private final String path;
+
+    /**
+     * The home directory itself
+     */
+    public HomeDirectory() {
+        this(null);
+    }
+
+    /**
+     * A base location that is a path within the user home.
+     * 
+     * @param path
+     *            The relative path within the user home.
+     */
+    public HomeDirectory(String path) {
+        this.path = path;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.brekka.stillingar.spring.resource.BaseDirectory#getDirResource()
      */
     @Override
@@ -36,25 +59,22 @@ public class HomeDirectory implements BaseDirectory {
         return BaseDirUtils.resourceFromVariable(userHome, path);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.brekka.stillingar.spring.resource.BaseDirectory#getDisposition()
      */
     @Override
     public String getDisposition() {
         return "Home Directory";
     }
-    
+
     /**
+     * Retrieve the sub-path within the user home.
+     * 
      * @return the path
      */
     public String getPath() {
         return path;
-    }
-
-    /**
-     * @param path the path to set
-     */
-    public void setPath(String path) {
-        this.path = path;
     }
 }

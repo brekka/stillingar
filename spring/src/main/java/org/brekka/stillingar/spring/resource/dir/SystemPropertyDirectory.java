@@ -20,16 +20,19 @@ import org.brekka.stillingar.spring.resource.BaseDirectory;
 import org.springframework.core.io.Resource;
 
 /**
+ * Base directory location that will be taken from a system property.
+ * 
  * @author Andrew Taylor (andrew@brekka.org)
- *
  */
 public class SystemPropertyDirectory implements BaseDirectory {
 
+    /**
+     * The name of the system property
+     */
     private final String property;
     
-    
     /**
-     * @param property
+     * @param property The name of the system property to resolve the base location from
      */
     public SystemPropertyDirectory(String property) {
         this.property = property;

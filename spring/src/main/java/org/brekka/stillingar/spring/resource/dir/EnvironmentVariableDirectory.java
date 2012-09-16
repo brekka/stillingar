@@ -22,8 +22,9 @@ import org.brekka.stillingar.spring.resource.BaseDirectory;
 import org.springframework.core.io.Resource;
 
 /**
+ * Base directory location that will be taken from an environment variable.
+ * 
  * @author Andrew Taylor (andrew@brekka.org)
- *
  */
 public class EnvironmentVariableDirectory implements BaseDirectory {
     
@@ -38,15 +39,18 @@ public class EnvironmentVariableDirectory implements BaseDirectory {
     private final Map<String, String> envMap;
     
     /**
-     * @param var
+     * @param var the name of the environment variable to load the location from
      */
     public EnvironmentVariableDirectory(String var) {
         this(var, System.getenv());
     }
     
     /**
-     * @param var
-     * @param envMap
+     * Allow the map to resolve environment variables from to be set. Pretty much useful
+     * only for unit testing.
+     * 
+     * @param var the name of the environment variable to load the location from
+     * @param envMap the map of variables to load the location value from.
      */
     EnvironmentVariableDirectory(String var, Map<String, String> envMap) {
         this.var = var;

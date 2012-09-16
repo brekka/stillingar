@@ -34,12 +34,26 @@ import org.springframework.core.io.Resource;
  */
 public class UnresolvableResource implements Resource {
 
+    /**
+     * A message detailing why the resource could not resolved.
+     */
     private final String message;
 
+    /**
+     * @param message
+     *            A message detailing why the resource could not resolved.
+     * @param args
+     *            will be formatted into the message using {@link String#format(String, Object...)}.
+     */
     public UnresolvableResource(String message, Object... args) {
         this.message = format(message, args);
     }
 
+    /**
+     * Retrieve the detailed message about why this resource was rejected.
+     * 
+     * @return the message
+     */
     public final String getMessage() {
         return message;
     }

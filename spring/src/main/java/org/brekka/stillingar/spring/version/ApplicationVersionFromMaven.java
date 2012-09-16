@@ -51,14 +51,25 @@ public class ApplicationVersionFromMaven implements ApplicationVersionResolver {
      */
     private static final Log log = LogFactory.getLog(VersionedResourceNameResolver.class);
 
+    /**
+     * Maven 'groupId'
+     */
     private final String groupId;
+    
+    /**
+     * Maven 'artifactId'
+     */
     private final String artifactId;
+    
+    /**
+     * The classloader in which to look for the pom.properties file.
+     */
     private final ClassLoader resolveClassloader;
 
     /**
-     * @param groupId
-     * @param artifactId
-     * @param resolveClassloader
+     * @param groupId Maven 'groupId'
+     * @param artifactId Maven 'artifactId'
+     * @param resolveClassloader The classloader in which to look for the pom.properties file.
      */
     public ApplicationVersionFromMaven(String groupId, String artifactId, ClassLoader resolveClassloader) {
         this.groupId = groupId;
@@ -69,7 +80,7 @@ public class ApplicationVersionFromMaven implements ApplicationVersionResolver {
     /**
      * Identify the version. Should only need to be invoked once.
      * 
-     * @return
+     * @return the version or null if it cannot be identified
      */
     public String identifyVersion() {
         String version = null;

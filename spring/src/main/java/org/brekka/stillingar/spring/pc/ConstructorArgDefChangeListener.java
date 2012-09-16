@@ -28,27 +28,48 @@ import org.springframework.beans.factory.config.ConstructorArgumentValues.ValueH
 import org.springframework.util.ObjectUtils;
 
 /**
- * A listener that will update Spring's internal definition of a prototype bean. This allows
- * new bean instances to be created with the latest configuration.
- *
+ * A listener that will update Spring's internal definition of a prototype bean. This allows new bean instances to be
+ * created with the latest configuration.
+ * 
  * @author Andrew Taylor (andrew@brekka.org)
  */
 public class ConstructorArgDefChangeListener extends AbstractExpressionGroupListener {
 
+    /**
+     * The name of the bean that will be used to lookup its bean definition in the beanFactory.
+     */
     private final String beanName;
+
+    /**
+     * The index of this constructor argument (may be null).
+     */
     private final Integer constructorArgIndex;
+
+    /**
+     * The type of the constructor argument.
+     */
     private final String constructorArgType;
+
+    /**
+     * Bean factory to lookup the bean definition in.
+     */
     private final ConfigurableListableBeanFactory beanFactory;
-    
+
     /**
      * @param beanName
+     *            The name of the bean that will be used to lookup its bean definition in the beanFactory.
      * @param constructorArgIndex
+     *            The index of this constructor argument (may be null).
      * @param constructorArgType
+     *            The type of the constructor argument.
      * @param beanFactory
+     *            Bean factory to lookup the bean definition in.
      * @param fragment
+     *            the fragment that will be used to evaluate and obtain the value which will be passed to
+     *            {@link #onChange(String)}
      */
-    public ConstructorArgDefChangeListener(String beanName, Integer constructorArgIndex, 
-            String constructorArgType, ConfigurableListableBeanFactory beanFactory, Fragment fragment) {
+    public ConstructorArgDefChangeListener(String beanName, Integer constructorArgIndex, String constructorArgType,
+            ConfigurableListableBeanFactory beanFactory, Fragment fragment) {
         super(fragment);
         this.beanName = beanName;
         this.constructorArgIndex = constructorArgIndex;
@@ -56,7 +77,9 @@ public class ConstructorArgDefChangeListener extends AbstractExpressionGroupList
         this.beanFactory = beanFactory;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.brekka.stillingar.spring.pc.AbstractExpressionGroupListener#onChange(java.lang.String)
      */
     @Override
@@ -68,8 +91,8 @@ public class ConstructorArgDefChangeListener extends AbstractExpressionGroupList
         if (constructorArgIndex != null) {
             valueHolder = mutableConstructorValues.getIndexedArgumentValues().get(constructorArgIndex);
             if (valueHolder == null) {
-                throw new IllegalStateException(String.format(
-                        "Failed to find constructor arg at index %d", constructorArgIndex));
+                throw new IllegalStateException(String.format("Failed to find constructor arg at index %d",
+                        constructorArgIndex));
             }
         } else if (genericArgumentValues.size() == 1) {
             valueHolder = genericArgumentValues.get(0);
@@ -80,28 +103,27 @@ public class ConstructorArgDefChangeListener extends AbstractExpressionGroupList
                 }
             }
             if (valueHolder == null) {
-                throw new IllegalStateException(String.format(
-                        "Failed to find constructor arg with type '%s'",  constructorArgType));
+                throw new IllegalStateException(String.format("Failed to find constructor arg with type '%s'",
+                        constructorArgType));
             }
         }
         if (!ObjectUtils.nullSafeEquals(newValue, valueHolder.getValue())) {
             valueHolder.setValue(newValue);
             try {
                 /*
-                 * Spring implements caching of constructor values, which can be reset by clearing
-                 * the package-private field 'resolvedConstructorOrFactoryMethod' on RootBeanDefinition.
-                 * Naturally this will fail if a security manager is present but there doesn't seem to 
-                 * be any other way to do it. Make sure to warn about this in the documentation!
+                 * Spring implements caching of constructor values, which can be reset by clearing the package-private
+                 * field 'resolvedConstructorOrFactoryMethod' on RootBeanDefinition. Naturally this will fail if a
+                 * security manager is present but there doesn't seem to be any other way to do it. Make sure to warn
+                 * about this in the documentation!
                  */
                 Field field = beanDef.getClass().getDeclaredField("resolvedConstructorOrFactoryMethod");
                 field.setAccessible(true);
                 field.set(beanDef, null);
             } catch (Exception e) {
-                throw new ConfigurationException(String.format(
-                        "Unable to update value for constructor argument '%s'. " +
-                        "Failed to reset the cached constructor state for bean '%s'", 
-                        (constructorArgIndex != null ? constructorArgIndex.toString() : constructorArgType), 
-                        beanName), e);
+                throw new ConfigurationException(String.format("Unable to update value for constructor argument '%s'. "
+                        + "Failed to reset the cached constructor state for bean '%s'",
+                        (constructorArgIndex != null ? constructorArgIndex.toString() : constructorArgType), beanName),
+                        e);
             }
         }
     }

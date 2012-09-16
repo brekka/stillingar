@@ -31,16 +31,25 @@ import org.springframework.core.io.Resource;
  */
 public class DefaultConfigurationSourceFactoryBean implements FactoryBean<ConfigurationSource> {
 
+    /**
+     * The resource to load the default configuration from
+     */
     private final Resource resource;
     
+    /**
+     * Will load a {@link ConfigurationSource} based on the contents of the resource.
+     */
     private final ConfigurationSourceLoader loader;
     
+    /**
+     * The encoding of the resource if it needs to be explicitly stated.
+     */
     private final Charset encoding;
     
     /**
-     * @param resource
-     * @param loader
-     * @param encoding
+     * @param resource The resource to load the default configuration from
+     * @param loader Will load a {@link ConfigurationSource} based on the contents of the resource.
+     * @param encoding The encoding of the resource if it needs to be explicitly stated (can be null).
      */
     public DefaultConfigurationSourceFactoryBean(Resource resource, ConfigurationSourceLoader loader, Charset encoding) {
         this.resource = resource;
@@ -48,6 +57,10 @@ public class DefaultConfigurationSourceFactoryBean implements FactoryBean<Config
         this.encoding = encoding;
     }
     
+    /**
+     * @param resource The resource to load the default configuration from
+     * @param loader Will load a {@link ConfigurationSource} based on the contents of the resource.
+     */
     public DefaultConfigurationSourceFactoryBean(Resource resource, ConfigurationSourceLoader loader) {
         this(resource, loader, null);
     }

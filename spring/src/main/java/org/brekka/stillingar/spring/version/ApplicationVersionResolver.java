@@ -23,5 +23,10 @@ package org.brekka.stillingar.spring.version;
  */
 public interface ApplicationVersionResolver {
 
+    /**
+     * Identifies the version of the application being configured.
+     * 
+     * @return the version or null if the version cannot be identified.
+     */
     String identifyVersion();
 }

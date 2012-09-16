@@ -22,19 +22,20 @@ import java.util.Date;
 import org.brekka.stillingar.core.ConfigurationSource;
 
 /**
- * Represents an immutable snapshot in time of a {@link ConfigurationSource}, encapsulating details about where
- * it was loaded from, and when it was updated.
+ * Represents an immutable snapshot in time of a {@link ConfigurationSource}, encapsulating details about where it was
+ * loaded from, and when it was updated.
  * 
  * @author Andrew Taylor
  */
 public interface Snapshot {
-    
+
     /**
-     * Retrieve the source 
-     * @return
+     * Retrieve the source itself, loaded from the snapshot
+     * 
+     * @return the source
      */
     ConfigurationSource getSource();
-    
+
     /**
      * The timestamp associated with the resource that was loaded into this snapshot. For example if the resource was a
      * file, then the lastModified date would be returned.

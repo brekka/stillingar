@@ -24,7 +24,19 @@ import org.springframework.core.io.Resource;
  * @author Andrew Taylor (andrew@brekka.org)
  */
 public interface BaseDirectory {
+
+    /**
+     * The directory based resource from which the caller will resolve other files.
+     * 
+     * @return the directory resource. If no resource is available, return an instance of {@link UnresolvableResource}
+     *         with a description of why it is not available.
+     */
     Resource getDirResource();
-    
+
+    /**
+     * Human-readable label for this directory location that will be displayed in error messages.
+     * 
+     * @return the label describing this location so it can be singled out against other failed locations.
+     */
     String getDisposition();
 }

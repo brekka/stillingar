@@ -85,10 +85,19 @@ public class ScanningResourceSelector implements ResourceSelector {
     }
 
     /**
+     * Search the specified base directory for files with names matching those in <code>names</code>. If the location
+     * gets rejected then it should be added to the list of rejected locations.
+     * 
      * @param locationBase
-     * @return
+     *            the location to search
+     * @param names
+     *            the names of files to find within the base location
+     * @param rejected
+     *            collects failed locations.
+     * @return the resource or null if one cannot be found.
      */
-    protected Resource findInBaseDir(BaseDirectory locationBase, Set<String> names, List<RejectedSnapshotLocation> rejected) {
+    protected Resource findInBaseDir(BaseDirectory locationBase, Set<String> names,
+            List<RejectedSnapshotLocation> rejected) {
         Resource dir = locationBase.getDirResource();
         if (dir instanceof UnresolvableResource) {
             UnresolvableResource res = (UnresolvableResource) dir;
@@ -143,13 +152,16 @@ public class ScanningResourceSelector implements ResourceSelector {
         // No resource found
         return null;
     }
-    
+
+    /**
+     * Internal structure for holding rejected snapshot details.
+     */
     private static class Rejected implements RejectedSnapshotLocation {
 
         private final String disposition;
         private final String path;
         private final String message;
-        
+
         /**
          * @param disposition
          * @param path
@@ -161,7 +173,9 @@ public class ScanningResourceSelector implements ResourceSelector {
             this.message = message;
         }
 
-        /* (non-Javadoc)
+        /*
+         * (non-Javadoc)
+         * 
          * @see org.brekka.stillingar.core.snapshot.RejectedSnapshotLocation#getDisposition()
          */
         @Override
@@ -169,7 +183,9 @@ public class ScanningResourceSelector implements ResourceSelector {
             return disposition;
         }
 
-        /* (non-Javadoc)
+        /*
+         * (non-Javadoc)
+         * 
          * @see org.brekka.stillingar.core.snapshot.RejectedSnapshotLocation#getPath()
          */
         @Override
@@ -177,21 +193,24 @@ public class ScanningResourceSelector implements ResourceSelector {
             return path;
         }
 
-        /* (non-Javadoc)
+        /*
+         * (non-Javadoc)
+         * 
          * @see org.brekka.stillingar.core.snapshot.RejectedSnapshotLocation#getMessage()
          */
         @Override
         public String getMessage() {
             return message;
         }
-        
-        /* (non-Javadoc)
+
+        /*
+         * (non-Javadoc)
+         * 
          * @see java.lang.Object#toString()
          */
         @Override
         public String toString() {
             return "[" + getDisposition() + " - " + getPath() + " - " + getMessage() + "]";
         }
-        
     }
 }

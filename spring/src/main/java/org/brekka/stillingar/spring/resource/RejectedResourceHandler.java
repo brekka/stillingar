@@ -25,5 +25,10 @@ import org.springframework.core.io.Resource;
  */
 public interface RejectedResourceHandler {
 
+    /**
+     * Called to indicate the specified resource is rejected.
+     * 
+     * @param resource the rejected resource
+     */
     void rejected(Resource resource);
 }

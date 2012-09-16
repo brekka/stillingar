@@ -23,8 +23,9 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 
 /**
+ * Utility class for working with base directories.
+ * 
  * @author Andrew Taylor (andrew@brekka.org)
- *
  */
 final class BaseDirUtils {
     
@@ -69,7 +70,4 @@ final class BaseDirUtils {
         }
         return null;
     }
-    
-    
-    
 }

@@ -21,7 +21,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.brekka.stillingar.spring.pc.ConfigurationPlaceholderConfigurer.CustomStringValueResolver;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.PropertyValue;
 import org.springframework.beans.factory.config.BeanDefinitionVisitor;
@@ -29,22 +28,47 @@ import org.springframework.beans.factory.config.ConstructorArgumentValues.ValueH
 import org.springframework.util.ObjectUtils;
 
 /**
+ * Visit the various parts of a bean definition, capturing calls to set values on properties and constructors. The main
+ * purpose of this class is to capture the property/constructor definition and make them available to the
+ * {@link CustomStringValueResolver} that can then register listeners for configuration changes to update those values.
  * 
- * TODO Description of CustomBeanDefinitionVisitor
- *
  * @author Andrew Taylor (andrew@brekka.org)
  */
 class CustomBeanDefinitionVisitor extends BeanDefinitionVisitor {
+    /**
+     * The name of the bean being visited.
+     */
     private final String beanName;
+
+    /**
+     * Is this a singleton bean definition
+     */
     private final boolean singleton;
 
+    /**
+     * The current property being visited (only set when {@link #visitPropertyValues(MutablePropertyValues)} is called).
+     */
     private PropertyValue currentProperty;
-    
-    private ValueHolder currentConstructorValue;
-    
-    private Integer currentConstructorIndex;
-    
 
+    /**
+     * The current constructor being visited (only set when {@link #visitGenericArgumentValues(List)} or
+     * {@link #visitIndexedArgumentValues(Map)} are called).
+     */
+    private ValueHolder currentConstructorValue;
+
+    /**
+     * The current constructor index being visited (only set when {@link #visitIndexedArgumentValues(Map)} is called).
+     */
+    private Integer currentConstructorIndex;
+
+    /**
+     * @param beanName
+     *            The name of the bean being visited.
+     * @param singleton
+     *            Is this a singleton bean definition
+     * @param valueResolver
+     *            the resolver that will be used to lookup the initial value, and apply change listeners.
+     */
     public CustomBeanDefinitionVisitor(String beanName, boolean singleton, CustomStringValueResolver valueResolver) {
         super(valueResolver);
         this.singleton = singleton;
@@ -52,13 +76,16 @@ class CustomBeanDefinitionVisitor extends BeanDefinitionVisitor {
         valueResolver.setBeanDefVisitor(this);
     }
 
+    /**
+     * Visit properties
+     */
     @Override
     protected void visitPropertyValues(MutablePropertyValues pvs) {
         PropertyValue[] pvArray = pvs.getPropertyValues();
         for (PropertyValue pv : pvArray) {
             currentProperty = pv;
             Object newVal = resolveValue(pv.getValue());
-            
+
             // Change the value for the first time.
             if (!ObjectUtils.nullSafeEquals(newVal, pv.getValue())) {
                 pvs.add(pv.getName(), newVal);
@@ -66,8 +93,10 @@ class CustomBeanDefinitionVisitor extends BeanDefinitionVisitor {
             currentProperty = null;
         }
     }
-    
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.springframework.beans.factory.config.BeanDefinitionVisitor#visitGenericArgumentValues(java.util.List)
      */
     @Override
@@ -81,13 +110,15 @@ class CustomBeanDefinitionVisitor extends BeanDefinitionVisitor {
             currentConstructorValue = null;
         }
     }
-    
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.springframework.beans.factory.config.BeanDefinitionVisitor#visitIndexedArgumentValues(java.util.Map)
      */
     @Override
     protected void visitIndexedArgumentValues(Map<Integer, ValueHolder> ias) {
-        Set<Entry<Integer,ValueHolder>> entrySet = ias.entrySet();
+        Set<Entry<Integer, ValueHolder>> entrySet = ias.entrySet();
         for (Entry<Integer, ValueHolder> entry : entrySet) {
             ValueHolder valueHolder = entry.getValue();
             currentConstructorValue = valueHolder;
@@ -100,35 +131,35 @@ class CustomBeanDefinitionVisitor extends BeanDefinitionVisitor {
             currentConstructorIndex = null;
         }
     }
-    
+
     /**
      * @return the currentProperty
      */
     public PropertyValue getCurrentProperty() {
         return currentProperty;
     }
-    
+
     /**
      * @return the currentConstructorValue
      */
     public ValueHolder getCurrentConstructorValue() {
         return currentConstructorValue;
     }
-    
+
     /**
      * @return the currentConstructorIndex
      */
     public Integer getCurrentConstructorIndex() {
         return currentConstructorIndex;
     }
-    
+
     /**
      * @return the singleton
      */
     public boolean isSingleton() {
         return singleton;
     }
-    
+
     /**
      * @return the beanName
      */

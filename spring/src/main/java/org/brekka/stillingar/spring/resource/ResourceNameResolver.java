@@ -25,5 +25,11 @@ import java.util.Set;
  */
 public interface ResourceNameResolver {
 
+    /**
+     * The set of possible resource names, in order of specificity. That is, the more complex and less likely names
+     * appear first in decreasing order of complexity.
+     * 
+     * @return the ordered set of names.
+     */
     Set<String> getNames();
 }

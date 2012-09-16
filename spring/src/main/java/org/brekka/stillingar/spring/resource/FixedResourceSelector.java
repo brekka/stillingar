@@ -30,7 +30,9 @@ public class FixedResourceSelector implements ResourceSelector {
      */
     private final Resource resource;
     
-    
+    /**
+     * @param resource The resource to return
+     */
     public FixedResourceSelector(Resource resource) {
         if (resource == null) {
             throw new IllegalArgumentException("Resource is required");
