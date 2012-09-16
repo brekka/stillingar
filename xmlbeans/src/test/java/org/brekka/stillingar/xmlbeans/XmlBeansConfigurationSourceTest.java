@@ -109,11 +109,16 @@ public class XmlBeansConfigurationSourceTest {
         assertEquals("http://example.org/CompanyY", companyY.getWarehouseWebService().getURL());
     }
     
-//    @Ignore("Functionality not available without enhanced XPath support")
     @Test
     public void testRetrieveXPathIndex() {
         String keyword = configurationSource.retrieve("//c:Fraud/c:Keyword[2]", String.class);
         assertEquals("KeywordB", keyword);
+    }
+    
+    @Test
+    public void testRetrieveXPathAttrSelector() {
+        Boolean flag = configurationSource.retrieve("//c:FeatureFlag[@key='TURBO']", Boolean.class);
+        assertEquals(Boolean.TRUE, flag);
     }
 
     /**
