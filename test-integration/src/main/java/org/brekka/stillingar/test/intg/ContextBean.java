@@ -25,24 +25,20 @@ import org.springframework.context.ApplicationContext;
 public class ContextBean implements InitializingBean  {
     
     
-    @Configured("/c:Configuration/c:Context/beans:beans")
-    private ApplicationContext applicationContext;
-    
-    @Configured("/c:Configuration/c:Context/beans:beans")
-    public void setContext(ApplicationContext applicationContext) {
-        System.out.println(applicationContext);
-    }
     
     public ApplicationContext getContext() {
         return null;
     }
-    
+    /* (non-Javadoc)
+     * @see org.springframework.beans.factory.InitializingBean#afterPropertiesSet()
+     */
+    @Override
     public void afterPropertiesSet() throws Exception {
-         System.out.println(applicationContext);
     }
     
     @ConfigurationListener
-    public void configure(@Configured("/c:Configuration/c:Context/beans:beans") ApplicationContext applicationContext) {
+    public void configure(@Configured("/c:Configuration/c:ApplicationContext/beans:beans") 
+                             ApplicationContext applicationContext) {
         System.out.println(applicationContext);
     }
 }

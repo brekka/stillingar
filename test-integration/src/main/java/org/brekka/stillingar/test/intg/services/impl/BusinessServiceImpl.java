@@ -25,6 +25,7 @@ import org.brekka.stillingar.annotations.ConfigurationListener;
 import org.brekka.stillingar.annotations.Configured;
 import org.brekka.stillingar.test.intg.services.BusinessService;
 import org.brekka.xml.stillingar.test.v1.ConfigurationDocument.Configuration.CompanyX;
+import org.brekka.xml.stillingar.test.v1.ConfigurationDocument.Configuration.CompanyY;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -39,7 +40,7 @@ public class BusinessServiceImpl implements BusinessService {
 	
 	private Date configureDate;
 	
-	private CompanyX configureBusiness;
+	private CompanyY configureBusiness;
 
 	// Business method
 	public void doSomething() {
@@ -50,7 +51,7 @@ public class BusinessServiceImpl implements BusinessService {
 	public void configure(@Qualifier("dynamicBean") 
 	                      Date theDate, 
 	                      @Configured 
-	                      CompanyX business) {
+	                      CompanyY business) {
 	    configureCount++;
 	    this.configureDate = theDate;
 	    this.configureBusiness = business;
@@ -60,7 +61,7 @@ public class BusinessServiceImpl implements BusinessService {
         return configureCount;
     }
 	
-	public CompanyX getConfigureBusiness() {
+	public CompanyY getConfigureBusiness() {
         return configureBusiness;
     }
 	
