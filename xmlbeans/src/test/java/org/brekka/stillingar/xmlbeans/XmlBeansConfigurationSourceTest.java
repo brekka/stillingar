@@ -40,6 +40,7 @@ import org.brekka.xml.stillingar.test.v1.ConfigurationDocument.Configuration.Com
 import org.brekka.xml.stillingar.test.v1.ConfigurationDocument.Configuration.CompanyY;
 import org.brekka.xml.stillingar.test.v1.ConfigurationDocument.Configuration.Services.Rules.Fraud;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -108,11 +109,12 @@ public class XmlBeansConfigurationSourceTest {
         assertEquals("http://example.org/CompanyY", companyY.getWarehouseWebService().getURL());
     }
     
-//    @Test
-//    public void testRetrieveXPathIndex() {
-//        String keyword = configurationSource.retrieve("//c:Fraud/c:Keyword[2]", String.class);
-//        assertEquals("KeywordB", keyword);
-//    }
+//    @Ignore("Functionality not available without enhanced XPath support")
+    @Test
+    public void testRetrieveXPathIndex() {
+        String keyword = configurationSource.retrieve("//c:Fraud/c:Keyword[2]", String.class);
+        assertEquals("KeywordB", keyword);
+    }
 
     /**
      * Test method for {@link org.brekka.stillingar.xmlbeans.XmlBeansConfigurationSource#retrieveList(java.lang.Class)}.

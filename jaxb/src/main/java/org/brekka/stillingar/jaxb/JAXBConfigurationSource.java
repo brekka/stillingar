@@ -110,12 +110,14 @@ public class JAXBConfigurationSource implements ConfigurationSource {
                 } else if (List.class.isAssignableFrom(resolvedObject.getClass())) {
                     retVal = resolveValueFromList(node, (List<T>) resolvedObject);
                 } else {
-                    throw new ConfigurationException(String.format("Expected '%s', found '%s'", valueType.getName(),
+                    throw new ConfigurationException(String.format(
+                            "Expected '%s', found '%s'", valueType.getName(),
                             resolvedObject.getClass().getName()));
                 }
             }
         } else {
-            throw new ConfigurationException(String.format("Not a single node '%s', found '%s'", expression, result));
+            throw new ConfigurationException(String.format(
+                    "Not a single node '%s', found '%s'", expression, result));
         }
         return retVal;
     }
@@ -222,7 +224,8 @@ public class JAXBConfigurationSource implements ConfigurationSource {
             XPathExpression expr = xpath.compile(expression);
             retVal = expr.evaluate(document, returnType);
         } catch (XPathExpressionException e) {
-            throw new ConfigurationException(String.format("Invalid XPath expression"));
+            throw new ConfigurationException(String.format(
+                    "Invalid XPath expression '%s'", expression, e));
         }
         return retVal;
     }

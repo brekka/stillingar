@@ -9,12 +9,12 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>stillingar-xmlbeans</artifactId>
+    <artifactId>stillingar-xmlbeans-xpath</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 
     <packaging>jar</packaging>
 
-    <name>Stillingar - XML Beans</name>
+    <name>Stillingar - XML Beans XPath enhancement</name>
 
     <inceptionYear>2011</inceptionYear>
 
@@ -43,42 +43,10 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.brekka.stillingar</groupId>
-            <artifactId>stillingar-core</artifactId>
-            <version>${stillingar-core-version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.apache.xmlbeans</groupId>
             <artifactId>xmlbeans</artifactId>
             <version>${xmlbeans-version}</version>
         </dependency>
-
-
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>${junit-version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-test</artifactId>
-            <version>${spring-release-version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.iharder</groupId>
-            <artifactId>base64</artifactId>
-            <version>2.3.7</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.brekka.stillingar</groupId>
-            <artifactId>stillingar-xmlbeans-xpath</artifactId>
-            <version>${stillingar-xpath-version}</version>
-            <scope>test</scope>
-        </dependency>
-        
     </dependencies>
 
     <build>
@@ -114,22 +82,6 @@
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
-                <artifactId>xmlbeans-maven-plugin</artifactId>
-                <version>2.3.3</version>
-                <configuration>
-                    <javaSource>1.5</javaSource>
-                    <schemaDirectory>../core/src/test/xsd</schemaDirectory>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>xmlbeans-test</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
                 <artifactId>cobertura-maven-plugin</artifactId>
                 <version>2.5.1</version>
             </plugin>
@@ -139,8 +91,6 @@
 
 
     <properties>
-        <stillingar-core-version>1.0.0-SNAPSHOT</stillingar-core-version>
-        <stillingar-xpath-version>1.0.0-SNAPSHOT</stillingar-xpath-version>
         <xmlbeans-version>2.4.0</xmlbeans-version>
         <junit-version>4.8.2</junit-version>
         <spring-release-version>3.0.5.RELEASE</spring-release-version>
