@@ -16,10 +16,11 @@
 
 package org.brekka.stillingar.spring.pc;
 
+import java.util.HashSet;
+
 import org.brekka.stillingar.core.ConfigurationSource;
 import org.brekka.stillingar.core.GroupChangeListener;
-import org.brekka.stillingar.spring.pc.expr.ExpressionPlaceholderHelper;
-import org.brekka.stillingar.spring.pc.expr.Fragment;
+import org.brekka.stillingar.spring.expr.Fragment;
 
 /**
  * Evaluates the fragment and passes the result to the onChange method.
@@ -28,11 +29,14 @@ import org.brekka.stillingar.spring.pc.expr.Fragment;
  */
 public abstract class AbstractExpressionGroupListener implements GroupChangeListener {
 
-    
+    /**
+     * The fragment that will be evaluated
+     */
     private final Fragment fragment;
     
     /**
-     * @param fragment
+     * @param fragment The fragment that will be evaluated
+     * @param helper The helper that will be used to evaluate the fragment.
      */
     public AbstractExpressionGroupListener(Fragment fragment) {
         if (fragment == null) {
@@ -46,7 +50,7 @@ public abstract class AbstractExpressionGroupListener implements GroupChangeList
      */
     @Override
     public void onChange(ConfigurationSource configurationSource) {
-        String value = ExpressionPlaceholderHelper.evaluate(fragment, configurationSource);
+        String value = fragment.evaluate(configurationSource, new HashSet<String>());
         onChange(value);
     }
 

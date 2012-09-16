@@ -28,46 +28,91 @@ import org.brekka.stillingar.core.ConfigurationSource;
 import org.brekka.stillingar.core.GroupChangeListener;
 
 /**
+ * Invoke a method of a target object in response to a group change.
  * 
- * TODO Description of PostUpdateChangeListener
- *
  * @author Andrew Taylor (andrew@brekka.org)
  */
 class PostUpdateChangeListener implements GroupChangeListener {
-	private final Object target;
-	final Method method;
-	private final List<ValueResolver> argValues;
-	
-	
-	public PostUpdateChangeListener(Object target, Method method, List<ValueResolver> argValues) {
-		this.target = target;
-		this.method = method;
-		this.argValues = argValues;
-	}
-	
-	public void onChange(ConfigurationSource configurationSource) {
+    /**
+     * The target object containing the method to be invoked
+     */
+    private final Object target;
+
+    /**
+     * The method to invoke
+     */
+    private final Method method;
+
+    /**
+     * Value resolvers for the parameters of the method.
+     */
+    private final List<ParameterValueResolver> parameterValues;
+
+    /**
+     * @param target
+     *            The target object containing the method to be invoked
+     * @param method
+     *            The method to invoke
+     * @param parameterValues
+     *            Value resolvers for the parameters of the method.
+     */
+    public PostUpdateChangeListener(Object target, Method method, List<ParameterValueResolver> parameterValues) {
+        this.target = target;
+        this.method = method;
+        this.parameterValues = parameterValues;
+    }
+
+    /**
+     * Delegates to {@link #onChange(ConfigurationSource, Object)} along with <code>target</code>
+     */
+    public final void onChange(ConfigurationSource configurationSource) {
         onChange(configurationSource, target);
     }
-	
-	public void onChange(ConfigurationSource configurationSource, Object target) {
-		Object[] args = new Object[argValues.size()];
-		for (int i = 0; i < argValues.size(); i++) {
-			ValueResolver arg = argValues.get(i);
-			args[i] = arg.getValue();
-		}
-		try {
-			if (!method.isAccessible()) {
-				method.setAccessible(true);
-			}
-			method.invoke(target, args);
-		} catch (IllegalAccessException e) {
-			throwError(args, e);
-		} catch (InvocationTargetException e) {
-			throwError(args, e);
-		}
-	}
-	protected void throwError(Object[] args, Throwable cause) {
-		throw new ConfigurationException(format("Listener method '%s' of type '%s' with arguments %s", 
-				method.getName(), method.getDeclaringClass().getName(), Arrays.toString(args)), cause);
-	}
+
+    /**
+     * @param the
+     *            source that can be used to lookup additional values if necessary.
+     * @param target
+     *            the target object on which the specified method will be invoked.
+     */
+    public void onChange(ConfigurationSource configurationSource, Object target) {
+        Object[] args = new Object[parameterValues.size()];
+        for (int i = 0; i < parameterValues.size(); i++) {
+            ParameterValueResolver arg = parameterValues.get(i);
+            args[i] = arg.getValue();
+        }
+        try {
+            if (!method.isAccessible()) {
+                method.setAccessible(true);
+            }
+            method.invoke(target, args);
+        } catch (IllegalAccessException e) {
+            throwError(args, e);
+        } catch (InvocationTargetException e) {
+            throwError(args, e);
+        }
+    }
+
+    /**
+     * Throws a new {@link ConfigurationException}, encapsulating information about the context of the object/method
+     * being invoked.
+     * 
+     * @param args
+     *            the values being passed to the method.
+     * @param cause
+     *            the underlying cause of the problem.
+     */
+    protected void throwError(Object[] args, Throwable cause) {
+        throw new ConfigurationException(format("Listener method '%s' of type '%s' with arguments %s",
+                method.getName(), method.getDeclaringClass().getName(), Arrays.toString(args)), cause);
+    }
+
+    /**
+     * Retrieve the method that will be invoked.
+     * 
+     * @return the method
+     */
+    public Method getMethod() {
+        return method;
+    }
 }

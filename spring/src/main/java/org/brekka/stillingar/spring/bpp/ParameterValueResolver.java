@@ -14,37 +14,23 @@
  * limitations under the License.
  */
 
-package org.brekka.stillingar.spring.pc.expr;
-
-import java.util.Set;
+package org.brekka.stillingar.spring.bpp;
 
 import org.brekka.stillingar.core.ConfigurationSource;
 
 /**
- * A simple string based fragment.
- *
+ * Used to resolve the value that should be set for a method parameter used when calling a configuration listener
+ * method. Implementations could for example, retrieve the value from the {@link ConfigurationSource} or from the spring
+ * context itself.
+ * 
  * @author Andrew Taylor (andrew@brekka.org)
  */
-public class StringFragment implements Fragment {
-    private final String value;
+interface ParameterValueResolver {
 
-    public StringFragment(String value) {
-        this.value = value;
-    }
-    
-    /* (non-Javadoc)
-     * @see org.brekka.stillingar.spring.pc.ExpressionPlaceholderHelper.Fragment#evaluate(java.util.Set)
+    /**
+     * Retrieve the value that should be assigned to a method parameter.
+     * 
+     * @return the value.
      */
-    @Override
-    public String evaluate(ConfigurationSource configurationSource, Set<String> visitedExpressions) {
-        return value;
-    }
-    
-    /* (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + "[" + value + "]";
-    }
+    Object getValue();
 }

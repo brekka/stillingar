@@ -16,7 +16,7 @@
 
 package org.brekka.stillingar.spring.pc;
 
-import org.brekka.stillingar.spring.pc.expr.Fragment;
+import org.brekka.stillingar.spring.expr.Fragment;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.beans.PropertyValue;

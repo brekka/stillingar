@@ -16,7 +16,7 @@
 
 package org.brekka.stillingar.spring.pc;
 
-import org.brekka.stillingar.spring.pc.expr.Fragment;
+import org.brekka.stillingar.spring.expr.Fragment;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.PropertyValue;
 import org.springframework.beans.factory.BeanFactory;
@@ -36,8 +36,8 @@ class PropertyDefChangeListener extends AbstractExpressionGroupListener {
     private final String propertyName;
     private final ConfigurableListableBeanFactory beanFactory;
 
-    public PropertyDefChangeListener(String beanName, String propertyName,
-            ConfigurableListableBeanFactory beanFactory, Fragment fragment) {
+    public PropertyDefChangeListener(String beanName, String propertyName, ConfigurableListableBeanFactory beanFactory,
+            Fragment fragment) {
         super(fragment);
         this.beanName = beanName;
         this.propertyName = propertyName;

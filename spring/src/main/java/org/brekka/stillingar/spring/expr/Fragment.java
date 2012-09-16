@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.brekka.stillingar.spring.pc.expr;
+package org.brekka.stillingar.spring.expr;
 
 import java.util.Set;
 

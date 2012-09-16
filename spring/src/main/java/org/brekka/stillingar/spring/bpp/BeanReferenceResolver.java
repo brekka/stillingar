@@ -27,7 +27,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
  * 
  * @author Andrew Taylor (andrew@brekka.org)
  */
-class BeanReferenceResolver implements ValueResolver {
+class BeanReferenceResolver implements ParameterValueResolver {
     /**
      * Bean factory in which to resolve the bean.
      */

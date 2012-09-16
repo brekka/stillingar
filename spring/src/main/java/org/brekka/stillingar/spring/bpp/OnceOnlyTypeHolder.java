@@ -17,11 +17,32 @@
 package org.brekka.stillingar.spring.bpp;
 
 /**
+ * Used by {@link ConfigurationBeanPostProcessor} to hold the type of a bean being configured by a value group. Used
+ * when there is no actual object instance available to be captured with the group, but we still need to the type
+ * information.
  * 
- * TODO Description of ValueResolver
- *
  * @author Andrew Taylor (andrew@brekka.org)
  */
-interface ValueResolver {
-	Object getValue();
+class OnceOnlyTypeHolder {
+    /**
+     * The type of the target class being configured.
+     */
+    private final Class<?> target;
+
+    /**
+     * @param target
+     *            The type of the target class being configured.
+     */
+    public OnceOnlyTypeHolder(Class<?> target) {
+        this.target = target;
+    }
+
+    /**
+     * Retrieve the type.
+     * 
+     * @return the type
+     */
+    public Class<?> get() {
+        return target;
+    }
 }

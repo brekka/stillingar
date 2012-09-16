@@ -19,9 +19,8 @@ package org.brekka.stillingar.spring.pc;
 import java.lang.reflect.Field;
 import java.util.List;
 
-
 import org.brekka.stillingar.core.ConfigurationException;
-import org.brekka.stillingar.spring.pc.expr.Fragment;
+import org.brekka.stillingar.spring.expr.Fragment;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.ConstructorArgumentValues;
@@ -43,7 +42,8 @@ public class ConstructorArgDefChangeListener extends AbstractExpressionGroupList
     
     /**
      * @param beanName
-     * @param name
+     * @param constructorArgIndex
+     * @param constructorArgType
      * @param beanFactory
      * @param fragment
      */

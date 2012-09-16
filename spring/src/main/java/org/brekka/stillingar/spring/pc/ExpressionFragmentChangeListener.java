@@ -14,33 +14,35 @@
  * limitations under the License.
  */
 
-package org.brekka.stillingar.spring.bpp;
+package org.brekka.stillingar.spring.pc;
 
-import org.brekka.stillingar.annotations.ConfigurationListener;
-import org.brekka.stillingar.core.GroupChangeListener;
 import org.brekka.stillingar.core.ValueChangeListener;
+import org.brekka.stillingar.spring.expr.ExpressionFragment;
 
 /**
- * Listener for a {@link ConfigurationListener} method parameter that simply captures the value for subsequent lookup by
- * the {@link GroupChangeListener}.
- * 
+ * Change listener for updating the value of an {@link ExpressionFragment}
+ *
  * @author Andrew Taylor (andrew@brekka.org)
  */
-class MethodParameterListener implements ValueChangeListener<Object>, ParameterValueResolver {
-
+public class ExpressionFragmentChangeListener implements ValueChangeListener<String> {
     /**
-     * The value by {@link #onChange(Object)}
+     * The fragment to update
      */
-    private Object value;
-
-    public void onChange(Object newValue) {
-        this.value = newValue;
+    private final ExpressionFragment expressionFragment;
+    
+    /**
+     * @param expressionFragment
+     */
+    public ExpressionFragmentChangeListener(ExpressionFragment expressionFragment) {
+        this.expressionFragment = expressionFragment;
     }
 
-    /**
-     * Retrieve the value
+    /* (non-Javadoc)
+     * @see org.brekka.stillingar.core.ValueChangeListener#onChange(java.lang.Object)
      */
-    public Object getValue() {
-        return value;
+    @Override
+    public void onChange(String newValue) {
+        expressionFragment.setValue(newValue);
     }
+
 }

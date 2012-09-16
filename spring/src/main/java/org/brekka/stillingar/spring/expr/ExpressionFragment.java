@@ -14,40 +14,65 @@
  * limitations under the License.
  */
 
-package org.brekka.stillingar.spring.pc.expr;
+package org.brekka.stillingar.spring.expr;
 
 import java.util.Set;
 
 import org.brekka.stillingar.core.ConfigurationSource;
 import org.brekka.stillingar.core.ValueChangeListener;
-import org.brekka.stillingar.core.ValueDefinition;
 
 /**
- * An expression based fragment. Will normally get its updates via the {@link ValueChangeListener#onChange(Object)}
- * call.
+ * An expression based fragment that may receive value changes from an external agent calling {@link #setValue(String)},
+ * or by evaluating the expression directly in the {@link #evaluate(ConfigurationSource, Set)} method.
  * 
  * @author Andrew Taylor (andrew@brekka.org)
  */
-public class ExpressionFragment implements Fragment, ValueChangeListener<String> {
+public class ExpressionFragment implements Fragment {
+    /**
+     * The expression that will be used to listen for changes.
+     */
     private final String expression;
+
+    /**
+     * The helper that will be used to resolve values from the looked-up values.
+     */
     private final ExpressionPlaceholderHelper helper;
+
+    /**
+     * The value captured when the {@link ValueChangeListener#onChange(Object)} method is called
+     */
     private String value;
+
+    /**
+     * Determines whether the {@link ValueChangeListener#onChange(Object)} method has been called yet.
+     */
     private boolean changed;
 
+    /**
+     * @param expression
+     *            The expression that will be used to listen for changes.
+     * @param helper
+     *            The helper that will be used to resolve values from the looked-up values.
+     */
     public ExpressionFragment(String expression, ExpressionPlaceholderHelper helper) {
         this.expression = expression;
         this.helper = helper;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.brekka.stillingar.core.ValueChangeListener#onChange(java.lang.Object)
+    /**
+     * @param value
+     *            the value to set
      */
-    @Override
-    public void onChange(String newValue) {
-        this.value = newValue;
+    public void setValue(String value) {
+        this.value = value;
         this.changed = true;
+    }
+
+    /**
+     * @return the expression
+     */
+    public String getExpression() {
+        return expression;
     }
 
     /*
@@ -64,14 +89,6 @@ public class ExpressionFragment implements Fragment, ValueChangeListener<String>
         return evaluate(theValue, visitedExpressions, helper, configurationSource, false);
     }
 
-    /**
-     * Prepare a value defination from this expression fragments
-     * @return
-     */
-    public ValueDefinition<String> toValueDefinition() {
-        return new ValueDefinition<String>(String.class, expression, this, false);
-    }
-
     /*
      * (non-Javadoc)
      * 
@@ -81,18 +98,26 @@ public class ExpressionFragment implements Fragment, ValueChangeListener<String>
     public String toString() {
         return getClass().getSimpleName() + "[" + expression + "]";
     }
-    
-    static String evaluate(String value, Set<String> visitedExpressions, 
-            ExpressionPlaceholderHelper helper, ConfigurationSource configurationSource,
-            boolean inExpression) {
+
+    /**
+     * Helper method to evaluate the expression and any resolved expression.
+     * 
+     * @param value
+     * @param visitedExpressions
+     * @param helper
+     * @param configurationSource
+     * @param inExpression
+     * @return
+     */
+    static String evaluate(String value, Set<String> visitedExpressions, ExpressionPlaceholderHelper helper,
+            ConfigurationSource configurationSource, boolean inExpression) {
         String retVal;
         if (visitedExpressions.add(value)) {
             Fragment valueFragment = helper.parse(value, 1, inExpression);
             retVal = valueFragment.evaluate(configurationSource, visitedExpressions);
             visitedExpressions.remove(value);
         } else {
-            throw new IllegalArgumentException(String.format(
-                    "Circular reference detected while resolving '%s'", value));
+            throw new IllegalArgumentException(String.format("Circular reference detected while resolving '%s'", value));
         }
         return retVal;
     }

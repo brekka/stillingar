@@ -118,8 +118,13 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
         ValueDefinitionGroup valueDefinitionGroup = onceOnlyDefinitionCache.get(targetClass);
         if (valueDefinitionGroup == null) {
             synchronized (onceOnlyDefinitionCache) {
-                TargetClass target = new TargetClass(targetClass);
+                /*
+                 * Capture the type of the target being configured. We don't want to use the bean itself as the
+                 * definition will be reused for other instances, none of which should be updated.
+                 */
+                OnceOnlyTypeHolder target = new OnceOnlyTypeHolder(targetClass);
                 valueDefinitionGroup = prepareValueGroup(beanName, target);
+                // Cache the type.
                 onceOnlyDefinitionCache.put(targetClass, valueDefinitionGroup);
             }
         }
@@ -178,8 +183,11 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
         List<ValueDefinition<?>> valueList = new ArrayList<ValueDefinition<?>>();
 
         Class<? extends Object> beanClass = target.getClass();
-        if (target instanceof TargetClass) {
-            beanClass = ((TargetClass) target).get();
+        if (target instanceof OnceOnlyTypeHolder) {
+            /*
+             * The target bean is not available, just the type.
+             */
+            beanClass = ((OnceOnlyTypeHolder) target).get();
         }
 
         Class<?> inpectClass = beanClass;
@@ -203,7 +211,7 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
                     throw new ConfigurationException(format(
                             "Unable to create a configuration listener for the method '%s' "
                                     + "as it already contains a configuration listener on the method '%s'", method,
-                            beanName, beanClass.getName(), beanChangeListener.method));
+                            beanName, beanClass.getName(), beanChangeListener.getMethod()));
                 }
                 beanChangeListener = processListenerMethod(method, valueList, target);
 
@@ -291,9 +299,9 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
         Class<?>[] parameterTypes = method.getParameterTypes();
         Type[] genericParameterTypes = method.getGenericParameterTypes();
         Annotation[][] parameterAnnotations = method.getParameterAnnotations();
-        List<ValueResolver> argList = new ArrayList<ValueResolver>();
+        List<ParameterValueResolver> argList = new ArrayList<ParameterValueResolver>();
         for (int i = 0; i < parameterTypes.length; i++) {
-            ValueResolver arg = null;
+            ParameterValueResolver arg = null;
             Annotation[] annotations = parameterAnnotations[i];
             Class type = parameterTypes[i];
             boolean list = false;

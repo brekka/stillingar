@@ -14,27 +14,28 @@
  * limitations under the License.
  */
 
-package org.brekka.stillingar.spring.pc.expr;
+package org.brekka.stillingar.spring.expr;
 
-import java.util.List;
 import java.util.Set;
 
 import org.brekka.stillingar.core.ConfigurationSource;
 
 /**
- * A fragment that is made up of one or more sub-fragments
+ * A simple string based fragment.
  *
  * @author Andrew Taylor (andrew@brekka.org)
  */
-public class CompositeFragment implements Fragment {
-    private final List<Fragment> fragments;
-    private final boolean evaluate;
-    private final ExpressionPlaceholderHelper helper;
+public class StringFragment implements Fragment {
+    /**
+     * The string literal.
+     */
+    private final String value;
 
-    public CompositeFragment(List<Fragment> fragments, boolean evaluate, ExpressionPlaceholderHelper helper) {
-        this.fragments = fragments;
-        this.evaluate = evaluate;
-        this.helper = helper;
+    /**
+     * @param value The string literal.
+     */
+    public StringFragment(String value) {
+        this.value = value;
     }
     
     /* (non-Javadoc)
@@ -42,23 +43,7 @@ public class CompositeFragment implements Fragment {
      */
     @Override
     public String evaluate(ConfigurationSource configurationSource, Set<String> visitedExpressions) {
-        StringBuilder sb = new StringBuilder();
-        for (Fragment fragment : fragments) {
-            String value = fragment.evaluate(configurationSource, visitedExpressions);
-            sb.append(value);
-        }
-        String value = sb.toString();
-        if (evaluate) {
-            value = ExpressionFragment.evaluate(value, visitedExpressions, helper, configurationSource, true);
-        }
         return value;
-    }
-    
-    /**
-     * @return the fragments
-     */
-    public List<Fragment> getFragments() {
-        return fragments;
     }
     
     /* (non-Javadoc)
@@ -66,6 +51,6 @@ public class CompositeFragment implements Fragment {
      */
     @Override
     public String toString() {
-        return getClass().getSimpleName() + fragments.toString();
+        return getClass().getSimpleName() + "[" + value + "]";
     }
 }

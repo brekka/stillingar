@@ -16,6 +16,8 @@
 
 package org.brekka.stillingar.spring.pc;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import org.brekka.stillingar.core.ChangeAwareConfigurationSource;
@@ -23,9 +25,10 @@ import org.brekka.stillingar.core.ConfigurationSource;
 import org.brekka.stillingar.core.GroupChangeListener;
 import org.brekka.stillingar.core.ValueDefinition;
 import org.brekka.stillingar.core.ValueDefinitionGroup;
-import org.brekka.stillingar.spring.pc.expr.ExpressionPlaceholderHelper;
-import org.brekka.stillingar.spring.pc.expr.Fragment;
-import org.brekka.stillingar.spring.pc.expr.StringFragment;
+import org.brekka.stillingar.spring.expr.ExpressionFragment;
+import org.brekka.stillingar.spring.expr.ExpressionPlaceholderHelper;
+import org.brekka.stillingar.spring.expr.Fragment;
+import org.brekka.stillingar.spring.expr.StringFragment;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.PropertyValue;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
@@ -145,7 +148,7 @@ public class ConfigurationPlaceholderConfigurer implements BeanFactoryPostProces
                 return ((StringFragment) fragment).evaluate(null, null);
             }
             
-            String value = ExpressionPlaceholderHelper.evaluate(fragment, configurationSource);
+            String value = fragment.evaluate(configurationSource, new HashSet<String>());
             
             if (beanDefVisitor != null
                     && configurationSource instanceof ChangeAwareConfigurationSource) {
@@ -172,12 +175,32 @@ public class ConfigurationPlaceholderConfigurer implements BeanFactoryPostProces
                             (ConfigurableListableBeanFactory) beanFactory, fragment);
                 }
                 if (listener != null) {
-                    List<ValueDefinition<?>> values = placeholderHelper.toValueDefinitions(fragment);
+                    List<ValueDefinition<?>> values = toValueDefinitions(fragment);
                     ValueDefinitionGroup group = new ValueDefinitionGroup(beanName, values, listener);
                     ucs.register(group, false);
                 }
             }
             return value;
+        }
+        
+
+        /**
+         * Extract all {@link ExpressionFragment}s from the given fragment and generate {@link ValueDefinition} for each
+         * one, returning the list of all encountered.
+         * 
+         * @param fragment
+         *            the fragment to extract {@link ValueDefinition}s from.
+         * @return the list of value definitions (never null).
+         */
+        public List<ValueDefinition<?>> toValueDefinitions(Fragment fragment) {
+            List<ExpressionFragment> expressionFragments = ExpressionPlaceholderHelper.findExpressionFragments(fragment);
+            List<ValueDefinition<?>> valueDefs = new ArrayList<ValueDefinition<?>>(expressionFragments.size());
+            for (ExpressionFragment expressionFragment : expressionFragments) {
+                ExpressionFragmentChangeListener changeListener = new ExpressionFragmentChangeListener(expressionFragment);
+                ValueDefinition<String> valueDefinition = new ValueDefinition<String>(String.class, expressionFragment.getExpression(), changeListener, false);
+                valueDefs.add(valueDefinition);
+            }
+            return valueDefs;
         }
 
         public void setBeanDefVisitor(CustomBeanDefinitionVisitor beanDefVisitor) {

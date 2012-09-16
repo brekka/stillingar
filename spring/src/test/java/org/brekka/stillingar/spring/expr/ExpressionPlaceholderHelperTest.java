@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package org.brekka.stillingar.spring.pc;
+package org.brekka.stillingar.spring.expr;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -24,10 +24,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.brekka.stillingar.core.ConfigurationSource;
-import org.brekka.stillingar.core.ValueChangeListener;
-import org.brekka.stillingar.core.ValueDefinition;
-import org.brekka.stillingar.spring.pc.expr.ExpressionPlaceholderHelper;
-import org.brekka.stillingar.spring.pc.expr.Fragment;
 import org.junit.Test;
 
 /**
@@ -38,7 +34,7 @@ import org.junit.Test;
 public class ExpressionPlaceholderHelperTest {
 
     /**
-     * Test method for {@link org.brekka.stillingar.spring.pc.expr.ExpressionPlaceholderHelper#parse(java.lang.String)}.
+     * Test method for {@link org.brekka.stillingar.spring.expr.ExpressionPlaceholderHelper#parse(java.lang.String)}.
      */
     @Test
     public void testParse() {
@@ -52,12 +48,9 @@ public class ExpressionPlaceholderHelperTest {
         map.put("conf2", "part2");
         MappedSource source = new MappedSource(map);
         
-        List<ValueDefinition<?>> valueDefinitions = helper.toValueDefinitions(fragment);
-        for (ValueDefinition<?> valueDefinition : valueDefinitions) {
-            String expression = valueDefinition.getExpression();
-            @SuppressWarnings("unchecked")
-            ValueChangeListener<String> listener = (ValueChangeListener<String>) valueDefinition.getListener();
-            listener.onChange(map.get(expression));
+        List<ExpressionFragment> expressionFragments = ExpressionPlaceholderHelper.findExpressionFragments(fragment);
+        for (ExpressionFragment expressionFragment : expressionFragments) {
+            expressionFragment.setValue(map.get(expressionFragment.getExpression()));
         }
         
         String value = fragment.evaluate(source, new HashSet<String>());

@@ -20,36 +20,75 @@ import org.brekka.stillingar.core.ReferentUpdateException;
 import org.brekka.stillingar.core.ValueChangeListener;
 
 /**
- * 
- * TODO Description of InvocationChangeListenerSupport
+ * Support class that assists with updating some kind of value, be it a field or method.
  *
  * @author Andrew Taylor (andrew@brekka.org)
  */
 abstract class InvocationChangeListenerSupport<T extends Object> implements ValueChangeListener<T> {
+    /**
+     * The object containing the value to be updated.
+     */
 	private final Object target;
+	
+	/**
+	 * The type of the value that is expected.
+	 */
 	private final Class<?> expectedValueType;
+	
+	/**
+	 * Determines whether the value is a list (true if it is)
+	 */
 	private final boolean list;
-	private final String type;
+	
+	/**
+	 * A label for the type of referent, which will be included in error messages.
+	 */
+	private final String referentTypeLabel;
+	
+	/**
+	 * @param target The object containing the value to be updated.
+	 * @param expectedValueType The type of the value that is expected.
+	 * @param list Determines whether the value is a list (true if it is)
+	 * @param referentTypeLabel A label for the type of referent, which will be included in error messages.
+	 */
 	public InvocationChangeListenerSupport(Object target,
-			Class<?> expectedValueType, boolean list, String type) {
+			Class<?> expectedValueType, boolean list, String referentTypeLabel) {
 		this.target = target;
 		this.expectedValueType = expectedValueType;
 		this.list = list;
-		this.type = type;
+		this.referentTypeLabel = referentTypeLabel;
 	}
 	
+	/**
+	 * Capture the change event, calling {@link #onChange(Object, Object)} with the target object.
+	 */
 	public final void onChange(T newValue) {
 	    onChange(newValue, target);
     }
 	
+	/**
+	 * Handle a value change.
+	 * 
+	 * @param newValue the new value
+	 * @param target that target object being processed.
+	 */
 	public abstract void onChange(T newValue, Object target);
 	
-	protected void throwError(String name, Object value, Throwable cause) {
+	/**
+	 * Generate and throw a {@link ReferentUpdateException} that will encapsulate details
+	 * about this referent to produce a detailed message about what went wrong.
+	 * 
+	 * @param referentName name The name of the field/method
+	 * @param value the new value being updated.
+	 * @param cause the underlying cause of the problem.
+	 */
+	protected void throwError(String referentName, Object value, Throwable cause) {
 		Class<?> valueType = (value != null ? value.getClass() : null);
 		Class<?> targetClass = target.getClass();
-		if (target instanceof TargetClass) {
-		    targetClass = ((TargetClass) target).get();
+		if (target instanceof OnceOnlyTypeHolder) {
+		    // Make sure to grab the correct type.
+		    targetClass = ((OnceOnlyTypeHolder) target).get();
 		}
-		throw new ReferentUpdateException(type, name, valueType, expectedValueType, list, targetClass, cause);
+		throw new ReferentUpdateException(referentTypeLabel, referentName, valueType, expectedValueType, list, targetClass, cause);
 	}
 }

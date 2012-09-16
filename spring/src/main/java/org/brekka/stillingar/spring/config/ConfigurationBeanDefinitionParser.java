@@ -27,8 +27,8 @@ import org.brekka.stillingar.core.ConfigurationException;
 import org.brekka.stillingar.core.properties.PropertiesConfigurationSourceLoader;
 import org.brekka.stillingar.core.snapshot.SnapshotBasedConfigurationSource;
 import org.brekka.stillingar.spring.bpp.ConfigurationBeanPostProcessor;
+import org.brekka.stillingar.spring.expr.ExpressionPlaceholderHelper;
 import org.brekka.stillingar.spring.pc.ConfigurationPlaceholderConfigurer;
-import org.brekka.stillingar.spring.pc.expr.ExpressionPlaceholderHelper;
 import org.brekka.stillingar.spring.resource.BasicResourceNameResolver;
 import org.brekka.stillingar.spring.resource.FixedResourceSelector;
 import org.brekka.stillingar.spring.resource.ScanningResourceSelector;
@@ -119,10 +119,10 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
                     .genericBeanDefinition(ConfigurationPlaceholderConfigurer.class);
             placeholderConfigurer.addConstructorArgReference(id);
 
-            if (StringUtils.hasText(prefix)) {
+            if (!StringUtils.hasText(prefix)) {
                 prefix = "$" + name + "{";
             }
-            if (StringUtils.hasText(suffix)) {
+            if (!StringUtils.hasText(suffix)) {
                 suffix = "}";
             }
             BeanDefinitionBuilder placeholderHelper = BeanDefinitionBuilder
