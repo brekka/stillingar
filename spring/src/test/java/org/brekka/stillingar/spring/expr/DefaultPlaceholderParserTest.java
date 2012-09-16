@@ -27,18 +27,18 @@ import org.brekka.stillingar.core.ConfigurationSource;
 import org.junit.Test;
 
 /**
- * TODO Description of ExpressionPlaceholderHelperTest
+ * Test of ExpressionPlaceholderHelper
  *
  * @author Andrew Taylor (andrew@brekka.org)
  */
-public class ExpressionPlaceholderHelperTest {
+public class DefaultPlaceholderParserTest {
 
     /**
-     * Test method for {@link org.brekka.stillingar.spring.expr.ExpressionPlaceholderHelper#parse(java.lang.String)}.
+     * Test method for {@link org.brekka.stillingar.spring.expr.DefaultPlaceholderParser#parse(java.lang.String)}.
      */
     @Test
     public void testParse() {
-        ExpressionPlaceholderHelper helper = new ExpressionPlaceholderHelper("$config{", "}");
+        PlaceholderParser helper = new DefaultPlaceholderParser("$config{", "}");
         Fragment fragment = helper.parse("$config{abc.${test1.${val2}.a}}.other.$config{conf2}");
         Map<String, String> map = new HashMap<String, String>();
         map.put("val2", "bob");
@@ -48,7 +48,7 @@ public class ExpressionPlaceholderHelperTest {
         map.put("conf2", "part2");
         MappedSource source = new MappedSource(map);
         
-        List<ExpressionFragment> expressionFragments = ExpressionPlaceholderHelper.findExpressionFragments(fragment);
+        List<ExpressionFragment> expressionFragments = DefaultPlaceholderParser.findExpressionFragments(fragment);
         for (ExpressionFragment expressionFragment : expressionFragments) {
             expressionFragment.setValue(map.get(expressionFragment.getExpression()));
         }

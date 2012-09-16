@@ -65,8 +65,17 @@ public class FallbackConfigurationSource implements ConfigurationSource {
      */
     private final ConfigurationSource secondarySource;
 
-
+    /**
+     * @param primarySource
+     *            The main source of 'fresh' configuration
+     * @param secondarySource
+     *            The source secondary configuration to fall back to if there is none in the primary.
+     * @throws IllegalArgumentException if both configuration sources are null.           
+     */
     public FallbackConfigurationSource(ConfigurationSource primarySource, ConfigurationSource secondarySource) {
+        if (primarySource == null && secondarySource == null) {
+            throw new IllegalArgumentException("No configuration sources provided. At least one is required.");
+        }
         this.primarySource = (primarySource != null ? primarySource : NONE);
         this.secondarySource = (secondarySource != null ? secondarySource : NONE);
     }
@@ -95,6 +104,9 @@ public class FallbackConfigurationSource implements ConfigurationSource {
      * @see org.brekka.stillingar.core.ConfigurationSource#isAvailable(java.lang.Class)
      */
     public boolean isAvailable(Class<?> valueType) {
+        if (valueType == null) {
+            throw new IllegalArgumentException("A value type must be specified");
+        }
         return primarySource.isAvailable(valueType) || secondarySource.isAvailable(valueType);
     }
 
@@ -104,6 +116,9 @@ public class FallbackConfigurationSource implements ConfigurationSource {
      * @see org.brekka.stillingar.core.ConfigurationSource#isAvailable(java.lang.String)
      */
     public boolean isAvailable(String expression) {
+        if (expression == null) {
+            throw new IllegalArgumentException("An expression must be specified");
+        }
         return primarySource.isAvailable(expression) || secondarySource.isAvailable(expression);
     }
 
@@ -113,11 +128,17 @@ public class FallbackConfigurationSource implements ConfigurationSource {
      * @see org.brekka.stillingar.core.ConfigurationSource#retrieve(java.lang.Class)
      */
     public <T> T retrieve(Class<T> valueType) {
-        ConfigurationSource activeSource = primarySource;
-        if (activeSource.isAvailable(valueType)) {
-            return activeSource.retrieve(valueType);
+        if (valueType == null) {
+            throw new IllegalArgumentException("A value type must be specified");
         }
-        return secondarySource.retrieve(valueType);
+        if (primarySource.isAvailable(valueType)) {
+            return primarySource.retrieve(valueType);
+        }
+        if (secondarySource.isAvailable(valueType)) {
+            return secondarySource.retrieve(valueType);
+        }
+        throw new ConfigurationException(String.format(
+                "No value found of type '%s' in any of the available configuration sources", valueType.getName()));
     }
 
     /*
@@ -126,11 +147,20 @@ public class FallbackConfigurationSource implements ConfigurationSource {
      * @see org.brekka.stillingar.core.ConfigurationSource#retrieve(java.lang.String, java.lang.Class)
      */
     public <T> T retrieve(String expression, Class<T> valueType) {
-        ConfigurationSource activeSource = primarySource;
-        if (activeSource.isAvailable(expression)) {
-            return activeSource.retrieve(expression, valueType);
+        if (expression == null) {
+            throw new IllegalArgumentException("An expression must be specified");
         }
-        return secondarySource.retrieve(expression, valueType);
+        if (valueType == null) {
+            throw new IllegalArgumentException("A value type must be specified");
+        }
+        if (primarySource.isAvailable(expression)) {
+            return primarySource.retrieve(expression, valueType);
+        }
+        if (secondarySource.isAvailable(expression)) {
+            return secondarySource.retrieve(expression, valueType);
+        }
+        throw new ConfigurationException(String.format("Expression '%s' did not resolve to any value of type '%s', "
+                + "in any of the available configuration sources", expression, valueType.getName()));
     }
 
     /*
@@ -139,11 +169,17 @@ public class FallbackConfigurationSource implements ConfigurationSource {
      * @see org.brekka.stillingar.core.ConfigurationSource#retrieveList(java.lang.Class)
      */
     public <T> List<T> retrieveList(Class<T> valueType) {
-        ConfigurationSource activeSource = primarySource;
-        if (activeSource.isAvailable(valueType)) {
-            return activeSource.retrieveList(valueType);
+        if (valueType == null) {
+            throw new IllegalArgumentException("A value type must be specified");
         }
-        return secondarySource.retrieveList(valueType);
+        if (primarySource.isAvailable(valueType)) {
+            return primarySource.retrieveList(valueType);
+        }
+        if (secondarySource.isAvailable(valueType)) {
+            return secondarySource.retrieveList(valueType);
+        }
+        throw new ConfigurationException(String.format(
+                "No list value found of type '%s' in any of the available configuration sources", valueType.getName()));
     }
 
     /*
@@ -152,10 +188,20 @@ public class FallbackConfigurationSource implements ConfigurationSource {
      * @see org.brekka.stillingar.core.ConfigurationSource#retrieveList(java.lang.String, java.lang.Class)
      */
     public <T> List<T> retrieveList(String expression, Class<T> valueType) {
-        ConfigurationSource activeSource = primarySource;
-        if (activeSource.isAvailable(valueType)) {
-            return activeSource.retrieveList(expression, valueType);
+        if (expression == null) {
+            throw new IllegalArgumentException("An expression must be specified");
         }
-        return secondarySource.retrieveList(expression, valueType);
+        if (valueType == null) {
+            throw new IllegalArgumentException("A value type must be specified");
+        }
+        if (primarySource.isAvailable(expression)) {
+            return primarySource.retrieveList(expression, valueType);
+        }
+        if (secondarySource.isAvailable(expression)) {
+            return secondarySource.retrieveList(expression, valueType);
+        }
+        throw new ConfigurationException(String.format(
+                "Expression '%s' did not resolve to any list value of type '%s', "
+                        + "in any of the available configuration sources", expression, valueType.getName()));
     }
 }

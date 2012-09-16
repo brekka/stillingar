@@ -26,8 +26,9 @@ import org.brekka.stillingar.core.GroupChangeListener;
 import org.brekka.stillingar.core.ValueDefinition;
 import org.brekka.stillingar.core.ValueDefinitionGroup;
 import org.brekka.stillingar.spring.expr.ExpressionFragment;
-import org.brekka.stillingar.spring.expr.ExpressionPlaceholderHelper;
+import org.brekka.stillingar.spring.expr.DefaultPlaceholderParser;
 import org.brekka.stillingar.spring.expr.Fragment;
+import org.brekka.stillingar.spring.expr.PlaceholderParser;
 import org.brekka.stillingar.spring.expr.StringFragment;
 import org.springframework.beans.PropertyValue;
 import org.springframework.beans.factory.BeanFactory;
@@ -37,7 +38,7 @@ import org.springframework.util.StringValueResolver;
 
 class CustomStringValueResolver implements StringValueResolver {
     
-    private final ExpressionPlaceholderHelper placeholderHelper;
+    private final PlaceholderParser placeholderHelper;
     
     private final ConfigurationSource configurationSource;
     
@@ -51,7 +52,7 @@ class CustomStringValueResolver implements StringValueResolver {
      * @param configurationSource
      * @param beanFactory
      */
-    public CustomStringValueResolver(ExpressionPlaceholderHelper placeholderHelper, ConfigurationSource configurationSource,
+    public CustomStringValueResolver(PlaceholderParser placeholderHelper, ConfigurationSource configurationSource,
             BeanFactory beanFactory) {
         this.placeholderHelper = placeholderHelper;
         this.configurationSource = configurationSource;
@@ -111,7 +112,7 @@ class CustomStringValueResolver implements StringValueResolver {
      * @return the list of value definitions (never null).
      */
     public List<ValueDefinition<?>> toValueDefinitions(Fragment fragment) {
-        List<ExpressionFragment> expressionFragments = ExpressionPlaceholderHelper.findExpressionFragments(fragment);
+        List<ExpressionFragment> expressionFragments = DefaultPlaceholderParser.findExpressionFragments(fragment);
         List<ValueDefinition<?>> valueDefs = new ArrayList<ValueDefinition<?>>(expressionFragments.size());
         for (ExpressionFragment expressionFragment : expressionFragments) {
             ExpressionFragmentChangeListener changeListener = new ExpressionFragmentChangeListener(expressionFragment);

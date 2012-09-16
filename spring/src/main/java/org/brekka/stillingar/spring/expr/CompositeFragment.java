@@ -38,20 +38,20 @@ public class CompositeFragment implements Fragment {
     private final boolean evaluate;
     
     /**
-     * The helper that will be used to resolve values from the looked-up values.
+     * The parser that will be used to resolve values from the looked-up values.
      */
-    private final ExpressionPlaceholderHelper helper;
+    private final DefaultPlaceholderParser parser;
 
     
     /**
      * @param fragments The list of sub-fragments
      * @param evaluate Does this fragment repesent an expression that needs to be evaluated, or is it just a literal value?
-     * @param helper The helper that will be used to resolve values from the looked-up values.
+     * @param parser The parser that will be used to resolve values from the looked-up values.
      */
-    public CompositeFragment(List<Fragment> fragments, boolean evaluate, ExpressionPlaceholderHelper helper) {
+    public CompositeFragment(List<Fragment> fragments, boolean evaluate, DefaultPlaceholderParser parser) {
         this.fragments = fragments;
         this.evaluate = evaluate;
-        this.helper = helper;
+        this.parser = parser;
     }
     
     /* (non-Javadoc)
@@ -66,7 +66,7 @@ public class CompositeFragment implements Fragment {
         }
         String value = sb.toString();
         if (evaluate) {
-            value = ExpressionFragment.evaluate(value, visitedExpressions, helper, configurationSource, true);
+            value = ExpressionFragment.evaluate(value, visitedExpressions, parser, configurationSource, true);
         }
         return value;
     }

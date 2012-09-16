@@ -34,9 +34,9 @@ public class ExpressionFragment implements Fragment {
     private final String expression;
 
     /**
-     * The helper that will be used to resolve values from the looked-up values.
+     * The parser that will be used to resolve values from the looked-up values.
      */
-    private final ExpressionPlaceholderHelper helper;
+    private final DefaultPlaceholderParser parser;
 
     /**
      * The value captured when the {@link ValueChangeListener#onChange(Object)} method is called
@@ -51,12 +51,12 @@ public class ExpressionFragment implements Fragment {
     /**
      * @param expression
      *            The expression that will be used to listen for changes.
-     * @param helper
-     *            The helper that will be used to resolve values from the looked-up values.
+     * @param parser
+     *            The parser that will be used to resolve values from the looked-up values.
      */
-    public ExpressionFragment(String expression, ExpressionPlaceholderHelper helper) {
+    public ExpressionFragment(String expression, DefaultPlaceholderParser parser) {
         this.expression = expression;
-        this.helper = helper;
+        this.parser = parser;
     }
 
     /**
@@ -86,7 +86,7 @@ public class ExpressionFragment implements Fragment {
         if (!this.changed) {
             theValue = configurationSource.retrieve(expression, String.class);
         }
-        return evaluate(theValue, visitedExpressions, helper, configurationSource, false);
+        return evaluate(theValue, visitedExpressions, parser, configurationSource, false);
     }
 
     /*
@@ -109,7 +109,7 @@ public class ExpressionFragment implements Fragment {
      * @param inExpression
      * @return
      */
-    static String evaluate(String value, Set<String> visitedExpressions, ExpressionPlaceholderHelper helper,
+    static String evaluate(String value, Set<String> visitedExpressions, DefaultPlaceholderParser helper,
             ConfigurationSource configurationSource, boolean inExpression) {
         String retVal;
         if (visitedExpressions.add(value)) {

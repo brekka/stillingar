@@ -18,7 +18,8 @@ package org.brekka.stillingar.spring.pc;
 
 
 import org.brekka.stillingar.core.ConfigurationSource;
-import org.brekka.stillingar.spring.expr.ExpressionPlaceholderHelper;
+import org.brekka.stillingar.spring.expr.DefaultPlaceholderParser;
+import org.brekka.stillingar.spring.expr.PlaceholderParser;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.BeanFactory;
@@ -61,7 +62,7 @@ public class ConfigurationPlaceholderConfigurer implements BeanFactoryPostProces
     /**
      * Used to parse the placeholder string.
      */
-    private ExpressionPlaceholderHelper placeholderHelper;
+    private PlaceholderParser placeholderParser;
 
     /**
      * @param configurationSource The source for configuration values
@@ -72,8 +73,8 @@ public class ConfigurationPlaceholderConfigurer implements BeanFactoryPostProces
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        if (placeholderHelper == null) {
-            placeholderHelper = new ExpressionPlaceholderHelper("${", "}");
+        if (placeholderParser == null) {
+            placeholderParser = new DefaultPlaceholderParser("${", "}");
         }
     }
 
@@ -86,7 +87,7 @@ public class ConfigurationPlaceholderConfigurer implements BeanFactoryPostProces
 
         String[] beanNames = beanFactoryToProcess.getBeanDefinitionNames();
         for (String curName : beanNames) {
-            CustomStringValueResolver valueResolver = new CustomStringValueResolver(this.placeholderHelper, this.configurationSource, this.beanFactory);
+            CustomStringValueResolver valueResolver = new CustomStringValueResolver(this.placeholderParser, this.configurationSource, this.beanFactory);
 
             // Check that we're not parsing our own bean definition,
             // to avoid failing on unresolvable placeholders in properties file
@@ -103,7 +104,7 @@ public class ConfigurationPlaceholderConfigurer implements BeanFactoryPostProces
             }
         }
 
-        StringValueResolver valueResolver = new CustomStringValueResolver(this.placeholderHelper, this.configurationSource, this.beanFactory);
+        StringValueResolver valueResolver = new CustomStringValueResolver(this.placeholderParser, this.configurationSource, this.beanFactory);
 
         // New in Spring 2.5: resolve placeholders in alias target names and
         // aliases as well.
@@ -124,7 +125,7 @@ public class ConfigurationPlaceholderConfigurer implements BeanFactoryPostProces
         this.beanName = name;
     }
 
-    public void setPlaceholderHelper(ExpressionPlaceholderHelper placeholderHelper) {
-        this.placeholderHelper = placeholderHelper;
+    public void setPlaceholderParser(PlaceholderParser placeholderParser) {
+        this.placeholderParser = placeholderParser;
     }
 }

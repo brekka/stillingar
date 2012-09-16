@@ -32,7 +32,7 @@ import org.springframework.util.PropertyPlaceholderHelper;
  * 
  * @author Andrew Taylor (andrew@brekka.org)
  */
-public class ExpressionPlaceholderHelper {
+public class DefaultPlaceholderParser implements PlaceholderParser {
     /**
      * A mapping of different types of opening bracket based on their corresponding end-bracket.
      */
@@ -71,7 +71,7 @@ public class ExpressionPlaceholderHelper {
      * @param placeholderSuffix
      *            The string suffix the identifies the end of a placeholder.
      */
-    public ExpressionPlaceholderHelper(String placeholderPrefix, String placeholderSuffix) {
+    public DefaultPlaceholderParser(String placeholderPrefix, String placeholderSuffix) {
         this.placeholderPrefix = placeholderPrefix;
         this.placeholderSuffix = placeholderSuffix;
         String simplePrefixForSuffix = WELL_KNOWN_SIMPLE_PREFIXES.get(this.placeholderSuffix);
@@ -87,14 +87,10 @@ public class ExpressionPlaceholderHelper {
         }
     }
 
-    /**
-     * Parse the specified string into a {@link Fragment} that can be subsequently evaluated to produce a value.
-     * 
-     * @param strVal
-     *            the value to parse which can consist of multiple concatenated placeholders that can themselves contain
-     *            nested placeholders.
-     * @return the fragment
+    /* (non-Javadoc)
+     * @see org.brekka.stillingar.spring.expr.PlaceholderParser#parse(java.lang.String)
      */
+    @Override
     public Fragment parse(String strVal) {
         if (strVal.contains(placeholderPrefix)) {
             return parse(strVal, 0, false);
