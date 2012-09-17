@@ -16,9 +16,7 @@
 
 package org.brekka.stillingar.core.snapshot;
 
-import java.util.List;
-
-import org.brekka.stillingar.core.GroupConfigurationException;
+import org.brekka.stillingar.core.ChangeConfigurationException;
 
 /**
  * Provide a failsafe mechanism for conveying critical configuration events back to the developer/administrator via the
@@ -78,7 +76,7 @@ public class ConsoleSnapshotEventHandler implements SnapshotEventHandler {
      * org.brekka.stillingar.core.snapshot.SnapshotEventHandler#initialConfigure(org.brekka.stillingar.core.snapshot
      * .Snapshot, java.util.List)
      */
-    public void initialConfigure(Snapshot snapshot, List<GroupConfigurationException> errors) {
+    public void initialConfigure(Snapshot snapshot, ChangeConfigurationException errors) {
         if (!enabled) {
             return;
         }
@@ -91,25 +89,29 @@ public class ConsoleSnapshotEventHandler implements SnapshotEventHandler {
      * 
      * @see
      * org.brekka.stillingar.core.snapshot.SnapshotEventHandler#refreshConfigure(org.brekka.stillingar.core.snapshot
-     * .Snapshot, java.util.List)
+     * .Snapshot, org.brekka.stillingar.core.RefreshConfigurationException)
      */
-    public void refreshConfigure(Snapshot snapshot, List<GroupConfigurationException> errors) {
+    public void refreshConfigure(Snapshot snapshot, ChangeConfigurationException refreshError) {
         if (!enabled) {
             return;
         }
         // TODO Auto-generated method stub
 
     }
-    
-    /* (non-Javadoc)
-     * @see org.brekka.stillingar.core.snapshot.SnapshotEventHandler#invalidSnapshotUpdate(org.brekka.stillingar.core.snapshot.InvalidSnapshotException)
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.brekka.stillingar.core.snapshot.SnapshotEventHandler#invalidSnapshotUpdate(org.brekka.stillingar.core.snapshot
+     * .InvalidSnapshotException)
      */
     public void invalidSnapshotUpdate(InvalidSnapshotException e) {
         if (!enabled) {
             return;
         }
         // TODO Auto-generated method stub
-        
+
     }
 
     /**

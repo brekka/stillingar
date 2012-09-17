@@ -16,14 +16,12 @@
 
 package org.brekka.stillingar.core.snapshot;
 
-import java.util.List;
-
-import org.brekka.stillingar.core.AbstractChangeAwareConfigurationSource;
 import org.brekka.stillingar.core.ChangeAwareConfigurationSource;
+import org.brekka.stillingar.core.ChangeConfigurationException;
 import org.brekka.stillingar.core.ConfigurationException;
 import org.brekka.stillingar.core.ConfigurationSource;
 import org.brekka.stillingar.core.FallbackConfigurationSource;
-import org.brekka.stillingar.core.GroupConfigurationException;
+import org.brekka.stillingar.core.delta.AbstractChangeAwareConfigurationSource;
 
 /**
  * Snapshot based implementation of {@link ChangeAwareConfigurationSource} which provides atomic updates to group
@@ -111,11 +109,14 @@ public class SnapshotBasedConfigurationSource extends AbstractChangeAwareConfigu
 	    
 	    // Refresh using the initial, if it is available
 	    if (initial != null) {
-	        List<GroupConfigurationException> errors = refresh(initial.getSource());
-	        if (!errors.isEmpty()) {
-	            snapshotManager.reject(initial);
-	        }
-	        snapshotEventHandler.initialConfigure(initial, errors);
+	        try {
+                refresh(initial.getSource());
+                snapshotEventHandler.initialConfigure(initial, null);
+            } catch (ChangeConfigurationException e) {
+                snapshotManager.reject(initial);
+                snapshotEventHandler.initialConfigure(initial, e);
+                throw new ConfigurationException("", e);
+            }
 	    } else if (getDelegate().getSecondarySource() == FallbackConfigurationSource.NONE) {
 	        // An initial snapshot was required to continue.
 	        throw new ConfigurationException("No initial configuration snapshot found. " +
@@ -142,11 +143,13 @@ public class SnapshotBasedConfigurationSource extends AbstractChangeAwareConfigu
         }
         if (updated != null) {
             // Configuration has changed, trigger a refresh
-            List<GroupConfigurationException> errors = refresh(updated.getSource());
-            if (!errors.isEmpty()) {
+            try {
+                refresh(updated.getSource());
+                snapshotEventHandler.refreshConfigure(updated, null);
+            } catch (ChangeConfigurationException e) {
                 snapshotManager.reject(updated);
+                snapshotEventHandler.refreshConfigure(updated, e);
             }
-            snapshotEventHandler.refreshConfigure(updated, errors);
         }
     }
 }

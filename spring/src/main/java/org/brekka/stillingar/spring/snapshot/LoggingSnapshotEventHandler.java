@@ -23,6 +23,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.brekka.stillingar.core.ChangeConfigurationException;
 import org.brekka.stillingar.core.GroupConfigurationException;
 import org.brekka.stillingar.core.snapshot.InvalidSnapshotException;
 import org.brekka.stillingar.core.snapshot.NoSnapshotAvailableException;
@@ -95,17 +96,17 @@ public class LoggingSnapshotEventHandler implements SnapshotEventHandler {
      * @see org.brekka.stillingar.core.snapshot.SnapshotEventHandler#initialConfigure(org.brekka.stillingar.core.snapshot.Snapshot, java.util.List)
      */
     @Override
-    public void initialConfigure(Snapshot snapshot, List<GroupConfigurationException> errors) {
-        if (errors.isEmpty()) {
+    public void initialConfigure(Snapshot snapshot, ChangeConfigurationException e) {
+        if (e == null) {
             if (log.isInfoEnabled()) {
                 log.info(String.format("Snapshot loaded successfully from '%s'", snapshot.getLocation()));
             }
         } else {
-            log.error(String.format("Encountered %d errors while loading snapshot '%s'", 
-                    errors.size(), snapshot.getLocation()));
+            log.error(String.format("Problem loading snapshot '%s'", 
+                    snapshot.getLocation()), e);
             int cnt = 1;
-            for (GroupConfigurationException groupConfigurationException : errors) {
-                log.error(String.format("Group error %d", cnt), groupConfigurationException);
+            for (GroupConfigurationException groupConfigurationException : e.getGroupErrors()) {
+                log.error(String.format("Group error %d", cnt++), groupConfigurationException);
             }
         }
     }
@@ -116,17 +117,17 @@ public class LoggingSnapshotEventHandler implements SnapshotEventHandler {
      * @see org.brekka.stillingar.core.snapshot.SnapshotEventHandler#refreshConfigure(org.brekka.stillingar.core.snapshot.Snapshot, java.util.List)
      */
     @Override
-    public void refreshConfigure(Snapshot snapshot, List<GroupConfigurationException> errors) {
-        if (errors.isEmpty()) {
+    public void refreshConfigure(Snapshot snapshot, ChangeConfigurationException e) {
+        if (e == null) {
             if (log.isInfoEnabled()) {
                 log.info(String.format("Snapshot refreshed successfully from '%s'", snapshot.getLocation()));
             }
         } else {
-            log.error(String.format("Encountered %d errors while refreshing snapshot '%s'", 
-                    errors.size(), snapshot.getLocation()));
+            log.error(String.format("Problem refreshing from snapshot '%s'", 
+                    snapshot.getLocation()), e);
             int cnt = 1;
-            for (GroupConfigurationException groupConfigurationException : errors) {
-                log.error(String.format("Group error %d", cnt), groupConfigurationException);
+            for (GroupConfigurationException groupConfigurationException : e.getGroupErrors()) {
+                log.error(String.format("Group error %d", cnt++), groupConfigurationException);
             }
         }
     }

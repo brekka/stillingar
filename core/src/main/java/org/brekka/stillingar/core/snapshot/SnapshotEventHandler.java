@@ -3,9 +3,7 @@
  */
 package org.brekka.stillingar.core.snapshot;
 
-import java.util.List;
-
-import org.brekka.stillingar.core.GroupConfigurationException;
+import org.brekka.stillingar.core.ChangeConfigurationException;
 
 /**
  * @author Andrew Taylor (andrew@brekka.org)
@@ -31,34 +29,35 @@ public interface SnapshotEventHandler {
     void noInitialSnapshot(NoSnapshotAvailableException e, boolean defaultsAvailable);
 
     /**
-     * Called after the initial snapshot has been processed. If <code>errors</code> is empty then the snapshot loaded
+     * Called after the initial snapshot has been processed. If <code>error</code> is null then the snapshot loaded
      * without error.
      * 
      * @param snapshot
      *            the snapshot that was loaded.
-     * @param errors
-     *            any errors encountered.
+     * @param error
+     *            should a problem have occurred while loading.
      */
-    void initialConfigure(Snapshot snapshot, List<GroupConfigurationException> errors);
+    void initialConfigure(Snapshot snapshot, ChangeConfigurationException error);
 
     /**
      * When an updated configuration snapshot becomes available, this method will be called after the snapshot is used
-     * to refresh the configuration and all listeners. If <code>errors</code> is empty then the snapshot loaded without
-     * error.
+     * to refresh the configuration and all listeners. If <code>refreshError</code> is null then the snapshot loaded
+     * without error.
      * 
      * @param snapshot
      *            the snapshot that was loaded.
-     * @param errors
-     *            any errors encountered.
+     * @param refreshError
+     *            the error if one occured
      */
-    void refreshConfigure(Snapshot snapshot, List<GroupConfigurationException> errors);
+    void refreshConfigure(Snapshot snapshot, ChangeConfigurationException refreshError);
 
     /**
      * For when a snapshot change is detected, but that change is not valid. This is non fatal as the system will
-     * continue with the existing configuration. Provided as a means to feedback to the developer/administrator 
-     * that whatever change they made is not valid.
+     * continue with the existing configuration. Provided as a means to feedback to the developer/administrator that
+     * whatever change they made is not valid.
      * 
-     * @param e the exception containing details about why the snapshot was invalid.
+     * @param e
+     *            the exception containing details about why the snapshot was invalid.
      */
     void invalidSnapshotUpdate(InvalidSnapshotException e);
 

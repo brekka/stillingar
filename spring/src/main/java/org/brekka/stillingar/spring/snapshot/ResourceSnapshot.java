@@ -98,5 +98,26 @@ public final class ResourceSnapshot implements Snapshot {
     public Resource getResource() {
         return resource;
     }
+    
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        return String.format("%s[%s|%3$tF %3$tT]", 
+                getClass().getSimpleName(), resource.toString(), new Date(lastModified()));
+    }
+
+    /**
+     * @param lastModified
+     * @return
+     */
+    private long lastModified() {
+        try {
+            return resource.lastModified();
+        } catch (IOException e) {
+            return 0;
+        }
+    }
 
 }

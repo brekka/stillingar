@@ -27,7 +27,8 @@ import java.util.List;
 public final class ValueDefinitionGroup {
 
     /**
-     * The label for this group. Used in exceptions to provide context.
+     * The label for this group. Used in exceptions to provide context. Does not have to be unique, but is more useful
+     * if it is.
      */
     private final String name;
 
@@ -49,7 +50,8 @@ public final class ValueDefinitionGroup {
 
     /**
      * @param name
-     *            The label for this group. Used in exceptions to provide context.
+     *            The label for this group. Used in exceptions to provide context. Does not have to be unique, but is
+     *            more useful if it is.
      * @param values
      *            The list of values that are part of this group and as such should be updated with it.
      * @param changeListener
@@ -61,7 +63,8 @@ public final class ValueDefinitionGroup {
 
     /**
      * @param name
-     *            The label for this group. Used in exceptions to provide context.
+     *            The label for this group. Used in exceptions to provide context. Does not have to be unique, but is
+     *            more useful if it is.
      * @param values
      *            The list of values that are part of this group and as such should be updated with it.
      * @param changeListener
