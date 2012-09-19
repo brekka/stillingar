@@ -38,7 +38,7 @@ public interface ChangeAwareConfigurationSource extends ConfigurationSource {
      *            determines whether the listener within the value definition should be called prior to control being
      *            returned to the caller.
      */
-    void register(ValueDefinition<?> valueDef, boolean fireImmediately);
+    void register(ValueDefinition<?,?> valueDef, boolean fireImmediately);
 
     /**
      * Register a group of value definitions which will be notified together when any update occurs.

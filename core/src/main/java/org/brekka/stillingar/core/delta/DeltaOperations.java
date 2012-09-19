@@ -27,6 +27,7 @@ import org.brekka.stillingar.core.ValueChangeListener;
 import org.brekka.stillingar.core.ValueConfigurationException;
 import org.brekka.stillingar.core.ValueDefinition;
 import org.brekka.stillingar.core.ValueDefinitionGroup;
+import org.brekka.stillingar.core.ValueListDefinition;
 import org.brekka.stillingar.core.GroupConfigurationException.Phase;
 
 /**
@@ -48,12 +49,12 @@ public class DeltaOperations {
      * @throws ConfigurationException
      *             if any problem occurs retrieving the value.
      */
-    public ValueChangeAction prepareValueChange(ValueDefinition<?> valueDefinition,
+    public ValueChangeAction prepareValueChange(ValueDefinition<?,?> valueDefinition,
             ConfigurationSource configurationSource) {
         String expression = valueDefinition.getExpression();
         Class<?> type = valueDefinition.getType();
         Object result;
-        if (valueDefinition.isList()) {
+        if (valueDefinition instanceof ValueListDefinition) {
             if (expression != null) {
                 result = configurationSource.retrieveList(expression, type);
             } else {
@@ -80,7 +81,7 @@ public class DeltaOperations {
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public void enactValueChange(ValueChangeAction valueChangeAction) {
-        ValueDefinition<?> valueDefinition = valueChangeAction.getValueDefinition();
+        ValueDefinition<?,?> valueDefinition = valueChangeAction.getValueDefinition();
         Object newValue = valueChangeAction.getNewValue();
         ValueChangeListener listener = valueDefinition.getListener();
         try {
@@ -103,11 +104,11 @@ public class DeltaOperations {
      */
     public GroupChangeAction prepareGroupChange(ValueDefinitionGroup valueDefinitionGroup,
             ConfigurationSource configurationSource) {
-        List<ValueDefinition<?>> valueDefinitionList = valueDefinitionGroup.getValues();
+        List<ValueDefinition<?,?>> valueDefinitionList = valueDefinitionGroup.getValues();
         List<ValueChangeAction> updateActions = new ArrayList<ValueChangeAction>(valueDefinitionList.size());
         List<ConfigurationException> valueResolveErrors = new ArrayList<ConfigurationException>();
         try {
-            for (ValueDefinition<?> valueDefinition : valueDefinitionList) {
+            for (ValueDefinition<?,?> valueDefinition : valueDefinitionList) {
                 ValueChangeAction valueChangeAction = prepareValueChange(valueDefinition, configurationSource);
                 updateActions.add(valueChangeAction);
             }

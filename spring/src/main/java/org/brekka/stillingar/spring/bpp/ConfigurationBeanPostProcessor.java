@@ -34,9 +34,11 @@ import org.brekka.stillingar.core.ChangeAwareConfigurationSource;
 import org.brekka.stillingar.core.ConfigurationException;
 import org.brekka.stillingar.core.ConfigurationSource;
 import org.brekka.stillingar.core.GroupChangeListener;
+import org.brekka.stillingar.core.SingleValueDefinition;
 import org.brekka.stillingar.core.ValueChangeListener;
 import org.brekka.stillingar.core.ValueDefinition;
 import org.brekka.stillingar.core.ValueDefinitionGroup;
+import org.brekka.stillingar.core.ValueListDefinition;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -128,10 +130,10 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
                 onceOnlyDefinitionCache.put(targetClass, valueDefinitionGroup);
             }
         }
-        List<ValueDefinition<?>> values = valueDefinitionGroup.getValues();
-        for (ValueDefinition<?> valueDefinition : values) {
+        List<ValueDefinition<?,?>> values = valueDefinitionGroup.getValues();
+        for (ValueDefinition<?,?> valueDefinition : values) {
             Object value;
-            if (valueDefinition.isList()) {
+            if (valueDefinition instanceof ValueListDefinition) {
                 if (valueDefinition.getExpression() != null) {
                     value = configurationSource
                             .retrieveList(valueDefinition.getExpression(), valueDefinition.getType());
@@ -180,7 +182,7 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
      * @return the value definition group
      */
     protected ValueDefinitionGroup prepareValueGroup(String beanName, Object target) {
-        List<ValueDefinition<?>> valueList = new ArrayList<ValueDefinition<?>>();
+        List<ValueDefinition<?,?>> valueList = new ArrayList<ValueDefinition<?,?>>();
 
         Class<? extends Object> beanClass = target.getClass();
         if (target instanceof OnceOnlyTypeHolder) {
@@ -234,17 +236,20 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
      *            the bean being configured.
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    protected void processField(Field field, List<ValueDefinition<?>> valueList, Object bean) {
+    protected void processField(Field field, List<ValueDefinition<?,?>> valueList, Object bean) {
         Configured annotation = field.getAnnotation(Configured.class);
         if (annotation != null) {
             Class type = field.getType();
             boolean list = false;
+            ValueDefinition<Object, ?> value;
             if (type == List.class) {
                 type = listType(field.getGenericType());
-                list = true;
+                FieldValueChangeListener<List<Object>> listener = new FieldValueChangeListener<List<Object>>(field, bean, type, list);
+                value = new ValueListDefinition<Object>(type, annotation.value(), listener);
+            } else {
+                FieldValueChangeListener<Object> listener = new FieldValueChangeListener<Object>(field, bean, type, list);
+                value = new SingleValueDefinition<Object>(type, annotation.value(), listener);
             }
-            FieldValueChangeListener<Object> listener = new FieldValueChangeListener<Object>(field, bean, type, list);
-            ValueDefinition<Object> value = new ValueDefinition<Object>(type, annotation.value(), listener, list);
             valueList.add(value);
         }
     }
@@ -262,7 +267,7 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
      *            the bean being configured.
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    protected void processSetterMethod(Configured configured, Method method, List<ValueDefinition<?>> valueList,
+    protected void processSetterMethod(Configured configured, Method method, List<ValueDefinition<?,?>> valueList,
             Object bean) {
         Class<?>[] parameterTypes = method.getParameterTypes();
         if (parameterTypes.length != 1) {
@@ -271,13 +276,16 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
         }
         Class type = parameterTypes[0];
         boolean list = false;
+        ValueDefinition<Object,?> value;
         if (type == List.class) {
             Type[] genericParameterTypes = method.getGenericParameterTypes();
             type = listType(genericParameterTypes[0]);
-            list = true;
+            MethodValueChangeListener<List<Object>> listener = new MethodValueChangeListener<List<Object>>(method, bean, type, list);
+            value = new ValueListDefinition<Object>(type, configured.value(), listener);
+        } else {
+            MethodValueChangeListener<Object> listener = new MethodValueChangeListener<Object>(method, bean, type, list);
+            value = new SingleValueDefinition<Object>(type, configured.value(), listener);
         }
-        MethodValueChangeListener<Object> listener = new MethodValueChangeListener<Object>(method, bean, type, list);
-        ValueDefinition<Object> value = new ValueDefinition<Object>(type, configured.value(), listener, list);
         valueList.add(value);
     }
 
@@ -294,7 +302,7 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
      * @return the {@link PostUpdateChangeListener} that will invoke the listener method on configuration update.
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    protected PostUpdateChangeListener processListenerMethod(Method method, List<ValueDefinition<?>> valueList,
+    protected PostUpdateChangeListener processListenerMethod(Method method, List<ValueDefinition<?,?>> valueList,
             Object bean) {
         Class<?>[] parameterTypes = method.getParameterTypes();
         Type[] genericParameterTypes = method.getGenericParameterTypes();
@@ -314,8 +322,12 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
                 if (annotation instanceof Configured) {
                     Configured paramConfigured = (Configured) annotation;
                     MethodParameterListener mpl = new MethodParameterListener();
-                    ValueDefinition<Object> value = new ValueDefinition<Object>(type, paramConfigured.value(), mpl,
-                            list);
+                    ValueDefinition<Object, ?> value;
+                    if (list) {
+                        value = new ValueListDefinition<Object>(type, paramConfigured.value(), mpl);
+                    } else {
+                        value = new SingleValueDefinition<Object>(type, paramConfigured.value(), mpl);
+                    }
                     valueList.add(value);
                     arg = mpl;
                     break;

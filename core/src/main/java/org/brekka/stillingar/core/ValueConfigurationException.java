@@ -45,14 +45,14 @@ public class ValueConfigurationException extends ConfigurationException {
 	 */
 	private final String reason;
 	
-	public ValueConfigurationException(String reason, ValueDefinition<?> definition, Throwable cause) {
+	public ValueConfigurationException(String reason, ValueDefinition<?,?> definition, Throwable cause) {
 		super(cause);
 		this.valueType = definition.getType();
 		this.expression = definition.getExpression();
 		this.reason = reason;
 	}
 	
-	public ValueConfigurationException(String reason, ValueDefinition<?> definition) {
+	public ValueConfigurationException(String reason, ValueDefinition<?,?> definition) {
 		super();
 		this.valueType = definition.getType();
 		this.expression = definition.getExpression();

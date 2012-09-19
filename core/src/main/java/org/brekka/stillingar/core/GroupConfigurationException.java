@@ -147,6 +147,13 @@ public class GroupConfigurationException extends RuntimeException {
     public String getGroupName() {
         return groupName;
     }
+    
+    /**
+     * @return the phase
+     */
+    public Phase getPhase() {
+        return phase;
+    }
 
     /**
      * The phase during which the error occured.

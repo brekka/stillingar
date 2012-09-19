@@ -58,14 +58,14 @@ public abstract class AbstractChangeAwareConfigurationSource extends
      */
     protected AbstractChangeAwareConfigurationSource(ConfigurationSource defaultConfigurationSource) {
         setDelegate(new FallbackConfigurationSource(null, defaultConfigurationSource));
-        this.standaloneGroup = new ValueDefinitionGroup("_standalone", new ArrayList<ValueDefinition<?>>(), null, null);
+        this.standaloneGroup = new ValueDefinitionGroup("_standalone", new ArrayList<ValueDefinition<?,?>>(), null, null);
         this.valueGroups.add(standaloneGroup);
     }
 
     /**
      * Register a value definition
      */
-    public synchronized void register(ValueDefinition<?> valueDefinition, boolean fireImmediately) {
+    public synchronized void register(ValueDefinition<?,?> valueDefinition, boolean fireImmediately) {
         if (fireImmediately) {
             ValueChangeAction valueChangeAction = deltaOperations.prepareValueChange(valueDefinition, this);
             deltaOperations.enactValueChange(valueChangeAction);

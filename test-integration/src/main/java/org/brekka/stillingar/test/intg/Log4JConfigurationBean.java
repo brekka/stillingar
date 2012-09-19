@@ -19,6 +19,7 @@ package org.brekka.stillingar.test.intg;
 import static java.lang.String.format;
 
 import org.brekka.stillingar.core.ChangeAwareConfigurationSource;
+import org.brekka.stillingar.core.SingleValueDefinition;
 import org.brekka.stillingar.core.ValueChangeListener;
 import org.brekka.stillingar.core.ValueDefinition;
 import org.springframework.beans.BeansException;
@@ -71,15 +72,14 @@ public class Log4JConfigurationBean implements InitializingBean, BeanFactoryAwar
             }
         }
         
-        ValueDefinition<Element> valueDef = new ValueDefinition<Element>(
+        ValueDefinition<Element, ValueChangeListener<Element>> valueDef = new SingleValueDefinition<Element>(
             Element.class, 
             expression, 
             new ValueChangeListener<Element>() {
                 public void onChange(Element configuration) {
                     org.apache.log4j.xml.DOMConfigurator.configure(configuration);
                 }
-            }, 
-            false
+            }
         );
         source.register(valueDef, true);
     }

@@ -24,24 +24,7 @@ import java.util.List;
  * 
  * @author Andrew Taylor
  */
-public class ValueDefinition<T, Listener extends ValueChangeListener<?>> {
-
-    /**
-     * The type of the value that is used to define what is expected to be returned. In the absence of an expression it
-     * can also be used to determine what value will be returned. When actual return type is a {@link List}, this value
-     * will be the type of value within the list.
-     */
-    private final Class<T> type;
-
-    /**
-     * The expression that should be used to determine what value is to be returned.
-     */
-    private final String expression;
-
-    /**
-     * The listener that will be called in response to this value being changed.
-     */
-    private final ValueChangeListener<?> listener;
+public class ValueListDefinition<T> extends ValueDefinition<T, ValueChangeListener<List<T>>> {
 
     /**
      * @param type
@@ -52,14 +35,11 @@ public class ValueDefinition<T, Listener extends ValueChangeListener<?>> {
      *            The expression that should be used to determine what value is to be returned.
      * @param listener
      *            The listener that will be called in response to this value being changed.
+     * @param list
+     *            Is the value to be updated a list.
      */
-    ValueDefinition(Class<T> type, String expression, ValueChangeListener<?> listener) {
-        this.type = type;
-        if (expression != null && expression.isEmpty()) {
-            expression = null;
-        }
-        this.expression = expression;
-        this.listener = listener;
+    public ValueListDefinition(Class<T> type, String expression, ValueChangeListener<List<T>> listener) {
+        super(type, expression, listener);
     }
 
     /**
@@ -69,35 +49,19 @@ public class ValueDefinition<T, Listener extends ValueChangeListener<?>> {
      *            {@link List}, this value will be the type of value within the list.
      * @param listener
      *            The listener that will be called in response to this value being changed.
+     * @param list
+     *            Is the value to be updated a list.
      */
-    ValueDefinition(Class<T> type, ValueChangeListener<?> listener) {
+    public ValueListDefinition(Class<T> type, ValueChangeListener<List<T>> listener) {
         this(type, null, listener);
     }
 
-    /**
-     * The type of the value that is used to define what is expected to be returned. In the absence of an expression it
-     * can also be used to determine what value will be returned. When actual return type is a {@link List}, this value
-     * will be the type of value within the list.
-     * 
-     * @return
+    /* (non-Javadoc)
+     * @see org.brekka.stillingar.core.ValueDefinition#getListener()
      */
-    public Class<T> getType() {
-        return type;
-    }
-
-    /**
-     * The expression that should be used to determine what value is to be returned.
-     * @return
-     */
-    public String getExpression() {
-        return expression;
-    }
-
-    /**
-     * The listener that will be called in response to this value being changed.
-     * @return
-     */
-    public ValueChangeListener<?> getListener() {
-        return listener;
+    @SuppressWarnings("unchecked")
+    @Override
+    public ValueChangeListener<List<T>> getListener() {
+        return (ValueChangeListener<List<T>>) super.getListener();
     }
 }

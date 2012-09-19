@@ -23,6 +23,8 @@ import java.util.List;
 import org.brekka.stillingar.core.ChangeAwareConfigurationSource;
 import org.brekka.stillingar.core.ConfigurationSource;
 import org.brekka.stillingar.core.GroupChangeListener;
+import org.brekka.stillingar.core.SingleValueDefinition;
+import org.brekka.stillingar.core.ValueChangeListener;
 import org.brekka.stillingar.core.ValueDefinition;
 import org.brekka.stillingar.core.ValueDefinitionGroup;
 import org.brekka.stillingar.spring.expr.ExpressionFragment;
@@ -94,7 +96,7 @@ class CustomStringValueResolver implements StringValueResolver {
                         (ConfigurableListableBeanFactory) beanFactory, fragment);
             }
             if (listener != null) {
-                List<ValueDefinition<?>> values = toValueDefinitions(fragment);
+                List<ValueDefinition<?,?>> values = toValueDefinitions(fragment);
                 ValueDefinitionGroup group = new ValueDefinitionGroup(beanName, values, listener);
                 ucs.register(group, false);
             }
@@ -111,12 +113,12 @@ class CustomStringValueResolver implements StringValueResolver {
      *            the fragment to extract {@link ValueDefinition}s from.
      * @return the list of value definitions (never null).
      */
-    public List<ValueDefinition<?>> toValueDefinitions(Fragment fragment) {
+    public List<ValueDefinition<?,?>> toValueDefinitions(Fragment fragment) {
         List<ExpressionFragment> expressionFragments = DefaultPlaceholderParser.findExpressionFragments(fragment);
-        List<ValueDefinition<?>> valueDefs = new ArrayList<ValueDefinition<?>>(expressionFragments.size());
+        List<ValueDefinition<?,?>> valueDefs = new ArrayList<ValueDefinition<?,?>>(expressionFragments.size());
         for (ExpressionFragment expressionFragment : expressionFragments) {
             ExpressionFragmentChangeListener changeListener = new ExpressionFragmentChangeListener(expressionFragment);
-            ValueDefinition<String> valueDefinition = new ValueDefinition<String>(String.class, expressionFragment.getExpression(), changeListener, false);
+            ValueDefinition<String, ValueChangeListener<String>> valueDefinition = new SingleValueDefinition<String>(String.class, expressionFragment.getExpression(), changeListener);
             valueDefs.add(valueDefinition);
         }
         return valueDefs;

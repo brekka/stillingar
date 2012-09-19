@@ -26,21 +26,21 @@ import org.brekka.stillingar.core.ValueChangeListener;
  * 
  * @author Andrew Taylor (andrew@brekka.org)
  */
-class MethodParameterListener implements ValueChangeListener<Object>, ParameterValueResolver {
+class MethodParameterListener<T> implements ValueChangeListener<T>, ParameterValueResolver {
 
     /**
      * The value by {@link #onChange(Object)}
      */
-    private Object value;
+    private T value;
 
-    public void onChange(Object newValue) {
+    public void onChange(T newValue) {
         this.value = newValue;
     }
 
     /**
      * Retrieve the value
      */
-    public Object getValue() {
+    public T getValue() {
         return value;
     }
 }

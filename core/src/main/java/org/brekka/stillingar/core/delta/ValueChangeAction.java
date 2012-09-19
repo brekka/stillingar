@@ -27,7 +27,7 @@ public class ValueChangeAction {
     /**
      * The value definition to update
      */
-    private final ValueDefinition<?> valueDefinition;
+    private final ValueDefinition<?,?> valueDefinition;
 
     /**
      * The new value that will ultimately be used to update the {@link ValueDefinition}
@@ -40,7 +40,7 @@ public class ValueChangeAction {
      * @param newValue
      *            The new value that will ultimately be used to update the {@link ValueDefinition}
      */
-    public ValueChangeAction(ValueDefinition<?> valueDefinition, Object newValue) {
+    public ValueChangeAction(ValueDefinition<?,?> valueDefinition, Object newValue) {
         this.valueDefinition = valueDefinition;
         this.newValue = newValue;
     }
@@ -50,7 +50,7 @@ public class ValueChangeAction {
      * 
      * @return the value definition
      */
-    public ValueDefinition<?> getValueDefinition() {
+    public ValueDefinition<?,?> getValueDefinition() {
         return valueDefinition;
     }
 
