@@ -17,7 +17,7 @@
 package org.brekka.stillingar.core;
 
 /**
- * Called when once or more values within a group are updated.
+ * Called when one or more values within a group are updated.
  * 
  * @author Andrew Taylor
  */

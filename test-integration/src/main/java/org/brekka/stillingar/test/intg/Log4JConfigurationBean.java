@@ -76,7 +76,7 @@ public class Log4JConfigurationBean implements InitializingBean, BeanFactoryAwar
             Element.class, 
             expression, 
             new ValueChangeListener<Element>() {
-                public void onChange(Element configuration) {
+                public void onChange(Element configuration, Element previous) {
                     org.apache.log4j.xml.DOMConfigurator.configure(configuration);
                 }
             }

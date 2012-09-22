@@ -16,6 +16,9 @@
 
 package org.brekka.stillingar.spring.pc;
 
+import java.lang.ref.WeakReference;
+
+import org.brekka.stillingar.core.Expirable;
 import org.brekka.stillingar.spring.expr.Fragment;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.PropertyValue;
@@ -30,7 +33,7 @@ import org.springframework.util.ObjectUtils;
  * 
  * @author Andrew Taylor (andrew@brekka.org)
  */
-class PropertyDefChangeListener extends AbstractExpressionGroupListener {
+class PropertyDefChangeListener extends AbstractExpressionGroupListener implements Expirable {
     /**
      * The name of the bean within the Spring context. Will be used to lookup its current definition.
      */
@@ -44,7 +47,7 @@ class PropertyDefChangeListener extends AbstractExpressionGroupListener {
     /**
      * The bean factory in which to resolve the bean definition of bean identified by <code>beanName</code>
      */
-    private final ConfigurableListableBeanFactory beanFactory;
+    private final WeakReference<ConfigurableListableBeanFactory> beanFactoryRef;
 
     
     /**
@@ -63,18 +66,30 @@ class PropertyDefChangeListener extends AbstractExpressionGroupListener {
         super(fragment);
         this.beanName = beanName;
         this.propertyName = propertyName;
-        this.beanFactory = beanFactory;
+        this.beanFactoryRef = new WeakReference<ConfigurableListableBeanFactory>(beanFactory);
     }
 
     /**
      * Update the property with the new value
      */
     public void onChange(String newValue) {
+        ConfigurableListableBeanFactory beanFactory = beanFactoryRef.get();
+        if (beanFactory == null) {
+            return;
+        }
         BeanDefinition beanDef = beanFactory.getMergedBeanDefinition(beanName);
         MutablePropertyValues mutablePropertyValues = beanDef.getPropertyValues();
         PropertyValue propertyValue = mutablePropertyValues.getPropertyValue(propertyName);
         if (!ObjectUtils.nullSafeEquals(newValue, propertyValue.getValue())) {
             mutablePropertyValues.add(propertyValue.getName(), newValue);
         }
+    }
+    
+    /* (non-Javadoc)
+     * @see org.brekka.stillingar.core.ExpiringListener#isExpired()
+     */
+    @Override
+    public boolean isExpired() {
+        return beanFactoryRef.isEnqueued();
     }
 }

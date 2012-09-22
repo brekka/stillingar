@@ -16,6 +16,8 @@
 
 package org.brekka.stillingar.spring.bpp;
 
+import java.lang.ref.WeakReference;
+
 import org.brekka.stillingar.annotations.ConfigurationListener;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -31,7 +33,7 @@ class BeanReferenceResolver implements ParameterValueResolver {
     /**
      * Bean factory in which to resolve the bean.
      */
-    private final BeanFactory beanFactory;
+    private final WeakReference<BeanFactory> beanFactoryRef;
     /**
      * Optional qualifier to single out the bean by name
      */
@@ -39,13 +41,13 @@ class BeanReferenceResolver implements ParameterValueResolver {
     /**
      * The expected bean value type
      */
-    private final Class<?> type;
+    private final WeakReference<Class<?>> typeRef;
 
-    
+
     public BeanReferenceResolver(BeanFactory beanFactory, Qualifier qualifier, Class<?> type) {
-        this.beanFactory = beanFactory;
+        this.beanFactoryRef = new WeakReference<BeanFactory>(beanFactory);
         this.qualifier = qualifier;
-        this.type = type;
+        this.typeRef = new WeakReference<Class<?>>(type);
     }
 
     public BeanReferenceResolver(BeanFactory beanFactory, Class<?> type) {
@@ -56,6 +58,13 @@ class BeanReferenceResolver implements ParameterValueResolver {
      * Perform the lookup of the bean via {@link BeanFactory#getBean(...)}
      */
     public Object getValue() {
+        BeanFactory beanFactory = beanFactoryRef.get();
+        Class<?> type = typeRef.get();
+        if (beanFactory == null || type == null) {
+            // No longer available, just return null
+            return null;
+        }
+        
         Object value;
         if (qualifier != null) {
             value = beanFactory.getBean(qualifier.value(), type);

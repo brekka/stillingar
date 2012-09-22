@@ -97,7 +97,11 @@ public class LoggingSnapshotEventHandler implements SnapshotEventHandler {
      */
     @Override
     public void initialConfigure(Snapshot snapshot, ChangeConfigurationException e) {
-        if (e == null) {
+        if (snapshot == null) {
+            if (log.isInfoEnabled()) {
+                log.info("Loaded from defaults");
+            }
+        } else if (e == null) {
             if (log.isInfoEnabled()) {
                 log.info(String.format("Snapshot loaded successfully from '%s'", snapshot.getLocation()));
             }

@@ -236,7 +236,7 @@ public class DeltaOperationsTest {
         
         deltaOperations.enactValueChange(vca);
         
-        verify(valueChangeListener).onChange(eq(value));
+        verify(valueChangeListener).onChange(eq(value), isNull(String.class));
     }
     /**
      * Test method for {@link org.brekka.stillingar.core.delta.DeltaOperations#enactValueChange(org.brekka.stillingar.core.delta.ValueChangeAction)}.
@@ -249,10 +249,10 @@ public class DeltaOperationsTest {
         ValueDefinition<String,?> vd = new SingleValueDefinition<String>(String.class, expression, valueChangeListener);
         ValueChangeAction vca = new ValueChangeAction(vd, value);
         
-        doThrow(new IllegalSelectorException()).when(valueChangeListener).onChange(eq(value));
+        doThrow(new IllegalSelectorException()).when(valueChangeListener).onChange(eq(value), isNull(String.class));
         
         deltaOperations.enactValueChange(vca);
-        verify(valueChangeListener).onChange(eq(value));
+        verify(valueChangeListener).onChange(eq(value), isNull(String.class));
     }
 
     /**
@@ -280,10 +280,10 @@ public class DeltaOperationsTest {
         GroupChangeAction gca = new GroupChangeAction(valueDefinitionGroup, vcaList);
         
         deltaOperations.enactGroupChange(gca, configurationSource);
-        verify(vdSingleType.getListener()).onChange(eq(value));
-        verify(vdSingleExpression.getListener()).onChange(eq(value));
-        verify(vdListType.getListener()).onChange(eq(valueList));
-        verify(vdListExpression.getListener()).onChange(eq(valueList));
+        verify(vdSingleType.getChangeListener()).onChange(eq(value), isNull(String.class));
+        verify(vdSingleExpression.getChangeListener()).onChange(eq(value), isNull(String.class));
+        verify(vdListType.getChangeListener()).onChange(eq(valueList), isNull(List.class));
+        verify(vdListExpression.getChangeListener()).onChange(eq(valueList), isNull(List.class));
     }
     
     /**
@@ -304,7 +304,7 @@ public class DeltaOperationsTest {
         GroupChangeAction gca = new GroupChangeAction(valueDefinitionGroup, vcaList);
         
         IllegalStateException illegalStateException = new IllegalStateException();
-        doThrow(illegalStateException).when(valueChangeListener).onChange(eq(valueList));
+        doThrow(illegalStateException).when(valueChangeListener).onChange(eq(valueList), isNull(List.class));
         
         try {
             deltaOperations.enactGroupChange(gca, configurationSource);

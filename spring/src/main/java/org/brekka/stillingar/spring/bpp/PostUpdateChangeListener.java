@@ -18,6 +18,7 @@ package org.brekka.stillingar.spring.bpp;
 
 import static java.lang.String.format;
 
+import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -25,6 +26,7 @@ import java.util.List;
 
 import org.brekka.stillingar.core.ConfigurationException;
 import org.brekka.stillingar.core.ConfigurationSource;
+import org.brekka.stillingar.core.Expirable;
 import org.brekka.stillingar.core.GroupChangeListener;
 
 /**
@@ -32,16 +34,16 @@ import org.brekka.stillingar.core.GroupChangeListener;
  * 
  * @author Andrew Taylor (andrew@brekka.org)
  */
-class PostUpdateChangeListener implements GroupChangeListener {
+class PostUpdateChangeListener implements GroupChangeListener, Expirable {
     /**
      * The target object containing the method to be invoked
      */
-    private final Object target;
+    private final WeakReference<Object> targetRef;
 
     /**
      * The method to invoke
      */
-    private final Method method;
+    private final WeakReference<Method> methodRef;
 
     /**
      * Value resolvers for the parameters of the method.
@@ -57,8 +59,8 @@ class PostUpdateChangeListener implements GroupChangeListener {
      *            Value resolvers for the parameters of the method.
      */
     public PostUpdateChangeListener(Object target, Method method, List<ParameterValueResolver> parameterValues) {
-        this.target = target;
-        this.method = method;
+        this.targetRef = new WeakReference<Object>(target);
+        this.methodRef = new WeakReference<Method>(method);
         this.parameterValues = parameterValues;
     }
 
@@ -66,7 +68,12 @@ class PostUpdateChangeListener implements GroupChangeListener {
      * Delegates to {@link #onChange(ConfigurationSource, Object)} along with <code>target</code>
      */
     public final void onChange(ConfigurationSource configurationSource) {
-        onChange(configurationSource, target);
+        Object target = targetRef.get();
+        Method method = methodRef.get();
+        if (target == null || method == null) {
+            return;
+        }
+        onChange(configurationSource, target, method);
     }
 
     /**
@@ -75,7 +82,7 @@ class PostUpdateChangeListener implements GroupChangeListener {
      * @param target
      *            the target object on which the specified method will be invoked.
      */
-    public void onChange(ConfigurationSource configurationSource, Object target) {
+    protected void onChange(ConfigurationSource configurationSource, Object target, Method method) {
         Object[] args = new Object[parameterValues.size()];
         for (int i = 0; i < parameterValues.size(); i++) {
             ParameterValueResolver arg = parameterValues.get(i);
@@ -87,10 +94,20 @@ class PostUpdateChangeListener implements GroupChangeListener {
             }
             method.invoke(target, args);
         } catch (IllegalAccessException e) {
-            throwError(args, e);
+            throwError(args, e, method);
         } catch (InvocationTargetException e) {
-            throwError(args, e);
+            throwError(args, e, method);
+        } catch (IllegalArgumentException e) {
+            throwError(args, e, method);
         }
+    }
+    
+    /* (non-Javadoc)
+     * @see org.brekka.stillingar.core.Expirable#isExpired()
+     */
+    @Override
+    public boolean isExpired() {
+        return (targetRef.isEnqueued() || methodRef.isEnqueued());
     }
 
     /**
@@ -102,7 +119,7 @@ class PostUpdateChangeListener implements GroupChangeListener {
      * @param cause
      *            the underlying cause of the problem.
      */
-    protected void throwError(Object[] args, Throwable cause) {
+    protected void throwError(Object[] args, Throwable cause, Method method) {
         throw new ConfigurationException(format("Listener method '%s' of type '%s' with arguments %s",
                 method.getName(), method.getDeclaringClass().getName(), Arrays.toString(args)), cause);
     }
@@ -113,6 +130,6 @@ class PostUpdateChangeListener implements GroupChangeListener {
      * @return the method
      */
     public Method getMethod() {
-        return method;
+        return methodRef.get();
     }
 }

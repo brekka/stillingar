@@ -21,7 +21,7 @@ import org.brekka.stillingar.core.ChangeConfigurationException;
 import org.brekka.stillingar.core.ConfigurationException;
 import org.brekka.stillingar.core.ConfigurationSource;
 import org.brekka.stillingar.core.FallbackConfigurationSource;
-import org.brekka.stillingar.core.delta.AbstractChangeAwareConfigurationSource;
+import org.brekka.stillingar.core.delta.DeltaConfigurationSource;
 
 /**
  * Snapshot based implementation of {@link ChangeAwareConfigurationSource} which provides atomic updates to group
@@ -33,7 +33,7 @@ import org.brekka.stillingar.core.delta.AbstractChangeAwareConfigurationSource;
  * 
  * @author Andrew Taylor (andrew@brekka.org)
  */
-public class SnapshotBasedConfigurationSource extends AbstractChangeAwareConfigurationSource {
+public class SnapshotBasedConfigurationSource extends DeltaConfigurationSource {
 	
     /**
      * Where all snapshots will be obtained from
@@ -84,6 +84,7 @@ public class SnapshotBasedConfigurationSource extends AbstractChangeAwareConfigu
 		this.initialSnapshotRequired = initialSnapshotRequired;
 		this.snapshotEventHandler = (snapshotEventHandler != null 
 		        ? snapshotEventHandler : new ConsoleSnapshotEventHandler());
+		init();
 	}
 	
 	
@@ -91,7 +92,7 @@ public class SnapshotBasedConfigurationSource extends AbstractChangeAwareConfigu
 	 * Initialise this source based on the initial snapshot returned by the manager. If no initial snapshot is
 	 * available and there is no default source, an exception will be thrown.
 	 */
-	public void init() {
+	protected void init() {
 	    Snapshot initial = null;
 	    try {
             initial = snapshotManager.retrieveInitial();
@@ -108,19 +109,17 @@ public class SnapshotBasedConfigurationSource extends AbstractChangeAwareConfigu
         }
 	    
 	    // Refresh using the initial, if it is available
+	    ConfigurationSource initialSource = null;
 	    if (initial != null) {
-	        try {
-                refresh(initial.getSource());
-                snapshotEventHandler.initialConfigure(initial, null);
-            } catch (ChangeConfigurationException e) {
-                snapshotManager.reject(initial);
-                snapshotEventHandler.initialConfigure(initial, e);
-                throw new ConfigurationException("", e);
-            }
-	    } else if (getDelegate().getSecondarySource() == FallbackConfigurationSource.NONE) {
-	        // An initial snapshot was required to continue.
-	        throw new ConfigurationException("No initial configuration snapshot found. " +
-	        		"This application requires custom configuration settings in order to operate correctly.");
+	        initialSource = initial.getSource();
+	    } 
+	    try {
+	        refresh(initialSource);
+	        snapshotEventHandler.initialConfigure(initial, null);
+	    } catch (ChangeConfigurationException e) {
+	        snapshotManager.reject(initial);
+	        snapshotEventHandler.initialConfigure(initial, e);
+	        throw new ConfigurationException("Failed to prepare initial configuration", e);
 	    }
 	    
 	    // Failsafe - We must have at least one configuration source so make sure of it

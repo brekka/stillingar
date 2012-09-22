@@ -61,7 +61,7 @@ public class ValueListDefinition<T> extends ValueDefinition<T, ValueChangeListen
      */
     @SuppressWarnings("unchecked")
     @Override
-    public ValueChangeListener<List<T>> getListener() {
-        return (ValueChangeListener<List<T>>) super.getListener();
+    public ValueChangeListener<List<T>> getChangeListener() {
+        return (ValueChangeListener<List<T>>) super.getChangeListener();
     }
 }

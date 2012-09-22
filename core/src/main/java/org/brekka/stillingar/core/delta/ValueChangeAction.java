@@ -27,7 +27,7 @@ public class ValueChangeAction {
     /**
      * The value definition to update
      */
-    private final ValueDefinition<?,?> valueDefinition;
+    private final ValueDefinition<?, ?> valueDefinition;
 
     /**
      * The new value that will ultimately be used to update the {@link ValueDefinition}
@@ -35,14 +35,32 @@ public class ValueChangeAction {
     private final Object newValue;
 
     /**
+     * The old value currently set for the value definition.
+     */
+    private final Object oldValue;
+
+    /**
      * @param valueDefinition
      *            The value definition to update
      * @param newValue
      *            The new value that will ultimately be used to update the {@link ValueDefinition}
      */
-    public ValueChangeAction(ValueDefinition<?,?> valueDefinition, Object newValue) {
+    public ValueChangeAction(ValueDefinition<?, ?> valueDefinition, Object newValue) {
+        this(valueDefinition, newValue, null);
+    }
+
+    /**
+     * @param valueDefinition
+     *            The value definition to update
+     * @param newValue
+     *            The new value that will ultimately be used to update the {@link ValueDefinition}
+     * @param oldValue
+     *            The old value currently set for the value definition.
+     */
+    public ValueChangeAction(ValueDefinition<?, ?> valueDefinition, Object newValue, Object oldValue) {
         this.valueDefinition = valueDefinition;
         this.newValue = newValue;
+        this.oldValue = oldValue;
     }
 
     /**
@@ -50,7 +68,7 @@ public class ValueChangeAction {
      * 
      * @return the value definition
      */
-    public ValueDefinition<?,?> getValueDefinition() {
+    public ValueDefinition<?, ?> getValueDefinition() {
         return valueDefinition;
     }
 
@@ -61,5 +79,12 @@ public class ValueChangeAction {
      */
     public Object getNewValue() {
         return newValue;
+    }
+
+    /**
+     * @return the oldValue
+     */
+    public Object getOldValue() {
+        return oldValue;
     }
 }

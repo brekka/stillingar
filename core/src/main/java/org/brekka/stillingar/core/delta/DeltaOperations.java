@@ -17,6 +17,7 @@
 package org.brekka.stillingar.core.delta;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.brekka.stillingar.core.ConfigurationException;
@@ -83,9 +84,10 @@ public class DeltaOperations {
     public void enactValueChange(ValueChangeAction valueChangeAction) {
         ValueDefinition<?,?> valueDefinition = valueChangeAction.getValueDefinition();
         Object newValue = valueChangeAction.getNewValue();
-        ValueChangeListener listener = valueDefinition.getListener();
+        Object oldValue = valueChangeAction.getOldValue();
+        ValueChangeListener listener = valueDefinition.getChangeListener();
         try {
-            listener.onChange(newValue);
+            listener.onChange(newValue, oldValue);
         } catch (RuntimeException e) {
             throw new ValueConfigurationException("value assignment", valueDefinition, e);
         }
@@ -104,7 +106,7 @@ public class DeltaOperations {
      */
     public GroupChangeAction prepareGroupChange(ValueDefinitionGroup valueDefinitionGroup,
             ConfigurationSource configurationSource) {
-        List<ValueDefinition<?,?>> valueDefinitionList = valueDefinitionGroup.getValues();
+        Collection<ValueDefinition<?,?>> valueDefinitionList = valueDefinitionGroup.getValues();
         List<ValueChangeAction> updateActions = new ArrayList<ValueChangeAction>(valueDefinitionList.size());
         List<ConfigurationException> valueResolveErrors = new ArrayList<ConfigurationException>();
         try {

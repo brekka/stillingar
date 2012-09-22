@@ -17,6 +17,7 @@
 package org.brekka.stillingar.core.delta;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.brekka.stillingar.core.ConfigurationSource;
@@ -36,7 +37,7 @@ public class TwoPhasedGroupsUpdater {
     /**
      * The list of all value groups including the standalone group above.
      */
-    private final List<ValueDefinitionGroup> valueGroups;
+    private final Collection<ValueDefinitionGroup> valueGroups;
 
     /**
      * The configuration source to update from
@@ -54,7 +55,7 @@ public class TwoPhasedGroupsUpdater {
      * @param configurationSource
      *            The configuration source to update from
      */
-    public TwoPhasedGroupsUpdater(List<ValueDefinitionGroup> valueGroups, ConfigurationSource configurationSource,
+    public TwoPhasedGroupsUpdater(Collection<ValueDefinitionGroup> valueGroups, ConfigurationSource configurationSource,
             DeltaOperations deltaOperations) {
         this.valueGroups = valueGroups;
         this.configurationSource = configurationSource;
@@ -78,7 +79,7 @@ public class TwoPhasedGroupsUpdater {
      *             if any problems are encountered resolving the values to update the {@link ValueDefinition}s with.
      */
     public List<GroupChangeAction> phaseOneUpdate() throws ChangeConfigurationException {
-        List<ValueDefinitionGroup> valueGroups = this.valueGroups;
+        Collection<ValueDefinitionGroup> valueGroups = this.valueGroups;
         List<GroupChangeAction> updateActionList = new ArrayList<GroupChangeAction>(valueGroups.size());
         List<GroupConfigurationException> groupErrors = new ArrayList<GroupConfigurationException>();
 
@@ -103,7 +104,7 @@ public class TwoPhasedGroupsUpdater {
      * In phase two, the actual task of writing the new values to the {@link ValueDefinition}s will take place. This is
      * the more sensitive part of the operation as an error here will potentially leave a part of the system partially
      * updated. If an error does occur in a {@link ValueDefinitionGroup}, this phase will continue to update any
-     * remaining groups, writing the errors encounterd to the error list that will be included with the
+     * remaining groups, writing the errors encountered to the error list that will be included with the
      * {@link ChangeConfigurationException}.
      * 
      * @param updateActionList the list of update actions to enact.

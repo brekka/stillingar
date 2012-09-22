@@ -86,16 +86,17 @@ public class ReferentUpdateException extends ConfigurationException {
 	    String multiplicity = "Single";
 	    if (list) {
 	        multiplicity = "List";
-	    }
-	    String message = format("%s '%s' of %s (%s): expected '%s', actual '%s'", 
-	            referentType, name, targetType.getName(), multiplicity, expectedType.getName(), valueType.getName());
-	    return message;
-	}
+        }
+        String message = format("%s '%s' of %s (%s): expected '%s', actual '%s'", referentType, name,
+                className(targetType), multiplicity, className(expectedType), className(valueType));
+        return message;
+    }
 
-	/**
-	 * The name of the field/method
-	 * @return
-	 */
+    /**
+     * The name of the field/method
+     * 
+     * @return
+     */
     public String getName() {
         return name;
     }
@@ -130,5 +131,16 @@ public class ReferentUpdateException extends ConfigurationException {
      */
     public Class<?> getTargetType() {
         return targetType;
+    }
+
+    /**
+     * @param targetType2
+     * @return
+     */
+    private static Object className(Class<?> clazz) {
+        if (clazz == null) {
+            return null;
+        }
+        return clazz.getName();
     }
 }

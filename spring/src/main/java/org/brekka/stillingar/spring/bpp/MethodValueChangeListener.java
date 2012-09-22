@@ -16,10 +16,9 @@
 
 package org.brekka.stillingar.spring.bpp;
 
+import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-
-import org.springframework.context.Lifecycle;
 
 /**
  * Change listener that will use reflection to update a specific method of a bean.
@@ -31,7 +30,7 @@ class MethodValueChangeListener<T extends Object> extends InvocationChangeListen
     /**
      * The method being updated
      */
-    private final Method method;
+    private final WeakReference<Method> methodRef;
 
     /**
      * @param method
@@ -45,51 +44,23 @@ class MethodValueChangeListener<T extends Object> extends InvocationChangeListen
      */
     public MethodValueChangeListener(Method method, Object target, Class<?> expectedValueType, boolean list) {
         super(target, expectedValueType, list, "Method");
-        this.method = method;
+        this.methodRef = new WeakReference<Method>(method);
     }
 
     /**
      * Use reflection to invoke the setter with the new value on the target object.
      */
-    public void onChange(T newValue, Object target) {
-        // Attempt to locate getter to perform lifecycle check
-        lifecycleStop(target);
+    public void onChange(T newValue, T oldValue, Object target) {
+        Method method = methodRef.get();
+        if (method == null) {
+            return;
+        }
         try {
             method.invoke(target, newValue);
-            if (target instanceof Lifecycle) {
-                ((Lifecycle) target).start();
-            }
         } catch (IllegalAccessException e) {
             throwError(method.getName(), newValue, e);
         } catch (InvocationTargetException e) {
             throwError(method.getName(), newValue, e);
-        }
-    }
-
-    /**
-     * Attempt to stop the current value of the property if it is set and an instance of {@link Lifecycle}.
-     * 
-     * @param target
-     */
-    void lifecycleStop(Object target) {
-        String name = method.getName();
-        String getter = name.replaceFirst("set", "get");
-        try {
-            Method getterMethod = method.getDeclaringClass().getMethod(getter);
-            Object currVal = getterMethod.invoke(target);
-            if (currVal instanceof Lifecycle) {
-                ((Lifecycle) currVal).stop();
-            }
-        } catch (SecurityException e) {
-            // Ignore
-        } catch (NoSuchMethodException e) {
-            // Ignore
-        } catch (IllegalArgumentException e) {
-            // Ignore
-        } catch (IllegalAccessException e) {
-            // Ignore
-        } catch (InvocationTargetException e) {
-            // Ignore
         }
     }
 }

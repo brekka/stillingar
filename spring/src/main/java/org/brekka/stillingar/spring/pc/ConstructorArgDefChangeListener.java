@@ -16,6 +16,7 @@
 
 package org.brekka.stillingar.spring.pc;
 
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.util.List;
 
@@ -53,7 +54,7 @@ public class ConstructorArgDefChangeListener extends AbstractExpressionGroupList
     /**
      * Bean factory to lookup the bean definition in.
      */
-    private final ConfigurableListableBeanFactory beanFactory;
+    private final WeakReference<ConfigurableListableBeanFactory> beanFactoryRef;
 
     /**
      * @param beanName
@@ -74,7 +75,7 @@ public class ConstructorArgDefChangeListener extends AbstractExpressionGroupList
         this.beanName = beanName;
         this.constructorArgIndex = constructorArgIndex;
         this.constructorArgType = constructorArgType;
-        this.beanFactory = beanFactory;
+        this.beanFactoryRef = new WeakReference<ConfigurableListableBeanFactory>(beanFactory);
     }
 
     /*
@@ -84,6 +85,11 @@ public class ConstructorArgDefChangeListener extends AbstractExpressionGroupList
      */
     @Override
     protected void onChange(String newValue) {
+        ConfigurableListableBeanFactory beanFactory = beanFactoryRef.get();
+        if (beanFactory == null) {
+            return;
+        }
+        
         BeanDefinition beanDef = beanFactory.getMergedBeanDefinition(beanName);
         ConstructorArgumentValues mutableConstructorValues = beanDef.getConstructorArgumentValues();
         ValueHolder valueHolder = null;

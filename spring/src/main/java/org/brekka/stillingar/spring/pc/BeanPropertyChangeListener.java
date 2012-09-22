@@ -16,6 +16,9 @@
 
 package org.brekka.stillingar.spring.pc;
 
+import java.lang.ref.WeakReference;
+
+import org.brekka.stillingar.core.Expirable;
 import org.brekka.stillingar.spring.expr.Fragment;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.PropertyAccessorFactory;
@@ -28,7 +31,7 @@ import org.springframework.beans.factory.BeanFactory;
  * 
  * @author Andrew Taylor (andrew@brekka.org)
  */
-class BeanPropertyChangeListener extends AbstractExpressionGroupListener {
+class BeanPropertyChangeListener extends AbstractExpressionGroupListener implements Expirable {
     /**
      * The name of the bean that will be used to lookup its bean definition in the beanFactory.
      */
@@ -42,7 +45,7 @@ class BeanPropertyChangeListener extends AbstractExpressionGroupListener {
     /**
      * Bean factory to lookup the bean in.
      */
-    private final BeanFactory beanFactory;
+    private final WeakReference<BeanFactory> beanFactoryRef;
 
     /**
      * @param beanName
@@ -59,13 +62,25 @@ class BeanPropertyChangeListener extends AbstractExpressionGroupListener {
         super(fragment);
         this.beanName = beanName;
         this.property = property;
-        this.beanFactory = beanFactory;
+        this.beanFactoryRef = new WeakReference<BeanFactory>(beanFactory);
+    }
+    
+    /* (non-Javadoc)
+     * @see org.brekka.stillingar.core.ExpiringListener#isExpired()
+     */
+    @Override
+    public boolean isExpired() {
+        return beanFactoryRef.isEnqueued();
     }
 
     /**
      * Handle the change by using reflection to change the bean property.
      */
     public void onChange(String newValue) {
+        BeanFactory beanFactory = beanFactoryRef.get();
+        if (beanFactory == null) {
+            return;
+        }
         Object bean = beanFactory.getBean(beanName);
         BeanWrapper beanWrapper = PropertyAccessorFactory.forBeanPropertyAccess(bean);
         beanWrapper.setPropertyValue(new PropertyValue(property, newValue));

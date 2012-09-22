@@ -53,12 +53,10 @@ public class SnapshotBasedConfigurationSourceTest {
     
     @Test
     public void testInitWithDefaults() throws Exception {
-        source = new SnapshotBasedConfigurationSource(snapshotManager, defaultConfigurationSource);
-        
         when(snapshotManager.retrieveInitial()).thenReturn(initialSnapshot);
         when(initialSnapshot.getSource()).thenReturn(snapshotConfigurationSource);
         
-        source.init();
+        source = new SnapshotBasedConfigurationSource(snapshotManager, defaultConfigurationSource);
         
         verify(snapshotManager).retrieveInitial();
         verify(initialSnapshot).getSource();

@@ -40,6 +40,7 @@ import org.brekka.stillingar.spring.resource.dir.SystemPropertyDirectory;
 import org.brekka.stillingar.spring.snapshot.ConfigurationSnapshotRefresher;
 import org.brekka.stillingar.spring.snapshot.LoggingSnapshotEventHandler;
 import org.brekka.stillingar.spring.snapshot.ResourceSnapshotManager;
+import org.brekka.stillingar.spring.snapshot.SnapshotDeltaValueInterceptor;
 import org.brekka.stillingar.spring.version.ApplicationVersionFromMaven;
 import org.brekka.stillingar.spring.xmlbeans.ApplicationContextConverter;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
@@ -85,7 +86,8 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
         builder.addConstructorArgValue("true".equals(element.getAttribute("snapshot-required")));
         builder.addConstructorArgValue(prepareDefaultConfigurationSource(element, engine));
         builder.addConstructorArgValue(prepareSnapshotEventHandler(element));
-        builder.getRawBeanDefinition().setInitMethodName("init");
+        builder.addPropertyValue("deltaValueInterceptor", prepareDeltaValueInterceptor(element));
+        builder.getRawBeanDefinition().setDestroyMethodName("shutdown");
 
         // Other identifiable context beans
         prepareLoader(element, parserContext, engine);
@@ -93,6 +95,7 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
         preparePostProcessor(element, parserContext);
         prepareReloadMechanism(element, parserContext);
     }
+
 
     protected void preparePostProcessor(Element element, ParserContext parserContext) {
         String id = element.getAttribute("id");
@@ -136,6 +139,7 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
                     id + "-placeholderConfigurer"));
         }
     }
+
 
     /**
      * @param element
@@ -423,6 +427,15 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
     protected AbstractBeanDefinition prepareSnapshotEventHandler(Element element) {
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(LoggingSnapshotEventHandler.class);
         builder.addConstructorArgValue(getName(element));
+        return builder.getBeanDefinition();
+    }
+    
+    /**
+     * @param element
+     * @return
+     */
+    protected Object prepareDeltaValueInterceptor(Element element) {
+        BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(SnapshotDeltaValueInterceptor.class);
         return builder.getBeanDefinition();
     }
 

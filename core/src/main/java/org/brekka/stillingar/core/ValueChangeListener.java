@@ -30,6 +30,9 @@ public interface ValueChangeListener<T> {
      * 
      * @param newValue
      *            the updated value that the implementation to apply to the reference.
+     * @param oldValue
+     *            the previous value (if any).
      */
-    void onChange(T newValue);
+    void onChange(T newValue, T oldValue);
+    
 }

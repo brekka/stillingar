@@ -57,7 +57,7 @@ public final class SingleValueDefinition<T> extends ValueDefinition<T, ValueChan
      */
     @SuppressWarnings("unchecked")
     @Override
-    public ValueChangeListener<T> getListener() {
-        return (ValueChangeListener<T>) super.getListener();
+    public ValueChangeListener<T> getChangeListener() {
+        return (ValueChangeListener<T>) super.getChangeListener();
     }
 }

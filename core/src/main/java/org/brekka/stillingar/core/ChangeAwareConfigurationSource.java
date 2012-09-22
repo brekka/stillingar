@@ -16,15 +16,15 @@
 
 package org.brekka.stillingar.core;
 
-
 /**
- * TODO
+ * For when a {@link ConfigurationSource} can have its configuration values updated. This interface provides methods
+ * for registering and unregistering for configuration changes, based around a listener mechanism. 
  * 
  * Registration allows both single value and group notification. Group notifications are intended to be used when a
  * configuration target (such as a bean) has multiple values that need to be updated atomically, optionally specifying a
  * method that will be invoked once all values have been set.
  * 
- * @author Andrew Taylor
+ * @author Andrew Taylor (andrew@brekka.org)
  */
 public interface ChangeAwareConfigurationSource extends ConfigurationSource {
 
@@ -38,7 +38,7 @@ public interface ChangeAwareConfigurationSource extends ConfigurationSource {
      *            determines whether the listener within the value definition should be called prior to control being
      *            returned to the caller.
      */
-    void register(ValueDefinition<?,?> valueDef, boolean fireImmediately);
+    void register(ValueDefinition<?, ?> valueDef, boolean fireImmediately);
 
     /**
      * Register a group of value definitions which will be notified together when any update occurs.
@@ -50,4 +50,18 @@ public interface ChangeAwareConfigurationSource extends ConfigurationSource {
      *            returned to the caller.
      */
     void register(ValueDefinitionGroup valueGroup, boolean fireImmediately);
+
+    /**
+     * Unregister the specified value definition so that it no longer receives updates.
+     * 
+     * @param valueDef the value to remove
+     */
+    void unregister(ValueDefinition<?, ?> valueDef);
+
+    /**
+     * Unregister the specified value definition group so that it no longer receives updates.
+     * 
+     * @param valueGroup the group to remove
+     */
+    void unregister(ValueDefinitionGroup valueGroup);
 }

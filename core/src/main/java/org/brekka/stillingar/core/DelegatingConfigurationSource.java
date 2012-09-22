@@ -19,29 +19,36 @@ package org.brekka.stillingar.core;
 import java.util.List;
 
 /**
- * TODO Description of AbstractDelegatingConfigurationSource
- *
+ * {@link ConfigurationSource} delegate. Useful for swapping out the underlying configuration source at runtime.
+ * 
  * @author Andrew Taylor (andrew@brekka.org)
  */
-public abstract class AbstractDelegatingConfigurationSource<CS extends ConfigurationSource> implements ConfigurationSource {
+public class DelegatingConfigurationSource<CS extends ConfigurationSource> implements ConfigurationSource {
 
-    
     private CS delegate;
 
     /**
-     * @param delegate the delegate to set
+     * @param delegate
+     */
+    public DelegatingConfigurationSource(CS delegate) {
+        this.delegate = delegate;
+    }
+
+    /**
+     * @param delegate
+     *            the delegate to set
      */
     protected final void setDelegate(CS delegate) {
         this.delegate = delegate;
     }
-    
+
     /**
      * @return the delegate
      */
-    public final CS getDelegate() {
+    protected final CS getDelegate() {
         return delegate;
     }
-    
+
     /**
      * @param expression
      * @return

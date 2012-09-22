@@ -16,7 +16,7 @@
 
 package org.brekka.stillingar.core;
 
-import java.util.List;
+import java.util.Collection;
 
 /**
  * Encapsulates the details of a 'target' containing multiple values to be updated in an atomic manner, with an optional
@@ -35,7 +35,7 @@ public final class ValueDefinitionGroup {
     /**
      * The list of values that are part of this group and as such should be updated with it.
      */
-    private final List<ValueDefinition<?,?>> values;
+    private final Collection<ValueDefinition<?,?>> values;
 
     /**
      * Optional listener that will be invoked once all values have been updated.
@@ -57,7 +57,7 @@ public final class ValueDefinitionGroup {
      * @param changeListener
      *            Optional listener that will be invoked once all values have been updated.
      */
-    public ValueDefinitionGroup(String name, List<ValueDefinition<?,?>> values, GroupChangeListener changeListener) {
+    public ValueDefinitionGroup(String name, Collection<ValueDefinition<?,?>> values, GroupChangeListener changeListener) {
         this(name, values, changeListener, null);
     }
 
@@ -73,7 +73,7 @@ public final class ValueDefinitionGroup {
      *            Optional locking semaphore that can be used to ensure exclusive access to the 'target' while it is
      *            being updated and the listener invoked.
      */
-    public ValueDefinitionGroup(String name, List<ValueDefinition<?,?>> values, GroupChangeListener changeListener,
+    public ValueDefinitionGroup(String name, Collection<ValueDefinition<?,?>> values, GroupChangeListener changeListener,
             Object semaphore) {
         this.name = name;
         this.values = values;
@@ -95,7 +95,7 @@ public final class ValueDefinitionGroup {
      * 
      * @return
      */
-    public List<ValueDefinition<?,?>> getValues() {
+    public Collection<ValueDefinition<?,?>> getValues() {
         return values;
     }
 

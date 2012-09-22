@@ -16,6 +16,7 @@
 
 package org.brekka.stillingar.core.delta;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.brekka.stillingar.core.ValueDefinitionGroup;
@@ -63,7 +64,7 @@ public class GroupChangeAction {
      * @return the action list
      */
     public List<ValueChangeAction> getActionList() {
-        return actionList;
+        return new ArrayList<ValueChangeAction>(actionList);
     }
 
 }

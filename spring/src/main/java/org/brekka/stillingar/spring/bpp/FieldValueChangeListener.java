@@ -16,9 +16,8 @@
 
 package org.brekka.stillingar.spring.bpp;
 
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
-
-import org.springframework.context.Lifecycle;
 
 /**
  * Change listener that will use reflection to update a specific field of a bean.
@@ -30,7 +29,7 @@ class FieldValueChangeListener<T extends Object> extends InvocationChangeListene
     /**
      * The field being updated
      */
-    private final Field field;
+    private final WeakReference<Field> fieldRef;
 
     /**
      * 
@@ -45,25 +44,22 @@ class FieldValueChangeListener<T extends Object> extends InvocationChangeListene
      */
     public FieldValueChangeListener(Field field, Object target, Class<?> expectedValueType, boolean list) {
         super(target, expectedValueType, list, "Field");
-        this.field = field;
+        this.fieldRef = new WeakReference<Field>(field);
     }
 
     /**
      * Set the value of the field encapsulated by this listener.
      */
-    public void onChange(T newValue, Object target) {
+    public void onChange(T newValue, T oldValue, Object target) {
+        Field field = fieldRef.get();
+        if (field == null) {
+            return;
+        }
         try {
             if (!field.isAccessible()) {
                 field.setAccessible(true);
             }
-            Object existing = field.get(target);
-            if (existing instanceof Lifecycle) {
-                ((Lifecycle) existing).stop();
-            }
             field.set(target, newValue);
-            if (target instanceof Lifecycle) {
-                ((Lifecycle) target).start();
-            }
         } catch (IllegalAccessException e) {
             throwError(field.getName(), newValue, e);
         }

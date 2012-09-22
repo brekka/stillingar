@@ -22,13 +22,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.brekka.stillingar.core.ConfigurationException;
-import org.springframework.util.PropertyPlaceholderHelper;
 
 /**
  * Helper class that parses placeholders that can contain expressions and other placeholders. Can also resolve
  * placeholders that are the result of evaluating existing placeholders.
  * 
- * Based partly on {@link PropertyPlaceholderHelper} by Juergen Hoeller and Rob Harrop.
+ * Based partly on {@link org.springframework.util.PropertyPlaceholderHelper} by Juergen Hoeller and Rob Harrop.
  * 
  * @author Andrew Taylor (andrew@brekka.org)
  */

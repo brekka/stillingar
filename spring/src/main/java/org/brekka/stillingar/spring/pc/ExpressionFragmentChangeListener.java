@@ -41,7 +41,7 @@ public class ExpressionFragmentChangeListener implements ValueChangeListener<Str
      * @see org.brekka.stillingar.core.ValueChangeListener#onChange(java.lang.Object)
      */
     @Override
-    public void onChange(String newValue) {
+    public void onChange(String newValue, String oldValue) {
         expressionFragment.setValue(newValue);
     }
 }

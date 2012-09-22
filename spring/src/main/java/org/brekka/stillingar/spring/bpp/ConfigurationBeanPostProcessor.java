@@ -24,6 +24,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -130,7 +131,7 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
                 onceOnlyDefinitionCache.put(targetClass, valueDefinitionGroup);
             }
         }
-        List<ValueDefinition<?,?>> values = valueDefinitionGroup.getValues();
+        Collection<ValueDefinition<?,?>> values = valueDefinitionGroup.getValues();
         for (ValueDefinition<?,?> valueDefinition : values) {
             Object value;
             if (valueDefinition instanceof ValueListDefinition) {
@@ -147,8 +148,8 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
                     value = configurationSource.retrieve(valueDefinition.getType());
                 }
             }
-            ValueChangeListener listener = valueDefinition.getListener();
-            listener.onChange(value);
+            ValueChangeListener listener = valueDefinition.getChangeListener();
+            listener.onChange(value, null);
         }
         GroupChangeListener changeListener = valueDefinitionGroup.getChangeListener();
         if (changeListener != null) {

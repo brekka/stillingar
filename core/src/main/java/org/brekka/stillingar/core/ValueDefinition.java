@@ -97,7 +97,7 @@ public class ValueDefinition<T, Listener extends ValueChangeListener<?>> {
      * The listener that will be called in response to this value being changed.
      * @return
      */
-    public ValueChangeListener<?> getListener() {
+    public ValueChangeListener<?> getChangeListener() {
         return listener;
     }
 }
