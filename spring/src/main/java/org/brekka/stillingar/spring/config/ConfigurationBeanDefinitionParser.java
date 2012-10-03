@@ -326,6 +326,9 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
         builder.addConstructorArgValue(prefix);
         builder.addConstructorArgValue(prepareApplicationVersionFromMaven(versionMavenElement));
         builder.addPropertyValue("extension", extension);
+        if (versionMavenElement.hasAttribute("pattern")) {
+            builder.addPropertyValue("versionPattern", versionMavenElement.getAttribute("pattern"));
+        }
         return builder;
     }
 

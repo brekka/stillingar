@@ -43,6 +43,7 @@
         <module>xmlbeans</module>
         <module>xmlbeans-xpath</module>
         <module>jaxb</module>
+        <module>sample</module>
         <module>test-integration</module>
     </modules>
 

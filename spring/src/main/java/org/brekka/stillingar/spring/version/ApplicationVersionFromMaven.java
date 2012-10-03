@@ -25,6 +25,10 @@ import java.util.Properties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.brekka.stillingar.spring.resource.VersionedResourceNameResolver;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.core.io.Resource;
 
 /**
  * Identify the version of a Maven-created module, identified by its groupId/artifactId. Libraries created by Maven
@@ -34,7 +38,7 @@ import org.brekka.stillingar.spring.resource.VersionedResourceNameResolver;
  * 
  * @author Andrew Taylor (andrew@brekka.org)
  */
-public class ApplicationVersionFromMaven implements ApplicationVersionResolver {
+public class ApplicationVersionFromMaven implements ApplicationVersionResolver, ApplicationContextAware {
     /**
      * The key used to resolve the version within a Maven 'pom.properties' file.
      */
@@ -65,6 +69,11 @@ public class ApplicationVersionFromMaven implements ApplicationVersionResolver {
      * The classloader in which to look for the pom.properties file.
      */
     private final ClassLoader resolveClassloader;
+    
+    /**
+     * Also attempt to lookup the file in the context
+     */
+    private ApplicationContext applicationContext;
 
     /**
      * @param groupId Maven 'groupId'
@@ -86,6 +95,22 @@ public class ApplicationVersionFromMaven implements ApplicationVersionResolver {
         String version = null;
         String path = format(POM_CLASSPATH_FORMAT, groupId, artifactId);
         InputStream is = resolveClassloader.getResourceAsStream(path);
+        
+        if (is == null) {
+            // Not found on classpath
+            Resource resource = applicationContext.getResource(path);
+            if (resource != null) {
+                try {
+                    is = resource.getInputStream();
+                } catch (IOException e) {
+                    if (log.isWarnEnabled()) {
+                        log.warn(format("Failed to load 'pom.properties' from application " +
+                        		"context for group '%s', artifact '%s'.", groupId, artifactId));
+                    }
+                }
+            }
+        }
+        
         if (is != null) {
             Properties props = new Properties();
             try {
@@ -106,6 +131,15 @@ public class ApplicationVersionFromMaven implements ApplicationVersionResolver {
             }
         }
         return version;
+    }
+    
+    /* (non-Javadoc)
+     * @see org.springframework.context.ApplicationContextAware#setApplicationContext(org.springframework.context.ApplicationContext)
+     */
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext)
+            throws BeansException {
+        this.applicationContext = applicationContext;
     }
 
     /*
