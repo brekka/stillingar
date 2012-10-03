@@ -14,8 +14,9 @@ import org.brekka.stillingar.core.ConfigurationSource;
 import org.brekka.stillingar.core.ConfigurationSourceLoader;
 
 /**
+ * Properties based configuration loader.
+ * 
  * @author Andrew Taylor (andrew@brekka.org)
- *
  */
 public class PropertiesConfigurationSourceLoader implements ConfigurationSourceLoader {
 

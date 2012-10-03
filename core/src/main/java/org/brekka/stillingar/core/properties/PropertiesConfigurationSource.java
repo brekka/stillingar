@@ -35,7 +35,7 @@ import org.brekka.stillingar.core.ConfigurationSource;
  * The valueType used in combination with the expression does not have to be just {@link String}, anything registered
  * with the {@link PropertyEditorManager} will be resolvable.
  * 
- * @author Andrew Taylor
+ * @author Andrew Taylor (andrew@brekka.org)
  */
 public class PropertiesConfigurationSource implements ConfigurationSource {
 
@@ -43,7 +43,14 @@ public class PropertiesConfigurationSource implements ConfigurationSource {
      * The properties from which configuration values will be resolved.
      */
     private final Properties properties;
-
+    
+    /**
+     * @param properties
+     *            The properties from which configuration values will be resolved.
+     */
+    public PropertiesConfigurationSource(Properties properties) {
+        this.properties = properties;
+    }
     
     /**
      * Does the specified properties contain this key?
@@ -57,14 +64,6 @@ public class PropertiesConfigurationSource implements ConfigurationSource {
      */
     public boolean isAvailable(Class<?> valueType) {
         throw new ConfigurationException("A Properties configuration source does not support lookup by type.");
-    }
-    
-    /**
-     * @param properties
-     *            The properties from which configuration values will be resolved.
-     */
-    public PropertiesConfigurationSource(Properties properties) {
-        this.properties = properties;
     }
 
     /**
@@ -120,7 +119,7 @@ public class PropertiesConfigurationSource implements ConfigurationSource {
 
     @SuppressWarnings("unchecked")
     protected <T> T resolve(Class<T> valueType, String value, String key) {
-        T retVal = null;
+        T retVal;
         if (valueType == String.class) {
             retVal = (T) value;
         } else if (value != null) {
@@ -135,6 +134,8 @@ public class PropertiesConfigurationSource implements ConfigurationSource {
             }
             editor.setAsText(value);
             retVal = (T) editor.getValue();
+        } else {
+            retVal = null;
         }
         return retVal;
     }
@@ -146,14 +147,11 @@ public class PropertiesConfigurationSource implements ConfigurationSource {
      */
     public static Class<?> primitiveTypeFor(Class<?> wrapper) {
         if (wrapper == Boolean.class) return Boolean.TYPE;
-        if (wrapper == Byte.class) return Byte.TYPE;
-        if (wrapper == Character.class) return Character.TYPE;
-        if (wrapper == Short.class) return Short.TYPE;
+        if (wrapper == Short.class)   return Short.TYPE;
         if (wrapper == Integer.class) return Integer.TYPE;
-        if (wrapper == Long.class) return Long.TYPE;
-        if (wrapper == Float.class) return Float.TYPE;
-        if (wrapper == Double.class) return Double.TYPE;
-        if (wrapper == Void.class) return Void.TYPE;
+        if (wrapper == Long.class)    return Long.TYPE;
+        if (wrapper == Float.class)   return Float.TYPE;
+        if (wrapper == Double.class)  return Double.TYPE;
         return null;
     }
 }
