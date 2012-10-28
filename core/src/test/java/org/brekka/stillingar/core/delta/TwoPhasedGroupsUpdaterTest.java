@@ -24,14 +24,14 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import org.brekka.stillingar.api.ConfigurationException;
+import org.brekka.stillingar.api.ConfigurationSource;
+import org.brekka.stillingar.api.ValueConfigurationException;
 import org.brekka.stillingar.core.ChangeConfigurationException;
-import org.brekka.stillingar.core.ConfigurationException;
-import org.brekka.stillingar.core.ConfigurationSource;
 import org.brekka.stillingar.core.GroupChangeListener;
 import org.brekka.stillingar.core.GroupConfigurationException;
 import org.brekka.stillingar.core.SingleValueDefinition;
 import org.brekka.stillingar.core.ValueChangeListener;
-import org.brekka.stillingar.core.ValueConfigurationException;
 import org.brekka.stillingar.core.ValueDefinition;
 import org.brekka.stillingar.core.ValueDefinitionGroup;
 import org.brekka.stillingar.core.GroupConfigurationException.Phase;
@@ -127,7 +127,7 @@ public class TwoPhasedGroupsUpdaterTest {
         ValueDefinitionGroup valueDefinitionGroup = new ValueDefinitionGroup("TestGroup", valueList, groupChangeListener);
         valueGroups.add(valueDefinitionGroup);
         
-        ValueConfigurationException vce = new ValueConfigurationException("Reason", valueDefinition);
+        ValueConfigurationException vce = new ValueConfigurationException("Reason", valueDefinition.getType(), valueDefinition.getExpression());
         when(configurationSource.isAvailable(eq(String.class))).thenReturn(Boolean.TRUE);
         when(configurationSource.retrieve(eq(String.class))).thenReturn("Value");
         when(deltaOperations.prepareGroupChange(eq(valueDefinitionGroup), same(configurationSource))).thenCallRealMethod();

@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<st:Configuration xmlns:st="http://brekka.org/xml/stillingar/sample/v1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://brekka.org/xml/stillingar/sample/v1 ../../xsd/SampleConfiguration-1.xsd ">
-  <st:MOTD>
-    <st:Message>The default message</st:Message>
-  </st:MOTD>
-</st:Configuration>

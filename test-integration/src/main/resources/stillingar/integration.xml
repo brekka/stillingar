@@ -39,17 +39,21 @@
         <Flag>126</Flag>
     </Security>
     <Logging>
-        <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
-            <root>
-                <priority value="warn" />
-            </root>
-        </log4j:configuration>
+        <l4j:configuration xmlns:l4j="http://jakarta.apache.org/log4j/">
+            <l4j:logger name="org.brekka.stillingar.test.intg">
+                <l4j:level value="info"/> 
+            </l4j:logger>
+        </l4j:configuration>
     </Logging>
     <ApplicationContext>
-        <beans:beans xmlns:beans="http://www.springframework.org/schema/beans"
+        <b:beans xmlns:b="http://www.springframework.org/schema/beans"
             xmlns:context="http://www.springframework.org/schema/context" xmlns:p="http://www.springframework.org/schema/p"
             xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
                 http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
-        </beans:beans>
+                
+            <b:bean id="simple" class="org.brekka.stillingar.test.intg.SimpleBean">
+                <b:property name="value" value="1.301" />
+            </b:bean>
+        </b:beans>
     </ApplicationContext>
 </Configuration>

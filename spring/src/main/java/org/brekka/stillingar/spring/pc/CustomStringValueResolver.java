@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-import org.brekka.stillingar.core.ChangeAwareConfigurationSource;
-import org.brekka.stillingar.core.ConfigurationSource;
+import org.brekka.stillingar.api.ConfigurationSource;
+import org.brekka.stillingar.core.ConfigurationService;
 import org.brekka.stillingar.core.GroupChangeListener;
 import org.brekka.stillingar.core.SingleValueDefinition;
 import org.brekka.stillingar.core.ValueChangeListener;
@@ -72,8 +72,8 @@ class CustomStringValueResolver implements StringValueResolver {
         String value = fragment.evaluate(configurationSource, new HashSet<String>());
         
         if (beanDefVisitor != null
-                && configurationSource instanceof ChangeAwareConfigurationSource) {
-            ChangeAwareConfigurationSource ucs = (ChangeAwareConfigurationSource) configurationSource;
+                && configurationSource instanceof ConfigurationService) {
+            ConfigurationService ucs = (ConfigurationService) configurationSource;
             PropertyValue currentProperty = beanDefVisitor.getCurrentProperty();
             ValueHolder currentConstructorValue = beanDefVisitor.getCurrentConstructorValue();
             String beanName = beanDefVisitor.getBeanName();

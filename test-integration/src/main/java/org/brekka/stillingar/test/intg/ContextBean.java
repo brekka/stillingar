@@ -16,22 +16,21 @@
 
 package org.brekka.stillingar.test.intg;
 
-import org.brekka.stillingar.annotations.ConfigurationListener;
-import org.brekka.stillingar.annotations.Configured;
+import org.brekka.stillingar.api.annotations.ConfigurationListener;
+import org.brekka.stillingar.api.annotations.Configured;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 
 @Configured
 public class ContextBean implements InitializingBean  {
     
+    private ApplicationContext applicationContext;
     
     
     public ApplicationContext getContext() {
-        return null;
+        return applicationContext;
     }
-    /* (non-Javadoc)
-     * @see org.springframework.beans.factory.InitializingBean#afterPropertiesSet()
-     */
+
     @Override
     public void afterPropertiesSet() throws Exception {
     }
@@ -39,6 +38,6 @@ public class ContextBean implements InitializingBean  {
     @ConfigurationListener
     public void configure(@Configured("/c:Configuration/c:ApplicationContext/beans:beans") 
                              ApplicationContext applicationContext) {
-        System.out.println(applicationContext);
+        this.applicationContext = applicationContext;
     }
 }

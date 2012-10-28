@@ -23,7 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import org.brekka.stillingar.core.ConfigurationSource;
+import org.brekka.stillingar.api.ConfigurationSource;
 import org.junit.Test;
 
 /**

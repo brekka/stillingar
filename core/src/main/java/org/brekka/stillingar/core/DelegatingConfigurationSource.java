@@ -18,6 +18,8 @@ package org.brekka.stillingar.core;
 
 import java.util.List;
 
+import org.brekka.stillingar.api.ConfigurationSource;
+
 /**
  * {@link ConfigurationSource} delegate. Useful for swapping out the underlying configuration source at runtime.
  * 
@@ -52,7 +54,7 @@ public class DelegatingConfigurationSource<CS extends ConfigurationSource> imple
     /**
      * @param expression
      * @return
-     * @see org.brekka.stillingar.core.ConfigurationSource#isAvailable(java.lang.String)
+     * @see org.brekka.stillingar.api.ConfigurationSource#isAvailable(java.lang.String)
      */
     public boolean isAvailable(String expression) {
         return delegate.isAvailable(expression);
@@ -61,7 +63,7 @@ public class DelegatingConfigurationSource<CS extends ConfigurationSource> imple
     /**
      * @param valueType
      * @return
-     * @see org.brekka.stillingar.core.ConfigurationSource#isAvailable(java.lang.Class)
+     * @see org.brekka.stillingar.api.ConfigurationSource#isAvailable(java.lang.Class)
      */
     public boolean isAvailable(Class<?> valueType) {
         return delegate.isAvailable(valueType);
@@ -71,7 +73,7 @@ public class DelegatingConfigurationSource<CS extends ConfigurationSource> imple
      * @param expression
      * @param valueType
      * @return
-     * @see org.brekka.stillingar.core.ConfigurationSource#retrieve(java.lang.String, java.lang.Class)
+     * @see org.brekka.stillingar.api.ConfigurationSource#retrieve(java.lang.String, java.lang.Class)
      */
     public <T> T retrieve(String expression, Class<T> valueType) {
         return delegate.retrieve(expression, valueType);
@@ -80,7 +82,7 @@ public class DelegatingConfigurationSource<CS extends ConfigurationSource> imple
     /**
      * @param valueType
      * @return
-     * @see org.brekka.stillingar.core.ConfigurationSource#retrieve(java.lang.Class)
+     * @see org.brekka.stillingar.api.ConfigurationSource#retrieve(java.lang.Class)
      */
     public <T> T retrieve(Class<T> valueType) {
         return delegate.retrieve(valueType);
@@ -90,7 +92,7 @@ public class DelegatingConfigurationSource<CS extends ConfigurationSource> imple
      * @param expression
      * @param valueType
      * @return
-     * @see org.brekka.stillingar.core.ConfigurationSource#retrieveList(java.lang.String, java.lang.Class)
+     * @see org.brekka.stillingar.api.ConfigurationSource#retrieveList(java.lang.String, java.lang.Class)
      */
     public <T> List<T> retrieveList(String expression, Class<T> valueType) {
         return delegate.retrieveList(expression, valueType);
@@ -99,7 +101,7 @@ public class DelegatingConfigurationSource<CS extends ConfigurationSource> imple
     /**
      * @param valueType
      * @return
-     * @see org.brekka.stillingar.core.ConfigurationSource#retrieveList(java.lang.Class)
+     * @see org.brekka.stillingar.api.ConfigurationSource#retrieveList(java.lang.Class)
      */
     public <T> List<T> retrieveList(Class<T> valueType) {
         return delegate.retrieveList(valueType);

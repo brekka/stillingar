@@ -36,9 +36,9 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 
-import org.brekka.stillingar.core.ConfigurationException;
-import org.brekka.stillingar.core.ConfigurationSource;
-import org.brekka.stillingar.core.ConfigurationSourceLoader;
+import org.brekka.stillingar.api.ConfigurationException;
+import org.brekka.stillingar.api.ConfigurationSource;
+import org.brekka.stillingar.api.ConfigurationSourceLoader;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 

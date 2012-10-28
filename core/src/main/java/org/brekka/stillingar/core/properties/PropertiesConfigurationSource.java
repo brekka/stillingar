@@ -24,8 +24,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import org.brekka.stillingar.core.ConfigurationException;
-import org.brekka.stillingar.core.ConfigurationSource;
+import org.brekka.stillingar.api.ConfigurationException;
+import org.brekka.stillingar.api.ConfigurationSource;
 
 /**
  * A {@link ConfigurationSource} implementation that is backed by a {@link Properties} instance. The nature of

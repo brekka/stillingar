@@ -23,7 +23,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Properties;
 
-import org.brekka.stillingar.core.ConfigurationException;
+import org.brekka.stillingar.api.ConfigurationException;
 import org.junit.Before;
 import org.junit.Test;
 

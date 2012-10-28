@@ -24,12 +24,41 @@
                     <xsd:element name="selector">
                         <xsd:complexType>
                             <xsd:sequence>
-                                <xsd:element name="naming" minOccurs="0" maxOccurs="1">
+                                <xsd:element name="name" minOccurs="0" maxOccurs="1">
                                     <xsd:complexType>
+                                        <xsd:sequence>
+                                            <xsd:element name="version" minOccurs="0" maxOccurs="1">
+                                                <xsd:complexType>
+                                                    <xsd:choice minOccurs="1" maxOccurs="1">
+                                                        <xsd:element name="maven">
+                                                            <xsd:complexType>
+                                                                <xsd:attribute name="groupId" type="xsd:string"
+                                                                    use="required"></xsd:attribute>
+                                                                <xsd:attribute name="artifactId" type="xsd:string"
+                                                                    use="required"></xsd:attribute>
+                                                            </xsd:complexType>
+                                                        </xsd:element>
+                                                    </xsd:choice>
+                                                    <xsd:attribute name="pattern" type="xsd:string" use="optional">
+                                                        <xsd:annotation>
+                                                            <xsd:documentation>
+                                                                The pattern used to extract sub-version
+                                                                numbers. This enables
+                                                                searching by major/feature version
+                                                                numbers. If not specified, the
+                                                                version string extracted
+                                                                will be used as-is.
+                                                            </xsd:documentation>
+                                                        </xsd:annotation>
+                                                    </xsd:attribute>
+                                                </xsd:complexType>
+                                            </xsd:element>
+                                        </xsd:sequence>
                                         <xsd:attribute name="prefix" type="xsd:string" use="optional">
                                             <xsd:annotation>
                                                 <xsd:documentation>
-                                                    If not specified, the overall 'id' will be used as the configuration
+                                                    If not specified, the overall 'id' will be used as
+                                                    the configuration
                                                     file name
                                                 </xsd:documentation>
                                             </xsd:annotation>
@@ -72,21 +101,6 @@
                                                 </xsd:simpleType>
                                             </xsd:element>
                                         </xsd:sequence>
-                                    </xsd:complexType>
-                                </xsd:element>
-                                <xsd:element name="version-maven" maxOccurs="1" minOccurs="0">
-                                    <xsd:complexType>
-                                        <xsd:attribute name="groupId" type="xsd:string" use="required"></xsd:attribute>
-                                        <xsd:attribute name="artifactId" type="xsd:string" use="required"></xsd:attribute>
-                                        <xsd:attribute name="pattern" type="xsd:string" use="optional">
-                                            <xsd:annotation>
-                                                <xsd:documentation>
-                                                    The pattern used to extract sub-version numbers. This enables
-                                                    searching by major/feature version numbers. If not specified, the
-                                                    version number extracted from maven will be used as-is.
-                                                </xsd:documentation>
-                                            </xsd:annotation>
-                                        </xsd:attribute>
                                     </xsd:complexType>
                                 </xsd:element>
                             </xsd:sequence>
@@ -191,6 +205,15 @@
                         snapshot to load from. For situations where loading exclusively from defaults is 
                         not possible. For instance, if the system requires a database to be configured, then
                         a custom file containing that part must be specified.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute name="marker-annotation" type="xsd:string" use="optional" default="org.brekka.stillingar.api.annotations.Configured">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        Only classes marked with this annotation will be configured by the Stillingar
+                        post processor. By default any classes marked with org.brekka.stillingar.api.annotations.Configured
+                        will be configured.
                     </xsd:documentation>
                 </xsd:annotation>
             </xsd:attribute>

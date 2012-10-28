@@ -18,7 +18,7 @@ package org.brekka.stillingar.spring.expr;
 
 import java.util.Set;
 
-import org.brekka.stillingar.core.ConfigurationSource;
+import org.brekka.stillingar.api.ConfigurationSource;
 import org.brekka.stillingar.core.ValueChangeListener;
 
 /**

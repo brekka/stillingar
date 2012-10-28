@@ -17,7 +17,7 @@
 package org.brekka.stillingar.spring.pc;
 
 
-import org.brekka.stillingar.core.ConfigurationSource;
+import org.brekka.stillingar.api.ConfigurationSource;
 import org.brekka.stillingar.spring.expr.DefaultPlaceholderParser;
 import org.brekka.stillingar.spring.expr.PlaceholderParser;
 import org.springframework.beans.BeansException;

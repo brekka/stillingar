@@ -16,8 +16,8 @@
 
 package org.brekka.stillingar.test.intg;
 
-import org.brekka.stillingar.annotations.ConfigurationListener;
-import org.brekka.stillingar.annotations.Configured;
+import org.brekka.stillingar.api.annotations.ConfigurationListener;
+import org.brekka.stillingar.api.annotations.Configured;
 
 @Configured
 public class PrototypeConfiguredBean {

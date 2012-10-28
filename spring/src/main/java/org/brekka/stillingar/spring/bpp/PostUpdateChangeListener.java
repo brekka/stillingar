@@ -24,8 +24,8 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 
-import org.brekka.stillingar.core.ConfigurationException;
-import org.brekka.stillingar.core.ConfigurationSource;
+import org.brekka.stillingar.api.ConfigurationException;
+import org.brekka.stillingar.api.ConfigurationSource;
 import org.brekka.stillingar.core.Expirable;
 import org.brekka.stillingar.core.GroupChangeListener;
 

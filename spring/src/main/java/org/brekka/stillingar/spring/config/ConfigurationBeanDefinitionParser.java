@@ -23,9 +23,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.brekka.stillingar.core.ConfigurationException;
+import org.brekka.stillingar.api.ConfigurationException;
 import org.brekka.stillingar.core.properties.PropertiesConfigurationSourceLoader;
-import org.brekka.stillingar.core.snapshot.SnapshotBasedConfigurationSource;
+import org.brekka.stillingar.core.snapshot.SnapshotBasedConfigurationService;
 import org.brekka.stillingar.spring.bpp.ConfigurationBeanPostProcessor;
 import org.brekka.stillingar.spring.expr.DefaultPlaceholderParser;
 import org.brekka.stillingar.spring.pc.ConfigurationPlaceholderConfigurer;
@@ -55,6 +55,7 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.scheduling.concurrent.ScheduledExecutorFactoryBean;
 import org.springframework.scheduling.concurrent.ScheduledExecutorTask;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.SimpleNamespaceContext;
 import org.w3c.dom.Element;
@@ -63,7 +64,7 @@ import org.w3c.dom.NodeList;
 
 /**
  * Parser that converts the stil:configuration XML element into bean definitions for the Spring container. A bean
- * definition for the {@link SnapshotBasedConfigurationSource} class will be prepared as the primary bean, but
+ * definition for the {@link SnapshotBasedConfigurationService} class will be prepared as the primary bean, but
  * additional bean definitions may also be added as required.
  * 
  * @author Andrew Taylor (andrew@brekka.org)
@@ -73,8 +74,8 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
     private static final int MINIMUM_RELOAD_INTERVAL = 500;
 
     @Override
-    protected Class<SnapshotBasedConfigurationSource> getBeanClass(Element element) {
-        return SnapshotBasedConfigurationSource.class;
+    protected Class<SnapshotBasedConfigurationService> getBeanClass(Element element) {
+        return SnapshotBasedConfigurationService.class;
     }
 
     @Override
@@ -102,6 +103,14 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
         BeanDefinitionBuilder postProcessor = BeanDefinitionBuilder
                 .genericBeanDefinition(ConfigurationBeanPostProcessor.class);
         postProcessor.addConstructorArgReference(id);
+        if (element.hasAttribute("marker-annotation")) {
+            String markerAnnotation = element.getAttribute("marker-annotation");
+            Class<?> theClass = ClassUtils.resolveClassName(markerAnnotation, Thread.currentThread().getContextClassLoader());
+            if (!theClass.isAnnotation()) {
+                throw new ConfigurationException(String.format("The class '%s' is not an annotation", markerAnnotation));
+            }
+            postProcessor.addPropertyValue("markerAnnotation", theClass);
+        }
         parserContext.registerBeanComponent(new BeanComponentDefinition(postProcessor.getBeanDefinition(), id
                 + "-postProcessor"));
     }
@@ -294,15 +303,17 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
         String prefix = getName(element);
         String extension = engine.getDefaultExtension();
         if (selectorElement != null) {
-            Element naming = selectSingleChildElement(selectorElement, "naming", true);
-            if (naming != null) {
-                prefix = attribute(naming, "prefix", prefix);
-                extension = attribute(naming, "extension", extension);
-            }
-
-            Element versionMavenElement = selectSingleChildElement(selectorElement, "version-maven", true);
-            if (versionMavenElement != null) {
-                builder = buildMavenVersionedResourceNameResolver(versionMavenElement, prefix, extension);
+            Element name = selectSingleChildElement(selectorElement, "name", true);
+            if (name != null) {
+                prefix = attribute(name, "prefix", prefix);
+                extension = attribute(name, "extension", extension);
+                
+                Element version = selectSingleChildElement(name, "version", true);
+                if (version != null) {
+                    String pattern = version.getAttribute("pattern");
+                    Element versionMavenElement = selectSingleChildElement(selectorElement, "maven", true);
+                    builder = buildMavenVersionedResourceNameResolver(versionMavenElement, pattern, prefix, extension);
+                }
             }
         }
 
@@ -319,15 +330,15 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
      * @param extension
      * @return
      */
-    protected BeanDefinitionBuilder buildMavenVersionedResourceNameResolver(Element versionMavenElement, String prefix,
+    protected BeanDefinitionBuilder buildMavenVersionedResourceNameResolver(Element versionMavenElement, String pattern, String prefix,
             String extension) {
         BeanDefinitionBuilder builder = BeanDefinitionBuilder
                 .genericBeanDefinition(VersionedResourceNameResolver.class);
         builder.addConstructorArgValue(prefix);
         builder.addConstructorArgValue(prepareApplicationVersionFromMaven(versionMavenElement));
         builder.addPropertyValue("extension", extension);
-        if (versionMavenElement.hasAttribute("pattern")) {
-            builder.addPropertyValue("versionPattern", versionMavenElement.getAttribute("pattern"));
+        if (pattern != null) {
+            builder.addPropertyValue("versionPattern", pattern);
         }
         return builder;
     }

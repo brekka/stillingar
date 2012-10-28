@@ -20,8 +20,8 @@ import static org.junit.Assert.*;
 
 import java.util.Collections;
 
-import org.brekka.stillingar.core.ConfigurationException;
-import org.brekka.stillingar.core.ConfigurationSource;
+import org.brekka.stillingar.api.ConfigurationException;
+import org.brekka.stillingar.api.ConfigurationSource;
 import org.brekka.stillingar.xmlbeans.conversion.ConversionManager;
 import org.brekka.stillingar.xmlbeans.conversion.StringConverter;
 import org.junit.Test;

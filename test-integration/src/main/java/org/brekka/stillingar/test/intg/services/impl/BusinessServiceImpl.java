@@ -21,8 +21,8 @@ import static java.lang.String.format;
 import java.math.BigDecimal;
 import java.util.Date;
 
-import org.brekka.stillingar.annotations.ConfigurationListener;
-import org.brekka.stillingar.annotations.Configured;
+import org.brekka.stillingar.api.annotations.ConfigurationListener;
+import org.brekka.stillingar.api.annotations.Configured;
 import org.brekka.stillingar.test.intg.services.BusinessService;
 import org.brekka.xml.stillingar.test.v1.ConfigurationDocument.Configuration.CompanyX;
 import org.brekka.xml.stillingar.test.v1.ConfigurationDocument.Configuration.CompanyY;

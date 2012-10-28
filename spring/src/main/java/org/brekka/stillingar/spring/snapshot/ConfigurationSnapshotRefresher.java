@@ -18,10 +18,10 @@ package org.brekka.stillingar.spring.snapshot;
 
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.Log;
-import org.brekka.stillingar.core.snapshot.SnapshotBasedConfigurationSource;
+import org.brekka.stillingar.core.snapshot.SnapshotBasedConfigurationService;
 
 /**
- * Simple adapter class that invokes the {@link SnapshotBasedConfigurationSource#refresh()} method via
+ * Simple adapter class that invokes the {@link SnapshotBasedConfigurationService#refresh()} method via
  * the {@link #run()}, allowing it to be called by scheduling frameworks.
  * 
  * @author Andrew Taylor (andrew@brekka.org)
@@ -36,19 +36,19 @@ public class ConfigurationSnapshotRefresher implements Runnable {
     /**
      * The configuration source to refresh
      */
-    private final SnapshotBasedConfigurationSource snapshotBasedConfigurationSource;
+    private final SnapshotBasedConfigurationService snapshotBasedConfigurationSource;
     
     
     /**
      * @param snapshotBasedConfigurationSource
      */
-    public ConfigurationSnapshotRefresher(SnapshotBasedConfigurationSource snapshotBasedConfigurationSource) {
+    public ConfigurationSnapshotRefresher(SnapshotBasedConfigurationService snapshotBasedConfigurationSource) {
         this.snapshotBasedConfigurationSource = snapshotBasedConfigurationSource;
     }
 
 
     /**
-     * Invokes {@link SnapshotBasedConfigurationSource#refresh()}. Error handling should be taken care of by the
+     * Invokes {@link SnapshotBasedConfigurationService#refresh()}. Error handling should be taken care of by the
      * configuration source, but log out just in case.
      */
     @Override

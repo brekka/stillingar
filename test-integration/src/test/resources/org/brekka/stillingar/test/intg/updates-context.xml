@@ -14,7 +14,7 @@
     
     <stil:configuration id="integration-config" name="integration" engine="xmlbeans" reload-interval="500" snapshot-required="true"> 
         <stil:selector>
-            <stil:naming prefix="updates" />
+            <stil:name prefix="updates" />
             <stil:location>
                 <stil:system-property>target.path</stil:system-property>
             </stil:location>

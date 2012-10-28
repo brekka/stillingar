@@ -18,7 +18,7 @@ package org.brekka.stillingar.spring.bpp;
 
 import java.lang.ref.WeakReference;
 
-import org.brekka.stillingar.annotations.ConfigurationListener;
+import org.brekka.stillingar.api.annotations.ConfigurationListener;
 import org.brekka.stillingar.core.Expirable;
 import org.brekka.stillingar.core.GroupChangeListener;
 import org.brekka.stillingar.core.ValueChangeListener;

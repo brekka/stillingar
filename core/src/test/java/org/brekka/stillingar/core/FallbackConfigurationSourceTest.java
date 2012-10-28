@@ -23,6 +23,8 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 
+import org.brekka.stillingar.api.ConfigurationException;
+import org.brekka.stillingar.api.ConfigurationSource;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

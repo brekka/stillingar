@@ -20,7 +20,7 @@ import static org.junit.Assert.*;
 
 import java.nio.charset.Charset;
 
-import org.brekka.stillingar.core.ConfigurationSource;
+import org.brekka.stillingar.api.ConfigurationSource;
 import org.junit.Test;
 
 /**

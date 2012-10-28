@@ -18,6 +18,9 @@ package org.brekka.stillingar.core;
 
 import java.util.List;
 
+import org.brekka.stillingar.api.ConfigurationException;
+import org.brekka.stillingar.api.ConfigurationSource;
+
 /**
  * A base configuration source which supports a default source as a fallback if the expression/type cannot be resolved
  * from the primary source.

@@ -20,12 +20,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.brekka.stillingar.core.ConfigurationException;
-import org.brekka.stillingar.core.ConfigurationSource;
+import org.brekka.stillingar.api.ConfigurationException;
+import org.brekka.stillingar.api.ConfigurationSource;
+import org.brekka.stillingar.api.ValueConfigurationException;
 import org.brekka.stillingar.core.GroupChangeListener;
 import org.brekka.stillingar.core.GroupConfigurationException;
 import org.brekka.stillingar.core.ValueChangeListener;
-import org.brekka.stillingar.core.ValueConfigurationException;
 import org.brekka.stillingar.core.ValueDefinition;
 import org.brekka.stillingar.core.ValueDefinitionGroup;
 import org.brekka.stillingar.core.ValueListDefinition;
@@ -89,7 +89,8 @@ public class DeltaOperations {
         try {
             listener.onChange(newValue, oldValue);
         } catch (RuntimeException e) {
-            throw new ValueConfigurationException("value assignment", valueDefinition, e);
+            throw new ValueConfigurationException("value assignment", 
+                    valueDefinition.getType(), valueDefinition.getExpression(), e);
         }
     }
 

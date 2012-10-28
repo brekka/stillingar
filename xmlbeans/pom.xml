@@ -44,8 +44,8 @@
     <dependencies>
         <dependency>
             <groupId>org.brekka.stillingar</groupId>
-            <artifactId>stillingar-core</artifactId>
-            <version>${stillingar-core-version}</version>
+            <artifactId>stillingar-api</artifactId>
+            <version>${stillingar-api-version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.xmlbeans</groupId>
@@ -139,7 +139,7 @@
 
 
     <properties>
-        <stillingar-core-version>1.0.0-SNAPSHOT</stillingar-core-version>
+        <stillingar-api-version>1.0.0-SNAPSHOT</stillingar-api-version>
         <stillingar-xpath-version>1.0.0-SNAPSHOT</stillingar-xpath-version>
         <xmlbeans-version>2.4.0</xmlbeans-version>
         <junit-version>4.8.2</junit-version>

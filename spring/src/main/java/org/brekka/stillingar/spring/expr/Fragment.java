@@ -18,7 +18,7 @@ package org.brekka.stillingar.spring.expr;
 
 import java.util.Set;
 
-import org.brekka.stillingar.core.ConfigurationSource;
+import org.brekka.stillingar.api.ConfigurationSource;
 
 /**
  * Represents a fragment of a string containing replacement placeholders. Those placeholders will then be replaced into

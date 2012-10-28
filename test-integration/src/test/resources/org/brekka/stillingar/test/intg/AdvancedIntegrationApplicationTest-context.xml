@@ -16,13 +16,16 @@
 
     <stil:configuration id="integration-config" name="integration" engine="xmlbeans"> 
         <stil:selector>
-            <stil:naming prefix="bob" />
+            <stil:name prefix="bob">
+                <stil:version pattern="^((\\d+)\\.\\d+).*$">
+                    <stil:maven groupId="commons-lang" artifactId="commons-lang"/>
+                </stil:version>
+            </stil:name>
             <stil:location>
                 <stil:environment-variable>TEST_APP</stil:environment-variable>
                 <stil:home path=".config/fish" />
                 <stil:platform>Tomcat</stil:platform>
             </stil:location>
-            <stil:version-maven groupId="commons-lang" artifactId="commons-lang" pattern="^((\\d+)\\.\\d+).*$"/>
         </stil:selector>
         <stil:property-placeholder />
         <stil:namespace prefix="c"     url="http://brekka.org/xml/stillingar/test/v1" />

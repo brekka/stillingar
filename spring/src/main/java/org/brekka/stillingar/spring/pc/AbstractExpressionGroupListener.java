@@ -18,7 +18,7 @@ package org.brekka.stillingar.spring.pc;
 
 import java.util.HashSet;
 
-import org.brekka.stillingar.core.ConfigurationSource;
+import org.brekka.stillingar.api.ConfigurationSource;
 import org.brekka.stillingar.core.GroupChangeListener;
 import org.brekka.stillingar.spring.expr.Fragment;
 

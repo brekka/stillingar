@@ -16,6 +16,9 @@
 
 package org.brekka.stillingar.core;
 
+import org.brekka.stillingar.api.ConfigurationSource;
+
+
 /**
  * Called when one or more values within a group are updated.
  * 

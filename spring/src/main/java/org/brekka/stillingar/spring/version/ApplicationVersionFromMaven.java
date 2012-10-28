@@ -96,7 +96,8 @@ public class ApplicationVersionFromMaven implements ApplicationVersionResolver, 
         String path = format(POM_CLASSPATH_FORMAT, groupId, artifactId);
         InputStream is = resolveClassloader.getResourceAsStream(path);
         
-        if (is == null) {
+        if (is == null 
+                && applicationContext != null) {
             // Not found on classpath
             Resource resource = applicationContext.getResource(path);
             if (resource != null) {

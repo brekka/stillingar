@@ -18,6 +18,7 @@ package org.brekka.stillingar.core;
 
 import java.util.List;
 
+
 /**
  * Thrown when a problem occurs when changing the configuration
  *

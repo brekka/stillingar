@@ -18,6 +18,9 @@ package org.brekka.stillingar.core;
 
 import static java.lang.String.format;
 
+import org.brekka.stillingar.api.ConfigurationException;
+
+
 /**
  * Indicates an error while updating a field/method reference to its new value.
  * 

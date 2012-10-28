@@ -20,9 +20,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.brekka.stillingar.core.ConfigurationSource;
-import org.brekka.stillingar.core.GroupConfigurationException;
+import org.brekka.stillingar.api.ConfigurationSource;
 import org.brekka.stillingar.core.ChangeConfigurationException;
+import org.brekka.stillingar.core.GroupConfigurationException;
 import org.brekka.stillingar.core.ValueDefinition;
 import org.brekka.stillingar.core.ValueDefinitionGroup;
 

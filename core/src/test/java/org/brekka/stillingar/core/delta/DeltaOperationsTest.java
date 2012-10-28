@@ -24,17 +24,17 @@ import java.util.List;
 
 import static org.mockito.Mockito.*;
 
-import org.brekka.stillingar.core.ConfigurationException;
-import org.brekka.stillingar.core.ConfigurationSource;
+import org.brekka.stillingar.api.ConfigurationException;
+import org.brekka.stillingar.api.ConfigurationSource;
+import org.brekka.stillingar.api.ValueConfigurationException;
 import org.brekka.stillingar.core.GroupChangeListener;
 import org.brekka.stillingar.core.GroupConfigurationException;
 import org.brekka.stillingar.core.SingleValueDefinition;
 import org.brekka.stillingar.core.ValueChangeListener;
-import org.brekka.stillingar.core.ValueConfigurationException;
 import org.brekka.stillingar.core.ValueDefinition;
 import org.brekka.stillingar.core.ValueDefinitionGroup;
-import org.brekka.stillingar.core.GroupConfigurationException.Phase;
 import org.brekka.stillingar.core.ValueListDefinition;
+import org.brekka.stillingar.core.GroupConfigurationException.Phase;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -60,7 +60,7 @@ public class DeltaOperationsTest {
     }
 
     /**
-     * Test method for {@link org.brekka.stillingar.core.delta.DeltaOperations#prepareValueChange(org.brekka.stillingar.core.ValueDefinition, org.brekka.stillingar.core.ConfigurationSource)}.
+     * Test method for {@link org.brekka.stillingar.core.delta.DeltaOperations#prepareValueChange(org.brekka.stillingar.core.ValueDefinition, org.brekka.stillingar.api.ConfigurationSource)}.
      */
     @Test
     public void testPrepareValueChangeSingleExpression() {
@@ -80,7 +80,7 @@ public class DeltaOperationsTest {
     }
     
     /**
-     * Test method for {@link org.brekka.stillingar.core.delta.DeltaOperations#prepareValueChange(org.brekka.stillingar.core.ValueDefinition, org.brekka.stillingar.core.ConfigurationSource)}.
+     * Test method for {@link org.brekka.stillingar.core.delta.DeltaOperations#prepareValueChange(org.brekka.stillingar.core.ValueDefinition, org.brekka.stillingar.api.ConfigurationSource)}.
      */
     @Test
     public void testPrepareValueChangeSingleType() {
@@ -99,7 +99,7 @@ public class DeltaOperationsTest {
     }
 
     /**
-     * Test method for {@link org.brekka.stillingar.core.delta.DeltaOperations#prepareValueChange(org.brekka.stillingar.core.ValueDefinition, org.brekka.stillingar.core.ConfigurationSource)}.
+     * Test method for {@link org.brekka.stillingar.core.delta.DeltaOperations#prepareValueChange(org.brekka.stillingar.core.ValueDefinition, org.brekka.stillingar.api.ConfigurationSource)}.
      */
     @Test
     public void testPrepareValueChangeListExpression() {
@@ -119,7 +119,7 @@ public class DeltaOperationsTest {
     }
     
     /**
-     * Test method for {@link org.brekka.stillingar.core.delta.DeltaOperations#prepareValueChange(org.brekka.stillingar.core.ValueDefinition, org.brekka.stillingar.core.ConfigurationSource)}.
+     * Test method for {@link org.brekka.stillingar.core.delta.DeltaOperations#prepareValueChange(org.brekka.stillingar.core.ValueDefinition, org.brekka.stillingar.api.ConfigurationSource)}.
      */
     @Test
     public void testPrepareValueChangeListType() {
@@ -138,14 +138,14 @@ public class DeltaOperationsTest {
     }
     
     /**
-     * Test method for {@link org.brekka.stillingar.core.delta.DeltaOperations#prepareValueChange(org.brekka.stillingar.core.ValueDefinition, org.brekka.stillingar.core.ConfigurationSource)}.
+     * Test method for {@link org.brekka.stillingar.core.delta.DeltaOperations#prepareValueChange(org.brekka.stillingar.core.ValueDefinition, org.brekka.stillingar.api.ConfigurationSource)}.
      */
     @Test
     public void testPrepareValueChangeListTypeWithError() {
         ValueChangeListener<List<String>> valueChangeListener = mock(ValueChangeListener.class);
         ValueListDefinition<String> vd = new ValueListDefinition<String>(String.class, valueChangeListener);
         
-        ConfigurationException error = new ConfigurationException();
+        ConfigurationException error = new ConfigurationException("Error");
         when(configurationSource.retrieveList(eq(String.class))).thenThrow(error);
         
         try {
@@ -157,7 +157,7 @@ public class DeltaOperationsTest {
     }
     
     /**
-     * Test method for {@link org.brekka.stillingar.core.delta.DeltaOperations#prepareGroupChange(org.brekka.stillingar.core.ValueDefinitionGroup, org.brekka.stillingar.core.ConfigurationSource)}.
+     * Test method for {@link org.brekka.stillingar.core.delta.DeltaOperations#prepareGroupChange(org.brekka.stillingar.core.ValueDefinitionGroup, org.brekka.stillingar.api.ConfigurationSource)}.
      */
     @Test
     public void testPrepareGroupChange() {
@@ -202,7 +202,7 @@ public class DeltaOperationsTest {
     }
     
     /**
-     * Test method for {@link org.brekka.stillingar.core.delta.DeltaOperations#prepareGroupChange(org.brekka.stillingar.core.ValueDefinitionGroup, org.brekka.stillingar.core.ConfigurationSource)}.
+     * Test method for {@link org.brekka.stillingar.core.delta.DeltaOperations#prepareGroupChange(org.brekka.stillingar.core.ValueDefinitionGroup, org.brekka.stillingar.api.ConfigurationSource)}.
      */
     @Test
     public void testPrepareGroupChangeWithValueError() {
@@ -256,7 +256,7 @@ public class DeltaOperationsTest {
     }
 
     /**
-     * Test method for {@link org.brekka.stillingar.core.delta.DeltaOperations#enactGroupChange(org.brekka.stillingar.core.delta.GroupChangeAction, org.brekka.stillingar.core.ConfigurationSource)}.
+     * Test method for {@link org.brekka.stillingar.core.delta.DeltaOperations#enactGroupChange(org.brekka.stillingar.core.delta.GroupChangeAction, org.brekka.stillingar.api.ConfigurationSource)}.
      */
     @Test
     public void testEnactGroupChange() {
@@ -287,7 +287,7 @@ public class DeltaOperationsTest {
     }
     
     /**
-     * Test method for {@link org.brekka.stillingar.core.delta.DeltaOperations#enactGroupChange(org.brekka.stillingar.core.delta.GroupChangeAction, org.brekka.stillingar.core.ConfigurationSource)}.
+     * Test method for {@link org.brekka.stillingar.core.delta.DeltaOperations#enactGroupChange(org.brekka.stillingar.core.delta.GroupChangeAction, org.brekka.stillingar.api.ConfigurationSource)}.
      */
     @Test
     public void testEnactGroupChangeAssignmentError() {
@@ -316,7 +316,7 @@ public class DeltaOperationsTest {
     }
     
     /**
-     * Test method for {@link org.brekka.stillingar.core.delta.DeltaOperations#enactGroupChange(org.brekka.stillingar.core.delta.GroupChangeAction, org.brekka.stillingar.core.ConfigurationSource)}.
+     * Test method for {@link org.brekka.stillingar.core.delta.DeltaOperations#enactGroupChange(org.brekka.stillingar.core.delta.GroupChangeAction, org.brekka.stillingar.api.ConfigurationSource)}.
      */
     @Test
     public void testEnactGroupChangeListenerError() {

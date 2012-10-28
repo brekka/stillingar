@@ -23,9 +23,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 
-import org.brekka.stillingar.core.ConfigurationException;
-import org.brekka.stillingar.core.ConfigurationSource;
-import org.brekka.stillingar.core.ConfigurationSourceLoader;
+import org.brekka.stillingar.api.ConfigurationException;
+import org.brekka.stillingar.api.ConfigurationSource;
+import org.brekka.stillingar.api.ConfigurationSourceLoader;
 import org.brekka.stillingar.core.snapshot.InvalidSnapshotException;
 import org.brekka.stillingar.core.snapshot.NoSnapshotAvailableException;
 import org.brekka.stillingar.core.snapshot.Snapshot;

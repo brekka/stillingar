@@ -22,6 +22,9 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.brekka.stillingar.api.ConfigurationException;
+
+
 /**
  * Encapsulates all errors that occur during the update of a group of values.
  * 

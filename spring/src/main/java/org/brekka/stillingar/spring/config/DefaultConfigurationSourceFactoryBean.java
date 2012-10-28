@@ -19,8 +19,8 @@ package org.brekka.stillingar.spring.config;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 
-import org.brekka.stillingar.core.ConfigurationSource;
-import org.brekka.stillingar.core.ConfigurationSourceLoader;
+import org.brekka.stillingar.api.ConfigurationSource;
+import org.brekka.stillingar.api.ConfigurationSourceLoader;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.core.io.Resource;
 

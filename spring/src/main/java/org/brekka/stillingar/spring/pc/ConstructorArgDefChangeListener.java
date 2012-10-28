@@ -20,7 +20,7 @@ import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.util.List;
 
-import org.brekka.stillingar.core.ConfigurationException;
+import org.brekka.stillingar.api.ConfigurationException;
 import org.brekka.stillingar.spring.expr.Fragment;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;

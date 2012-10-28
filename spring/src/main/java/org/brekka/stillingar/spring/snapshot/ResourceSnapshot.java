@@ -20,8 +20,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Date;
 
-import org.brekka.stillingar.core.ConfigurationException;
-import org.brekka.stillingar.core.ConfigurationSource;
+import org.brekka.stillingar.api.ConfigurationException;
+import org.brekka.stillingar.api.ConfigurationSource;
 import org.brekka.stillingar.core.snapshot.Snapshot;
 import org.springframework.core.io.Resource;
 

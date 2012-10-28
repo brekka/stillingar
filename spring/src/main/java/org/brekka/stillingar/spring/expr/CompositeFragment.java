@@ -19,7 +19,7 @@ package org.brekka.stillingar.spring.expr;
 import java.util.List;
 import java.util.Set;
 
-import org.brekka.stillingar.core.ConfigurationSource;
+import org.brekka.stillingar.api.ConfigurationSource;
 
 /**
  * A fragment that is made up of one or more sub-fragments

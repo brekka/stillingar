@@ -16,7 +16,7 @@
 
 package org.brekka.stillingar.spring.bpp;
 
-import org.brekka.stillingar.core.ConfigurationSource;
+import org.brekka.stillingar.api.ConfigurationSource;
 
 /**
  * Used to resolve the value that should be set for a method parameter used when calling a configuration listener

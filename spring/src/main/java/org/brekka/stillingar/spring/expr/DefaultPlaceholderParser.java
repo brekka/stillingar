@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.brekka.stillingar.core.ConfigurationException;
+import org.brekka.stillingar.api.ConfigurationException;
 
 /**
  * Helper class that parses placeholders that can contain expressions and other placeholders. Can also resolve

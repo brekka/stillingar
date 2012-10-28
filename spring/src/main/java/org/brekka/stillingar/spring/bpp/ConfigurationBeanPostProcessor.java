@@ -29,11 +29,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.brekka.stillingar.annotations.ConfigurationListener;
-import org.brekka.stillingar.annotations.Configured;
-import org.brekka.stillingar.core.ChangeAwareConfigurationSource;
-import org.brekka.stillingar.core.ConfigurationException;
-import org.brekka.stillingar.core.ConfigurationSource;
+import org.brekka.stillingar.api.ConfigurationException;
+import org.brekka.stillingar.api.ConfigurationSource;
+import org.brekka.stillingar.api.annotations.ConfigurationListener;
+import org.brekka.stillingar.api.annotations.Configured;
+import org.brekka.stillingar.core.ConfigurationService;
 import org.brekka.stillingar.core.GroupChangeListener;
 import org.brekka.stillingar.core.SingleValueDefinition;
 import org.brekka.stillingar.core.ValueChangeListener;
@@ -53,7 +53,7 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
  * listener methods marked with {@link ConfigurationListener}.
  * 
  * If the {@link ConfigurationSource} passed to this post-processor is also an instance of
- * {@link ChangeAwareConfigurationSource} then all configuration will be registered to receive updates from the
+ * {@link ConfigurationService} then all configuration will be registered to receive updates from the
  * configuration source.
  * 
  * @author Andrew Taylor
@@ -96,7 +96,7 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
 
             boolean singleton = beanFactory.isSingleton(beanName);
 
-            if (singleton && configurationSource instanceof ChangeAwareConfigurationSource) {
+            if (singleton && configurationSource instanceof ConfigurationService) {
                 processWithUpdates(bean, beanName);
             } else {
                 processOnceOnly(bean, beanName);
@@ -170,7 +170,7 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
      */
     protected void processWithUpdates(Object bean, String beanName) {
         ValueDefinitionGroup group = prepareValueGroup(beanName, bean);
-        ((ChangeAwareConfigurationSource) configurationSource).register(group, true);
+        ((ConfigurationService) configurationSource).register(group, true);
     }
 
     /**

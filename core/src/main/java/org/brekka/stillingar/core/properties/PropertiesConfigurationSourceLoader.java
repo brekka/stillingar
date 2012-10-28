@@ -9,9 +9,9 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.Properties;
 
-import org.brekka.stillingar.core.ConfigurationException;
-import org.brekka.stillingar.core.ConfigurationSource;
-import org.brekka.stillingar.core.ConfigurationSourceLoader;
+import org.brekka.stillingar.api.ConfigurationException;
+import org.brekka.stillingar.api.ConfigurationSource;
+import org.brekka.stillingar.api.ConfigurationSourceLoader;
 
 /**
  * Properties based configuration loader.

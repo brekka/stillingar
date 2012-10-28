@@ -44,8 +44,8 @@
     <dependencies>
         <dependency>
             <groupId>org.brekka.stillingar</groupId>
-            <artifactId>stillingar-core</artifactId>
-            <version>${stillingar-core-version}</version>
+            <artifactId>stillingar-api</artifactId>
+            <version>${stillingar-api-version}</version>
         </dependency>
 
         <dependency>
@@ -114,7 +114,7 @@
     </build>
 
     <properties>
-        <stillingar-core-version>1.0.0-SNAPSHOT</stillingar-core-version>
+        <stillingar-api-version>1.0.0-SNAPSHOT</stillingar-api-version>
         <junit-version>4.8.2</junit-version>
         <spring-release-version>3.0.5.RELEASE</spring-release-version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

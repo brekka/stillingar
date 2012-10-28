@@ -28,8 +28,8 @@ import java.util.Set;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
 import org.apache.xmlbeans.XmlObject;
-import org.brekka.stillingar.core.ConfigurationSource;
-import org.brekka.stillingar.core.ValueConfigurationException;
+import org.brekka.stillingar.api.ConfigurationSource;
+import org.brekka.stillingar.api.ValueConfigurationException;
 import org.brekka.stillingar.xmlbeans.conversion.ConversionManager;
 import org.brekka.stillingar.xmlbeans.conversion.TypeConverter;
 

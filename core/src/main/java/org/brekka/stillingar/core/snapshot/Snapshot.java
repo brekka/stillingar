@@ -19,7 +19,7 @@ package org.brekka.stillingar.core.snapshot;
 import java.net.URI;
 import java.util.Date;
 
-import org.brekka.stillingar.core.ConfigurationSource;
+import org.brekka.stillingar.api.ConfigurationSource;
 
 /**
  * Represents an immutable snapshot in time of a {@link ConfigurationSource}, encapsulating details about where it was

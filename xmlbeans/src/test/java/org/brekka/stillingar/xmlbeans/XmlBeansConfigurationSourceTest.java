@@ -33,7 +33,7 @@ import java.util.UUID;
 
 import net.iharder.Base64;
 
-import org.brekka.stillingar.core.ValueConfigurationException;
+import org.brekka.stillingar.api.ValueConfigurationException;
 import org.brekka.stillingar.xmlbeans.conversion.ConversionManager;
 import org.brekka.xml.stillingar.test.v1.ConfigurationDocument;
 import org.brekka.xml.stillingar.test.v1.ConfigurationDocument.Configuration.CompanyX;
