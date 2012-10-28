@@ -37,6 +37,7 @@ import org.brekka.stillingar.spring.resource.dir.EnvironmentVariableDirectory;
 import org.brekka.stillingar.spring.resource.dir.HomeDirectory;
 import org.brekka.stillingar.spring.resource.dir.PlatformDirectory;
 import org.brekka.stillingar.spring.resource.dir.SystemPropertyDirectory;
+import org.brekka.stillingar.spring.resource.dir.WebappDirectory;
 import org.brekka.stillingar.spring.snapshot.ConfigurationSnapshotRefresher;
 import org.brekka.stillingar.spring.snapshot.LoggingSnapshotEventHandler;
 import org.brekka.stillingar.spring.snapshot.ResourceSnapshotManager;
@@ -386,12 +387,17 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
                     list.add(prepareHomeLocation(element, location.getAttribute("path")));
                 } else if ("platform".equals(tag)) {
                     list.add(preparePlatformLocation(location.getTextContent()));
+                } else if ("webapp".equals(tag)) {
+                    list.add(prepareWebappLocation(element, location.getAttribute("path")));
                 } else {
                     throw new IllegalArgumentException(String.format("Unknown location type '%s'", tag));
                 }
             }
         } else {
-            // home and platforms
+            // home, webapp (if available) and platforms
+            if (ClassUtils.isPresent("org.springframework.web.context.WebApplicationContext", this.getClass().getClassLoader())) {
+                list.add(prepareWebappLocation(element, null));
+            }
             list.add(prepareHomeLocation(element, null));
             PlatformDirectory[] values = PlatformDirectory.values();
             for (PlatformDirectory platformDirectory : values) {
@@ -419,6 +425,17 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
         if (path == null) {
             path = ".config/" + getName(element);
         }
+        builder.addConstructorArgValue(path);
+        return builder.getBeanDefinition();
+    }
+    
+    /**
+     * @param attribute
+     * @param class1
+     * @return
+     */
+    protected AbstractBeanDefinition prepareWebappLocation(Element element, String path) {
+        BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(WebappDirectory.class);
         builder.addConstructorArgValue(path);
         return builder.getBeanDefinition();
     }
@@ -552,8 +569,10 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
      * @return
      */
     protected static String attribute(Element elem, String attributeName, String defaultValue) {
-        String value = elem.getAttribute(attributeName);
-        if (value == null) {
+        String value;
+        if (elem.hasAttribute(attributeName)) {
+            value = elem.getAttribute(attributeName);
+        } else {
             value = defaultValue;
         }
         return value;

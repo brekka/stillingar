@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration xmlns="http://brekka.org/xml/stillingar/test/v1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://brekka.org/xml/stillingar/test/v1 http://brekka.org/schema/stillingar/test/TestConfiguration-1.0.xsd">
+    <MOTD>
+        <ID>64829ee9-d265-47bb-8fb4-4ab4ada0cdfc</ID>
+        <Message>Test message</Message>
+        <Expires>2012-12-31T12:00:00</Expires>
+    </MOTD>
+    <Database>
+        <DataSource>jdbc/test</DataSource>
+    </Database>
+    <CompanyY>
+        <WarehouseWebService>
+            <URL>http://example.org/CompanyY</URL>
+            <Username>Username</Username>
+            <Password>Password</Password>
+        </WarehouseWebService>
+    </CompanyY>
+    <Services>
+        <Rules>
+            <Transaction>
+                <MaxQuantity>42</MaxQuantity>
+                <MaxAmount>50000.73</MaxAmount>
+            </Transaction>
+            <Fraud>
+                <Enabled>true</Enabled>
+                <TriggerFactor>0.89</TriggerFactor>
+                <Scale>169</Scale>
+                <Length>85697458963323</Length>
+                <Keyword>KeywordA</Keyword>
+                <Keyword>KeywordB</Keyword>
+                <Keyword>KeywordC</Keyword>
+            </Fraud>
+        </Rules>
+    </Services>
+    <Security>
+        <PublicKey>U3RpbGxpbmdhcg==</PublicKey>
+        <Factor>33543</Factor>
+        <Flag>126</Flag>
+    </Security>
+    <Logging>
+        <l4j:configuration xmlns:l4j="http://jakarta.apache.org/log4j/">
+            <l4j:logger name="org.brekka.stillingar.test.intg">
+                <l4j:level value="info"/> 
+            </l4j:logger>
+        </l4j:configuration>
+    </Logging>
+    <ApplicationContext>
+        <b:beans xmlns:b="http://www.springframework.org/schema/beans"
+            xmlns:context="http://www.springframework.org/schema/context" xmlns:p="http://www.springframework.org/schema/p"
+            xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+                
+            <b:bean id="simple" class="org.brekka.stillingar.test.intg.SimpleBean">
+                <b:property name="value" value="1.301" />
+            </b:bean>
+        </b:beans>
+    </ApplicationContext>
+</Configuration>

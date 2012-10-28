@@ -59,7 +59,7 @@ final class BaseDirUtils {
         return resource;
     }
 
-    protected static Resource verifyDir(File baseDir) {
+    private static Resource verifyDir(File baseDir) {
         if (!baseDir.exists()) {
             return new UnresolvableResource(String.format(
                     "Path '%s' does not exist or is inaccessible", baseDir));

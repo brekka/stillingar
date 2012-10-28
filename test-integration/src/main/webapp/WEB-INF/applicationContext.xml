@@ -10,6 +10,10 @@
         http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd
     ">
 
+
+    <!-- 
+        Standard configuration. Beans annotated with @Configured will be configured by this service. 
+     -->
     <stil:configuration id="demo" engine="xmlbeans" reload-interval="5000" >
         <stil:selector>
             <stil:name>
@@ -18,6 +22,14 @@
                 </stil:version>
             </stil:name>
         </stil:selector>
+        <!-- Will use placeholder of the format $demo{...} -->
+        <stil:property-placeholder />
+        <stil:namespace prefix="c" url="http://brekka.org/xml/stillingar/test/v1" />
+    </stil:configuration>
+    
+    <stil:configuration id="special" engine="xmlbeans" reload-interval="5000" 
+                        marker-annotation="org.brekka.stillingar.test.intg.annotation.Special" >
+        <!-- Will use placeholder of the format $special{...} -->
         <stil:property-placeholder />
         <stil:namespace prefix="c" url="http://brekka.org/xml/stillingar/test/v1" />
     </stil:configuration>

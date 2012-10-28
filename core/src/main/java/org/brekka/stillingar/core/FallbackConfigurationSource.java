@@ -76,9 +76,6 @@ public class FallbackConfigurationSource implements ConfigurationSource {
      * @throws IllegalArgumentException if both configuration sources are null.           
      */
     public FallbackConfigurationSource(ConfigurationSource primarySource, ConfigurationSource secondarySource) {
-        if (primarySource == null && secondarySource == null) {
-            throw new IllegalArgumentException("No configuration sources provided. At least one is required.");
-        }
         this.primarySource = (primarySource != null ? primarySource : NONE);
         this.secondarySource = (secondarySource != null ? secondarySource : NONE);
     }
