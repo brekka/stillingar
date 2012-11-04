@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.brekka.stillingar.api.ConfigurationException;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.core.io.Resource;
 
 /**
@@ -33,13 +34,15 @@ import org.springframework.core.io.Resource;
  *
  * @author Andrew Taylor (andrew@brekka.org)
  */
-public class WatchedResourceMonitor implements ResourceMonitor {
+public class WatchedResourceMonitor implements ResourceMonitor, DisposableBean {
     
     private final long timeout;
     
     private WatchService watchService;
     
     private Path resourceFile;
+    
+    private WatchKey watchKey;
     
     /**
      * 
@@ -57,7 +60,7 @@ public class WatchedResourceMonitor implements ResourceMonitor {
             this.resourceFile = resource.getFile().toPath();
             Path parent = resourceFile.getParent();
             this.watchService = parent.getFileSystem().newWatchService();
-            parent.register(this.watchService, StandardWatchEventKinds.ENTRY_MODIFY, 
+            this.watchKey = parent.register(this.watchService, StandardWatchEventKinds.ENTRY_MODIFY, 
                     StandardWatchEventKinds.ENTRY_CREATE);
         } catch (IOException e) {
             throw new ConfigurationException("", e);
@@ -69,10 +72,16 @@ public class WatchedResourceMonitor implements ResourceMonitor {
      */
     @Override
     public boolean hasChanged() {
+        if (!watchKey.isValid()) {
+            return false;
+        }
         boolean changed = false;
         try {
             WatchKey poll = watchService.poll(timeout, TimeUnit.MILLISECONDS);
             if (poll != null) {
+                if (poll != watchKey) {
+                    throw new IllegalStateException("WatchKey does not match that registered with the service");
+                }
                 List<WatchEvent<?>> pollEvents = poll.pollEvents();
                 for (WatchEvent<?> watchEvent : pollEvents) {
                     Path name = (Path) watchEvent.context();
@@ -87,5 +96,14 @@ public class WatchedResourceMonitor implements ResourceMonitor {
             Thread.currentThread().interrupt();
         }
         return changed;
+    }
+    
+    /* (non-Javadoc)
+     * @see org.springframework.beans.factory.DisposableBean#destroy()
+     */
+    @Override
+    public void destroy() throws Exception {
+        watchKey.cancel();
+        watchService.close();
     }
 }

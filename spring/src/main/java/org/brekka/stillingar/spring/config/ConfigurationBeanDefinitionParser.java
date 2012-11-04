@@ -80,7 +80,7 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
      * Determine if Watchable is available (Java 7).
      */
     private boolean watchableAvailable = ClassUtils.isPresent("java.nio.file.Watchable", 
-            this.getClass().getClassLoader());
+            this.getClass().getClassLoader()) && !"true".equals(System.getProperty("stillingar.reload-watcher.disabled"));
 
     @Override
     protected Class<SnapshotBasedConfigurationService> getBeanClass(Element element) {

@@ -34,7 +34,7 @@ import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
 @ContextConfiguration
 @Configured
-public class ReloadTest extends AbstractJUnit4SpringContextTests {
+public class WatcherReloadTest extends AbstractJUnit4SpringContextTests {
 
     @Configured("//c:MOTD")
     private String messageOfTheDay;
@@ -67,17 +67,19 @@ public class ReloadTest extends AbstractJUnit4SpringContextTests {
         }
 	}
 	
-	private static void writeConfig(String message) {
-	    ConfigurationDocument doc = ConfigurationDocument.Factory.newInstance();
+    private static void writeConfig(String message) {
+        ConfigurationDocument doc = ConfigurationDocument.Factory.newInstance();
         Configuration newConfiguration = doc.addNewConfiguration();
         newConfiguration.setMOTD(message);
         try {
-            File newFile = File.createTempFile("new-config-file", ".xml");
+            File newFile = File.createTempFile(configFile.getName(), ".tmp", configFile.getParentFile());
+            File discardFile = File.createTempFile(configFile.getName(), ".tmp", configFile.getParentFile());
             doc.save(newFile);
-            configFile.delete();
+            configFile.renameTo(discardFile);
             newFile.renameTo(configFile);
+            discardFile.delete();
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
-	}
+    }
 }
