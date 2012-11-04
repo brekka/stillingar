@@ -9,6 +9,8 @@
         http://brekka.org/schema/stillingar/v1 http://brekka.org/schema/stillingar/brekka-stillingar-1.0.xsd">
 
     <bean class="org.brekka.stillingar.example.SimpleExampleTest" />
+    
+    <bean class="org.brekka.stillingar.example.support.MessageOfTheDay" />
 
     <stil:configuration id="stillingar-example" engine="xmlbeans"> 
         <stil:property-placeholder />

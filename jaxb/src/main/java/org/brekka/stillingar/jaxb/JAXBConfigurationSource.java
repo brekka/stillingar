@@ -34,6 +34,8 @@ import javax.xml.xpath.XPathFactory;
 
 import org.brekka.stillingar.api.ConfigurationException;
 import org.brekka.stillingar.api.ConfigurationSource;
+import org.brekka.stillingar.jaxb.conversion.ConversionManager;
+import org.brekka.stillingar.jaxb.conversion.TypeConverter;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -62,14 +64,23 @@ public class JAXBConfigurationSource implements ConfigurationSource {
      * Namespace context to use in XPath operations (can be null).
      */
     private final NamespaceContext xPathNamespaceContext;
+    
+    /**
+     * Handle some object conversions
+     */
+    private final ConversionManager conversionManager;
 
     /**
+     * @param document
      * @param object
+     * @param xPathNamespaceContext
+     * @param conversionManager
      */
-    public JAXBConfigurationSource(Document document, Object object, NamespaceContext xPathNamespaceContext) {
+    public JAXBConfigurationSource(Document document, Object object, NamespaceContext xPathNamespaceContext, ConversionManager conversionManager) {
         this.document = document;
         this.object = object;
         this.xPathNamespaceContext = xPathNamespaceContext;
+        this.conversionManager = conversionManager;
     }
 
     /*
@@ -99,16 +110,20 @@ public class JAXBConfigurationSource implements ConfigurationSource {
         Object result = doXPath(expression, XPathConstants.NODE);
         if (result instanceof Node) {
             Node node = (Node) result;
-            if (valueType.isAssignableFrom(result.getClass())) {
+            if (valueType != Object.class 
+                    && valueType.isAssignableFrom(result.getClass())) {
                 retVal = (T) node;
             } else {
-                Object resolvedObject = resolveObject(node);
+                Object resolvedObject = resolveObject(node, valueType);
                 if (resolvedObject == null) {
                     retVal = null;
                 } else if (valueType.isAssignableFrom(resolvedObject.getClass())) {
                     retVal = (T) resolvedObject;
                 } else if (List.class.isAssignableFrom(resolvedObject.getClass())) {
                     retVal = resolveValueFromList(node, (List<T>) resolvedObject);
+                } else if (valueType.isPrimitive()
+                        && !resolvedObject.getClass().isPrimitive()) {
+                    retVal = (T) resolvedObject;
                 } else {
                     throw new ConfigurationException(String.format(
                             "Expected '%s', found '%s'", valueType.getName(),
@@ -149,7 +164,7 @@ public class JAXBConfigurationSource implements ConfigurationSource {
             Object result = doXPath(expression, XPathConstants.NODE);
             if (result instanceof Node) {
                 Node node = (Node) result;
-                Object resolvedObject = resolveObject(node);
+                Object resolvedObject = resolveObject(node, valueType);
                 if (resolvedObject == null) {
                     retVal = null;
                 } else if (List.class.isAssignableFrom(resolvedObject.getClass())) {
@@ -235,7 +250,33 @@ public class JAXBConfigurationSource implements ConfigurationSource {
         return collect(object, lookingFor, seen, null);
     }
     
-
+    protected Object resolveObject(Node node, Class<?> expectedType) {
+        // Special handling for document
+        if (expectedType == Document.class) {
+            TypeConverter<?> converterForTarget = conversionManager.getConverterForTarget(expectedType);
+            return converterForTarget.convert(node);
+        }
+        
+        // Resolve the object using JAXB
+        Object value = resolveObject(node);
+        if (value != null) {
+            TypeConverter<?> converterForTarget = conversionManager.getConverterForTarget(expectedType);
+            if (converterForTarget != null) {
+                if (value instanceof List) {
+                    List<?> valueList = (List<?>) value;
+                    List<Object> changed = new ArrayList<Object>();
+                    for (Object object : valueList) {
+                        changed.add(converterForTarget.convert(object));
+                    }
+                    value = changed;
+                } else {
+                    value = converterForTarget.convert(value);
+                }
+            }
+        }
+        return value;
+    }
+    
     /**
      * @param node
      * @return
@@ -248,14 +289,15 @@ public class JAXBConfigurationSource implements ConfigurationSource {
         }
         parentObj = resolveObject(parentNode);
 
+        Object value = null;
         Field[] fieldArr = parentObj.getClass().getDeclaredFields();
         for (Field field : fieldArr) {
             XmlElement xmlElement = field.getAnnotation(XmlElement.class);
             if (node.getLocalName().equals(xmlElement.name())) {
-                return extractFieldValue(parentObj, field);
+                value = extractFieldValue(parentObj, field);
             }
         }
-        return null;
+        return value;
     }
     
     /**

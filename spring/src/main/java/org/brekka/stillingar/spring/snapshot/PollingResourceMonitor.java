@@ -22,12 +22,15 @@ import org.brekka.stillingar.api.ConfigurationException;
 import org.springframework.core.io.Resource;
 
 /**
- * TODO Description of PollingResourceMonitor
+ * Determines whether a resource has changed based on the lastModified date.
  *
  * @author Andrew Taylor (andrew@brekka.org)
  */
 public class PollingResourceMonitor implements ResourceMonitor {
 
+    /**
+     * The resource being inspected.
+     */
     private Resource resource;
     
     /**
@@ -39,7 +42,7 @@ public class PollingResourceMonitor implements ResourceMonitor {
      * @see org.brekka.stillingar.spring.snapshot.ResourceMonitor#initialize(org.springframework.core.io.Resource)
      */
     @Override
-    public void initialize(Resource resource) {
+    public void initialise(Resource resource) {
         this.resource = resource;
         this.previousPoolLastModfied = lastModified();
     }

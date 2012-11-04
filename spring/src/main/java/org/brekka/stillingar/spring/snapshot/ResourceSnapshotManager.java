@@ -18,14 +18,11 @@ package org.brekka.stillingar.spring.snapshot;
 
 import static java.lang.String.format;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 
-import org.apache.xmlbeans.impl.common.IOUtil;
 import org.brekka.stillingar.api.ConfigurationException;
 import org.brekka.stillingar.api.ConfigurationSource;
 import org.brekka.stillingar.api.ConfigurationSourceLoader;
@@ -91,7 +88,7 @@ public class ResourceSnapshotManager implements SnapshotManager {
 	    Resource configurationResource = resourceSelector.getResource();
 	    this.configurationResource = configurationResource;
 	    Snapshot snapshot = performLoad(configurationResource);
-	    this.resourceMonitor.initialize(configurationResource);
+	    this.resourceMonitor.initialise(configurationResource);
 	    return snapshot;
 	}
 
@@ -153,6 +150,13 @@ public class ResourceSnapshotManager implements SnapshotManager {
             }
         }
         return snapshot;
+    }
+    
+    /**
+     * @param rejectedResourceHandler the rejectedResourceHandler to set
+     */
+    public void setRejectedResourceHandler(RejectedResourceHandler rejectedResourceHandler) {
+        this.rejectedResourceHandler = rejectedResourceHandler;
     }
 	
 	/**

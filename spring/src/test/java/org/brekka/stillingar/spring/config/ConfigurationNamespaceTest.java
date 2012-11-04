@@ -23,7 +23,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
 /**
- * TODO Description of ConfigurationNamespaceTest
+ * A very simple test that the spring based stillingar configuration namespace is working, using properties based configuration.
  *
  * @author Andrew Taylor (andrew@brekka.org)
  */

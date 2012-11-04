@@ -27,7 +27,7 @@ import org.brekka.stillingar.xmlbeans.conversion.StringConverter;
 import org.junit.Test;
 
 /**
- * TODO Description of XmlBeansSnapshotLoaderTest
+ * Test of XmlBeansSnapshotLoader
  *
  * @author Andrew Taylor (andrew@brekka.org)
  */

@@ -7,25 +7,21 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
         http://brekka.org/schema/stillingar/v1 http://brekka.org/schema/stillingar/brekka-stillingar-1.0.xsd">
-    
 
-    <stil:configuration id="stillingar-example" engine="xmlbeans"> 
+    <bean id="fieldTypes" class="org.brekka.stillingar.example.support.ConfiguredFieldTypes" />
+
+    <bean class="org.brekka.stillingar.example.FieldTypesJAXBTest" />
+
+    <stil:configuration id="stillingar-example" engine="jaxb" reload-interval="5000"> 
         <stil:selector>
-            <stil:name prefix="bob">
-                <stil:version pattern="^((\\d+)\\.\\d+).*$">
-                    <stil:maven groupId="commons-lang" artifactId="commons-lang"/>
-                </stil:version>
-            </stil:name>
             <stil:location>
-                <stil:environment-variable>TEST_APP</stil:environment-variable>
-                <stil:home path=".config/fish" />
-                <stil:platform>Tomcat</stil:platform>
+                <stil:system-property>stillingar.dir</stil:system-property>
             </stil:location>
         </stil:selector>
         <stil:property-placeholder />
-        <stil:namespace prefix="c"     url="http://brekka.org/xml/stillingar/test/v1" />
-        <stil:namespace prefix="log4j" url="http://jakarta.apache.org/log4j/" />
-        <stil:namespace prefix="beans" url="http://www.springframework.org/schema/beans" />
-    </stil:configuration> 
-    
+        <stil:jaxb context-path="org.brekka.stillingar.example">
+            <stil:schema>file:src/main/xsd/ExampleConfiguration-1.0.xsd</stil:schema>
+        </stil:jaxb>
+        <stil:namespace prefix="c"     url="http://brekka.org/xml/stillingar/example/v1" />
+    </stil:configuration>
 </beans>

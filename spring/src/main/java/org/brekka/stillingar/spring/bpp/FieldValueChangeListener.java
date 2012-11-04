@@ -16,7 +16,6 @@
 
 package org.brekka.stillingar.spring.bpp;
 
-import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 
 /**
@@ -29,7 +28,7 @@ class FieldValueChangeListener<T extends Object> extends InvocationChangeListene
     /**
      * The field being updated
      */
-    private final WeakReference<Field> fieldRef;
+    private final Field field;
 
     /**
      * 
@@ -44,17 +43,16 @@ class FieldValueChangeListener<T extends Object> extends InvocationChangeListene
      */
     public FieldValueChangeListener(Field field, Object target, Class<?> expectedValueType, boolean list) {
         super(target, expectedValueType, list, "Field");
-        this.fieldRef = new WeakReference<Field>(field);
+        if (field == null) {
+            throw new IllegalArgumentException("Field may not be null");
+        }
+        this.field = field;
     }
 
     /**
      * Set the value of the field encapsulated by this listener.
      */
     public void onChange(T newValue, T oldValue, Object target) {
-        Field field = fieldRef.get();
-        if (field == null) {
-            return;
-        }
         try {
             if (!field.isAccessible()) {
                 field.setAccessible(true);

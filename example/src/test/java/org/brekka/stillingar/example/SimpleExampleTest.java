@@ -16,23 +16,25 @@
 
 package org.brekka.stillingar.example;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
-import org.brekka.stillingar.api.annotations.Configured;
+import org.brekka.stillingar.example.support.MessageOfTheDay;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
 @ContextConfiguration
-@Configured
+@DirtiesContext
 public class SimpleExampleTest extends AbstractJUnit4SpringContextTests {
 
-    @Configured("//c:MOTD")
-    private String messageOfTheDay;
+    @Autowired
+    private MessageOfTheDay messageOfTheDay;
     
 	@Test
 	public void test() throws Exception {
-	    assertEquals("There is currently no message of the day", messageOfTheDay);
+	    assertEquals("There is currently no message of the day", messageOfTheDay.getMessage());
 	}
 	
 }

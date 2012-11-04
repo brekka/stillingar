@@ -31,6 +31,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
@@ -42,8 +43,10 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import net.iharder.Base64;
 
+import org.brekka.stillingar.jaxb.conversion.ConversionManager;
 import org.brekka.stillingar.test.jaxb.Configuration.CompanyX;
 import org.brekka.stillingar.test.jaxb.Configuration.CompanyY;
+import org.brekka.stillingar.test.jaxb.Configuration.FeatureFlag;
 import org.brekka.stillingar.test.jaxb.Configuration.Services.Rules.Fraud;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -52,7 +55,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * TODO Description of JAXBConfigurationSourceTest
+ * Test of JAXBConfigurationSource
  *
  * @author Andrew Taylor (andrew@brekka.org)
  */
@@ -74,7 +77,7 @@ public class JAXBConfigurationSourceTest {
         nsMap.put("c", "http://brekka.org/xml/stillingar/test/v1");
         nsMap.put("b", "http://www.springframework.org/schema/beans");
         NamespaceContext namespaceContext = new TestNamespaceContext(nsMap);
-        configurationSource = new JAXBConfigurationSource(document, object, namespaceContext);
+        configurationSource = new JAXBConfigurationSource(document, object, namespaceContext, new ConversionManager());
     }
 
     /**
@@ -186,8 +189,6 @@ public class JAXBConfigurationSourceTest {
         assertEquals(new BigInteger("33543"), configurationSource.retrieve("//c:Factor", BigInteger.class));
     }
     
-    // TODO URI conversion
-    @Ignore("Need to add URI conversion")
     @Test
     public void testRetrieveURI() throws Exception {
         assertEquals(new URI("http://example.org/CompanyY"), configurationSource.retrieve("//c:CompanyY//c:URL", URI.class));
@@ -204,19 +205,35 @@ public class JAXBConfigurationSourceTest {
         assertTrue(Arrays.equals(expected, configurationSource.retrieve("//c:PublicKey", byte[].class)));
     }
     
-    // TODO calendar conversion
-    @Ignore("Need to add calendar conversion")
     @Test
     public void testRetrieveCalendar() throws Exception {
         Date expected = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse("2012-12-31T12:00:00");
         assertEquals(expected, configurationSource.retrieve("//c:Expires", Calendar.class).getTime());
     }
     
-    // TODO UUID conversion
-    @Ignore("Need to add UUID conversion")
     @Test
     public void testRetrieveUUID() throws Exception {
         assertEquals(UUID.fromString("64829ee9-d265-47bb-8fb4-4ab4ada0cdfc"), configurationSource.retrieve("//c:MOTD//c:ID", UUID.class));
+    }
+    
+    @Test
+    public void testRetrieveUUIDList() throws Exception {
+        assertEquals(Arrays.asList(
+                UUID.fromString("aa6cb1ef-dd69-4f8c-96b0-110d95f62351"), 
+                UUID.fromString("4ce04584-369a-4286-b16b-02b1d6c04caa"),
+                UUID.fromString("bda39475-732f-46d5-88b7-593be1436e8d")),
+                configurationSource.retrieveList("//c:MOTD//c:References", UUID.class));
+    }
+    
+    @Test
+    public void testRetrieveLanguage() throws Exception {
+        assertEquals(new Locale("en"), configurationSource.retrieve("//c:MOTD//c:Language", Locale.class));
+    }
+    
+    @Test
+    public void testRetrieveFeatureFlagList() throws Exception {
+        List<FeatureFlag> retrieveList = configurationSource.retrieveList("//c:FeatureFlag", FeatureFlag.class);
+        assertEquals(2, retrieveList.size());
     }
     
 
@@ -228,8 +245,6 @@ public class JAXBConfigurationSourceTest {
         assertEquals(1, element.getElementsByTagNameNS("*", "Fraud").getLength());
     }
     
-    // TODO document handling
-    @Ignore("Need to add document conversion")
     @Test
     public void testRetrieveDocument() throws Exception {
         Document document = configurationSource.retrieve("//c:ApplicationContext/b:beans", Document.class);

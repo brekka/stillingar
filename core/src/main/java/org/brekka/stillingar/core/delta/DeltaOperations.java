@@ -174,7 +174,6 @@ public class DeltaOperations {
             GroupChangeListener changeListener = valueDefinitionGroup.getChangeListener();
             if (changeListener != null) {
                 try {
-                    System.out.println("asd");
                     changeListener.onChange(configurationSource);
                 } catch (RuntimeException e) {
                     throw new GroupConfigurationException(valueDefinitionGroup.getName(), Phase.LISTENER_INVOCATION, e);

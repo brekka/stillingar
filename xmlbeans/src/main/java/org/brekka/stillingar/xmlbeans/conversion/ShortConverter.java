@@ -44,7 +44,6 @@ public class ShortConverter extends AbstractTypeConverter<Short> {
         } else if (xmlValue instanceof XmlInteger) {
             XmlInteger integer = (XmlInteger) xmlValue;
             BigInteger bigIntegerValue = integer.getBigIntegerValue();
-            // TODO warn about out of range for short
             value = Short.valueOf(bigIntegerValue.shortValue());
         } else {
             throw noConversionAvailable(xmlValue);

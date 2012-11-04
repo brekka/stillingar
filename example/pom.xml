@@ -12,7 +12,7 @@
 
     <artifactId>stillingar-example</artifactId>
 
-    <name>Stillingar - Example web application with integration tests</name>
+    <name>Stillingar - Example web application</name>
     
     <packaging>war</packaging>
 
@@ -62,6 +62,11 @@
         <dependency>
             <groupId>org.brekka.stillingar</groupId>
             <artifactId>stillingar-xmlbeans</artifactId>
+            <version>${stillingar-xmlbeans-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.brekka.stillingar</groupId>
+            <artifactId>stillingar-xmlbeans-xpath</artifactId>
             <version>${stillingar-xmlbeans-version}</version>
         </dependency>
         <dependency>
@@ -174,7 +179,7 @@
         <stillingar-jaxb-version>1.0.0-SNAPSHOT</stillingar-jaxb-version>
         <stillingar-xmlbeans-version>1.0.0-SNAPSHOT</stillingar-xmlbeans-version>
         <spring-release-version>3.0.5.RELEASE</spring-release-version>
-        <junit-version>4.8.2</junit-version>
+        <junit-version>4.10</junit-version>
         <commons-lang-version>2.6</commons-lang-version>
     </properties>
 </project>

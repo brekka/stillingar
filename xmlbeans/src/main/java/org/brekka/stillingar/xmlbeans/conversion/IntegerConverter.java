@@ -44,7 +44,6 @@ public class IntegerConverter extends AbstractTypeConverter<Integer> {
         } else if (xmlValue instanceof XmlInteger) {
             XmlInteger integer = (XmlInteger) xmlValue;
             BigInteger bigIntegerValue = integer.getBigIntegerValue();
-            // TODO warn about out of range
             value = Integer.valueOf(bigIntegerValue.intValue());
         } else {
             throw noConversionAvailable(xmlValue);

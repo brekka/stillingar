@@ -46,7 +46,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * TODO Description of XmlBeansConfigurationSourceTest
+ * Test of XmlBeansConfigurationSource
  *
  * @author Andrew Taylor (andrew@brekka.org)
  */

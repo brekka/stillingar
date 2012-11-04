@@ -14,20 +14,27 @@
  * limitations under the License.
  */
 
-package org.brekka.stillingar.example;
+package org.brekka.stillingar.example.support;
 
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
+import org.brekka.stillingar.api.annotations.Configured;
 
-@ContextConfiguration
-public class AdvancedIntegrationApplicationTest extends AbstractJUnit4SpringContextTests {
+/**
+ * Simple message of the day
+ *
+ * @author Andrew Taylor (andrew@brekka.org)
+ */
+@Configured
+public class MessageOfTheDay {
 
+    @Configured("//c:MOTD")
+    private String message;
     
-	@Test
-	public void test() throws Exception {
-	}
-	
+    
+    /**
+     * @return the message
+     */
+    public String getMessage() {
+        return message;
+    }
+    
 }

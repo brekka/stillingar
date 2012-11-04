@@ -44,7 +44,6 @@ public class DoubleConverter extends AbstractTypeConverter<Double> {
         } else if (xmlValue instanceof XmlDecimal) {
             XmlDecimal decimal = (XmlDecimal) xmlValue;
             BigDecimal bigDecimalValue = decimal.getBigDecimalValue();
-            // TODO warn about out of range for double
             value = Double.valueOf(bigDecimalValue.doubleValue());
         } else {
             throw noConversionAvailable(xmlValue);

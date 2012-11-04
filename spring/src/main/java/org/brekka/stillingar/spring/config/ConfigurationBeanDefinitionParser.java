@@ -43,7 +43,6 @@ import org.brekka.stillingar.spring.snapshot.LoggingSnapshotEventHandler;
 import org.brekka.stillingar.spring.snapshot.PollingResourceMonitor;
 import org.brekka.stillingar.spring.snapshot.ResourceSnapshotManager;
 import org.brekka.stillingar.spring.snapshot.SnapshotDeltaValueInterceptor;
-import org.brekka.stillingar.spring.snapshot.WatchedResourceMonitor;
 import org.brekka.stillingar.spring.version.ApplicationVersionFromMaven;
 import org.brekka.stillingar.spring.xmlbeans.ApplicationContextConverter;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
@@ -95,7 +94,7 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
         builder.addConstructorArgValue(prepareResourceManager(element, engine, parserContext));
         builder.addConstructorArgValue("true".equals(element.getAttribute("snapshot-required")));
         builder.addConstructorArgValue(prepareDefaultConfigurationSource(element, engine));
-        builder.addConstructorArgValue(prepareSnapshotEventHandler(element));
+        prepareSnapshotEventHandler(element, builder);
         builder.addPropertyValue("deltaValueInterceptor", prepareDeltaValueInterceptor(element));
         builder.getRawBeanDefinition().setDestroyMethodName("shutdown");
 
@@ -169,7 +168,7 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
 
         switch (engine) {
             case XMLBEANS:
-                builder.addConstructorArgValue(prepareConversionManager());
+                builder.addConstructorArgValue(prepareXmlBeansConversionManager());
                 prepareXMLBeanNamespaces(element, builder);
                 break;
             case JAXB:
@@ -182,8 +181,8 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
                 // No special requirements
                 break;
         }
-
-        parserContext.registerBeanComponent(new BeanComponentDefinition(builder.getBeanDefinition(), loaderReference));
+        AbstractBeanDefinition beanDefinition = builder.getBeanDefinition();
+        parserContext.registerBeanComponent(new BeanComponentDefinition(beanDefinition, loaderReference));
     }
 
     /**
@@ -206,13 +205,17 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
                 Resource resource = parserContext.getReaderContext().getResourceLoader().getResource(schemaPath);
                 schemaUrlList.add(resource.getURL());
             } catch (IOException e) {
-                throw new ConfigurationException(String.format("Failed to parse schema location '%s'", schemaPath), e);
+                throw new ConfigurationException(String.format(
+                        "Failed to parse schema location '%s'", schemaPath), e);
             }
         }
         builder.addConstructorArgValue(schemaUrlList);
 
         // Namespaces
         builder.addConstructorArgValue(prepareJAXBNamespaces(element));
+        
+//        // ConversionManager
+//        builder.addConstructorArgValue(prepareJAXBConversionManager());
     }
 
     /**
@@ -291,6 +294,13 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
         builder.addConstructorArgValue(prepareResourceSelector(element, engine, parserContext));
         builder.addConstructorArgReference(getLoaderReference(element));
         builder.addConstructorArgValue(prepareResourceMonitor(element));
+        Element handlers = selectSingleChildElement(element, "handlers", true);
+        if (handlers != null) {
+            String rejectedRef = handlers.getAttribute("rejected-ref");
+            if (StringUtils.hasLength(rejectedRef)) {
+                builder.addPropertyReference("rejectedResourceHandler", rejectedRef);
+            }
+        }
         return builder.getBeanDefinition();
     }
 
@@ -303,7 +313,7 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
         String reloadIntervalStr = element.getAttribute("reload-interval");
         if (watchableAvailable 
                 && StringUtils.hasLength(reloadIntervalStr)) { // Must have a reload-interval to use watched.
-            builder = BeanDefinitionBuilder.genericBeanDefinition(WatchedResourceMonitor.class);
+            builder = BeanDefinitionBuilder.genericBeanDefinition("org.brekka.stillingar.spring.snapshot.WatchedResourceMonitor");
             builder.addConstructorArgValue(Integer.valueOf(reloadIntervalStr));
         }
         if (builder == null) {
@@ -492,10 +502,18 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
      * @param element
      * @return
      */
-    protected AbstractBeanDefinition prepareSnapshotEventHandler(Element element) {
-        BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(LoggingSnapshotEventHandler.class);
-        builder.addConstructorArgValue(getName(element));
-        return builder.getBeanDefinition();
+    protected void prepareSnapshotEventHandler(Element element, BeanDefinitionBuilder serviceBuilder) {
+        Element handlers = selectSingleChildElement(element, "handlers", true);
+        if (handlers != null) {
+            String eventRef = handlers.getAttribute("event-ref");
+            if (StringUtils.hasLength(eventRef)) {
+                serviceBuilder.addConstructorArgReference(eventRef);
+                return;
+            }
+        }
+        BeanDefinitionBuilder eventBuilder = BeanDefinitionBuilder.genericBeanDefinition(LoggingSnapshotEventHandler.class);
+        eventBuilder.addConstructorArgValue(getName(element));
+        serviceBuilder.addConstructorArgValue(eventBuilder.getBeanDefinition());
     }
     
     /**
@@ -554,17 +572,36 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
         return builder.getBeanDefinition();
     }
 
-    protected AbstractBeanDefinition prepareConversionManager() {
+    protected AbstractBeanDefinition prepareXmlBeansConversionManager() {
         BeanDefinitionBuilder builder = BeanDefinitionBuilder
                 .genericBeanDefinition("org.brekka.stillingar.xmlbeans.conversion.ConversionManager");
         ManagedList<Object> converters = new ManagedList<Object>();
         List<String> converterShortNames = Arrays.asList("BigDecimalConverter", "BigIntegerConverter",
                 "BooleanConverter", "ByteConverter", "ByteArrayConverter", "CalendarConverter", "DateConverter",
                 "DoubleConverter", "ElementConverter", "FloatConverter", "IntegerConverter", "LongConverter",
-                "ShortConverter", "StringConverter", "URIConverter", "DocumentConverter");
+                "ShortConverter", "StringConverter", "URIConverter", "DocumentConverter", "LocaleConverter",
+                "UUIDConverter");
         for (String shortName : converterShortNames) {
             BeanDefinitionBuilder converterBldr = BeanDefinitionBuilder
                     .genericBeanDefinition("org.brekka.stillingar.xmlbeans.conversion." + shortName);
+            converters.add(converterBldr.getBeanDefinition());
+        }
+
+        converters.add(BeanDefinitionBuilder.genericBeanDefinition(ApplicationContextConverter.class)
+                .getBeanDefinition());
+        builder.addConstructorArgValue(converters);
+        return builder.getBeanDefinition();
+    }
+    
+    protected AbstractBeanDefinition prepareJAXBConversionManager() {
+        BeanDefinitionBuilder builder = BeanDefinitionBuilder
+                .genericBeanDefinition("org.brekka.stillingar.jaxb.conversion.ConversionManager");
+        ManagedList<Object> converters = new ManagedList<Object>();
+        List<String> converterShortNames = Arrays.asList("CalendarConverter", "DateConverter",
+                "DocumentConverter", "LocaleConverter", "URIConverter", "UUIDConverter");
+        for (String shortName : converterShortNames) {
+            BeanDefinitionBuilder converterBldr = BeanDefinitionBuilder
+                    .genericBeanDefinition("org.brekka.stillingar.jaxb.conversion." + shortName);
             converters.add(converterBldr.getBeanDefinition());
         }
 

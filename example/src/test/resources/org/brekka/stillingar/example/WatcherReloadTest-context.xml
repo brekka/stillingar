@@ -10,6 +10,8 @@
 
     <bean class="org.brekka.stillingar.example.WatcherReloadTest" />
 
+    <bean class="org.brekka.stillingar.example.support.MessageOfTheDay" />
+
     <stil:configuration id="stillingar-example" engine="xmlbeans" reload-interval="5000"> 
         <stil:selector>
             <stil:location>

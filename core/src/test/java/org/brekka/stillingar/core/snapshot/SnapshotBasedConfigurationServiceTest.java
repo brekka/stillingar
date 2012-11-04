@@ -16,20 +16,17 @@
 
 package org.brekka.stillingar.core.snapshot;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
-import java.util.List;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import org.brekka.stillingar.api.ConfigurationSource;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 /**
- * TODO Description of SnapshotBasedConfigurationSourceTest
+ * Test of the SnapshotBasedConfigurationSource
  *
  * @author Andrew Taylor (andrew@brekka.org)
  */

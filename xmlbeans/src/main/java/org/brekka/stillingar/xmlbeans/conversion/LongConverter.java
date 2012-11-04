@@ -44,7 +44,6 @@ public class LongConverter extends AbstractTypeConverter<Long> {
         } else if (xmlValue instanceof XmlInteger) {
             XmlInteger integer = (XmlInteger) xmlValue;
             BigInteger bigIntegerValue = integer.getBigIntegerValue();
-            // TODO warn about out of range for long
             value = Long.valueOf(bigIntegerValue.longValue());
         } else {
             throw noConversionAvailable(xmlValue);

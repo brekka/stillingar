@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-package org.brekka.stillingar.xmlbeans.conversion;
+package org.brekka.stillingar.jaxb.conversion;
 
 import static java.lang.String.format;
-
-import org.apache.xmlbeans.XmlObject;
 
 /**
  * Support class for type converters.
@@ -42,8 +40,8 @@ public abstract class AbstractTypeConverter<T> implements TypeConverter<T> {
      *            the value that could not be converted.
      * @return an exception
      */
-    protected IllegalArgumentException noConversionAvailable(XmlObject xmlValue) {
-        return new IllegalArgumentException(format("No conversion possible from '%s' to '%s'", xmlValue.getClass()
+    protected IllegalArgumentException noConversionAvailable(Object value) {
+        return new IllegalArgumentException(format("No conversion possible from '%s' to '%s'", value.getClass()
                 .getName(), targetType().getName()));
     }
 }

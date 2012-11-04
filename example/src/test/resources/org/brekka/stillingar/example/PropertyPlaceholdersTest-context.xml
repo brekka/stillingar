@@ -8,17 +8,27 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
         http://brekka.org/schema/stillingar/v1 http://brekka.org/schema/stillingar/brekka-stillingar-1.0.xsd">
 
-    <bean class="org.brekka.stillingar.example.PollingReloadTest" />
+    <bean class="org.brekka.stillingar.example.PropertyPlaceholdersTest" />
     
-    <bean class="org.brekka.stillingar.example.support.MessageOfTheDay" />
+    <bean id="motd" class="java.lang.String" scope="prototype">
+        <constructor-arg value="$config{//c:MOTD}" />
+    </bean>
+    
+    <bean id="testingStr" class="java.lang.String" scope="prototype">
+        <constructor-arg value="$config{//c:Testing/c:String}" />
+    </bean>
+    
+    <bean id="bean" class="org.brekka.stillingar.example.StandardBean">
+        <property name="value" value="$config{//c:MOTD}" />
+    </bean>
 
-    <stil:configuration id="stillingar-example" engine="xmlbeans" reload-interval="2000"> 
+    <stil:configuration id="stillingar-example" engine="xmlbeans" reload-interval="5000"> 
         <stil:selector>
             <stil:location>
                 <stil:system-property>stillingar.dir</stil:system-property>
             </stil:location>
         </stil:selector>
-        <stil:property-placeholder />
+        <stil:property-placeholder prefix="$config{" />
         <stil:namespace prefix="c"     url="http://brekka.org/xml/stillingar/example/v1" />
     </stil:configuration> 
 </beans>

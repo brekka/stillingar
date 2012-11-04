@@ -41,13 +41,13 @@ class BeanReferenceResolver implements ParameterValueResolver {
     /**
      * The expected bean value type
      */
-    private final WeakReference<Class<?>> typeRef;
+    private final Class<?> type;
 
 
     public BeanReferenceResolver(BeanFactory beanFactory, Qualifier qualifier, Class<?> type) {
         this.beanFactoryRef = new WeakReference<BeanFactory>(beanFactory);
         this.qualifier = qualifier;
-        this.typeRef = new WeakReference<Class<?>>(type);
+        this.type = type;
     }
 
     public BeanReferenceResolver(BeanFactory beanFactory, Class<?> type) {
@@ -59,8 +59,7 @@ class BeanReferenceResolver implements ParameterValueResolver {
      */
     public Object getValue() {
         BeanFactory beanFactory = beanFactoryRef.get();
-        Class<?> type = typeRef.get();
-        if (beanFactory == null || type == null) {
+        if (beanFactory == null) {
             // No longer available, just return null
             return null;
         }

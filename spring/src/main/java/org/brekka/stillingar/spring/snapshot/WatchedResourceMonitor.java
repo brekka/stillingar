@@ -25,49 +25,82 @@ import java.nio.file.WatchService;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.brekka.stillingar.api.ConfigurationException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.core.io.Resource;
 
 /**
- * TODO Description of WatchedResourceMonitor
- *
+ * Monitors for changes to a resource using the JDK 7 "watch" capability. This results in the {@link #hasChanged()}
+ * method becoming blocking, waiting for a change to occur. To avoid blocking indefinately, a timeout can be specified
+ * after which {@link #hasChanged()} will give up and return false.
+ * 
  * @author Andrew Taylor (andrew@brekka.org)
  */
 public class WatchedResourceMonitor implements ResourceMonitor, DisposableBean {
     
-    private final long timeout;
-    
-    private WatchService watchService;
-    
-    private Path resourceFile;
-    
-    private WatchKey watchKey;
-    
+    private static final Log log = LogFactory.getLog(WatchedResourceMonitor.class);
+
     /**
+     * The timeout for the {@link #hasChanged()} method.
+     */
+    private final long timeout;
+
+    /**
+     * The service doing the watching of the resource directory.
+     */
+    private WatchService watchService;
+
+    /**
+     * The actual resource as a path
+     */
+    private Path resourceFile;
+
+    /**
+     * Watch key
+     */
+    private WatchKey watchKey;
+
+    /**
+     * Watch with no timeout
+     */
+    public WatchedResourceMonitor() {
+        this(0);
+    }
+
+    /**
+     * Watch with a timeout. If no change is detected within this time, the call to {@link #hasChanged()} will return
+     * null.
      * 
+     * @param timeout
+     *            the timeout in milliseconds.
      */
     public WatchedResourceMonitor(long timeout) {
         this.timeout = timeout;
     }
-    
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.brekka.stillingar.spring.snapshot.ResourceMonitor#initialize(org.springframework.core.io.Resource)
      */
     @Override
-    public void initialize(Resource resource) {
+    public void initialise(Resource resource) {
         try {
             this.resourceFile = resource.getFile().toPath();
             Path parent = resourceFile.getParent();
             this.watchService = parent.getFileSystem().newWatchService();
-            this.watchKey = parent.register(this.watchService, StandardWatchEventKinds.ENTRY_MODIFY, 
+            this.watchKey = parent.register(this.watchService, StandardWatchEventKinds.ENTRY_MODIFY,
                     StandardWatchEventKinds.ENTRY_CREATE);
         } catch (IOException e) {
             throw new ConfigurationException("", e);
         }
     }
-    
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.brekka.stillingar.spring.snapshot.ResourceMonitor#hasChanged()
      */
     @Override
@@ -77,7 +110,13 @@ public class WatchedResourceMonitor implements ResourceMonitor, DisposableBean {
         }
         boolean changed = false;
         try {
-            WatchKey poll = watchService.poll(timeout, TimeUnit.MILLISECONDS);
+            WatchKey poll;
+            if (timeout > 0) {
+                poll = watchService.poll(timeout, TimeUnit.MILLISECONDS);
+            } else {
+                // Indefinite blocking
+                poll = watchService.take();
+            }
             if (poll != null) {
                 if (poll != watchKey) {
                     throw new IllegalStateException("WatchKey does not match that registered with the service");
@@ -97,13 +136,19 @@ public class WatchedResourceMonitor implements ResourceMonitor, DisposableBean {
         }
         return changed;
     }
-    
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.springframework.beans.factory.DisposableBean#destroy()
      */
     @Override
     public void destroy() throws Exception {
+        if (log.isInfoEnabled()) {
+            log.info(String.format("Shutdown watch on '%s'", resourceFile));
+        }
         watchKey.cancel();
         watchService.close();
+        
     }
 }

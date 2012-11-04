@@ -8,7 +8,31 @@
             <xsd:sequence>
                 <xsd:element name="MOTD" maxOccurs="1" minOccurs="0" type="xsd:string" />
                 
+                <xsd:element name="FeatureFlag" maxOccurs="unbounded" minOccurs="0" type="st:FeatureFlagType" />
                 
+                <xsd:element name="Testing" maxOccurs="1" minOccurs="0">
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element name="AnyURI" type="xsd:anyURI" maxOccurs="1" minOccurs="0" />
+                            <xsd:element name="Boolean" type="xsd:boolean" maxOccurs="1" minOccurs="0" />
+                            <xsd:element name="Byte" type="xsd:byte" maxOccurs="1" minOccurs="0" />
+                            <xsd:element name="Date" type="xsd:date" maxOccurs="1" minOccurs="0" />
+                            <xsd:element name="DateTime" type="xsd:dateTime" maxOccurs="1" minOccurs="0" />
+                            <xsd:element name="Decimal" type="xsd:decimal" maxOccurs="1" minOccurs="0" />
+                            <xsd:element name="Double" type="xsd:double" maxOccurs="1" minOccurs="0" />
+                            <xsd:element name="Float" type="xsd:float" maxOccurs="1" minOccurs="0" />
+                            <xsd:element name="Int" type="xsd:int" maxOccurs="1" minOccurs="0" />
+                            <xsd:element name="Integer" type="xsd:integer" maxOccurs="1" minOccurs="0" />
+                            <xsd:element name="Language" type="xsd:language" maxOccurs="1" minOccurs="0" />
+                            <xsd:element name="Long" type="xsd:long" maxOccurs="1" minOccurs="0" />
+                            <xsd:element name="Short" type="xsd:short" maxOccurs="1" minOccurs="0" />
+                            <xsd:element name="String" type="xsd:string" maxOccurs="1" minOccurs="0" />
+                            <xsd:element name="Time" type="xsd:time" maxOccurs="1" minOccurs="0" />
+                            <xsd:element name="Binary" type="xsd:base64Binary" maxOccurs="1" minOccurs="0" />
+                            <xsd:element name="UUID" type="st:UUIDType" maxOccurs="1" minOccurs="0" />
+                        </xsd:sequence>
+                    </xsd:complexType>
+                </xsd:element>
                 
                 <xsd:element name="Logging" maxOccurs="1" minOccurs="0">
                     <xsd:complexType>

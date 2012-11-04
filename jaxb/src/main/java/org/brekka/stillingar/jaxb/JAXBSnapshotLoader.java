@@ -39,6 +39,7 @@ import javax.xml.validation.SchemaFactory;
 import org.brekka.stillingar.api.ConfigurationException;
 import org.brekka.stillingar.api.ConfigurationSource;
 import org.brekka.stillingar.api.ConfigurationSourceLoader;
+import org.brekka.stillingar.jaxb.conversion.ConversionManager;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -65,9 +66,19 @@ public class JAXBSnapshotLoader implements ConfigurationSourceLoader {
     private final NamespaceContext xPathNamespaceContext;
     
     /**
+     * Conversion manager
+     */
+    private final ConversionManager conversionManager;
+    
+    
+    public JAXBSnapshotLoader(String contextPath, List<URL> schemas, NamespaceContext xPathNamespaceContext) {
+        this(contextPath, schemas, xPathNamespaceContext, new ConversionManager());
+    }
+    
+    /**
      * @param contextPath
      */
-    public JAXBSnapshotLoader(String contextPath, List<URL> schemas, NamespaceContext xPathNamespaceContext) {
+    public JAXBSnapshotLoader(String contextPath, List<URL> schemas, NamespaceContext xPathNamespaceContext, ConversionManager conversionManager) {
         this.contextPath = contextPath;
         if (schemas.isEmpty()) {
             this.schema = null;
@@ -96,6 +107,7 @@ public class JAXBSnapshotLoader implements ConfigurationSourceLoader {
             }
         }
         this.xPathNamespaceContext = xPathNamespaceContext;
+        this.conversionManager = conversionManager;
     }
 
     /* (non-Javadoc)
@@ -113,7 +125,7 @@ public class JAXBSnapshotLoader implements ConfigurationSourceLoader {
             Unmarshaller u = jc.createUnmarshaller();
             u.setSchema( this.schema );
             Object object = u.unmarshal(document);
-            return new JAXBConfigurationSource(document, object, xPathNamespaceContext);
+            return new JAXBConfigurationSource(document, object, xPathNamespaceContext, conversionManager);
         } catch (JAXBException e) {
             throw new ConfigurationException(String.format(
                     "Failed to establish new JAXB context for path '%s'", this.contextPath), e);

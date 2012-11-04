@@ -17,7 +17,9 @@
 package org.brekka.stillingar.core.snapshot;
 
 /**
- * TODO
+ * Manages the retrieval of 'snapshots' of the configuration. Separate methods are defined for retrieving the initial and then
+ * subsequent updated snapshots. A problem with the initial retrieve should be considered fatal while an update failure could
+ * be recovered.
  * 
  * @author Andrew Taylor
  */

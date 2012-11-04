@@ -36,7 +36,7 @@ abstract class InvocationChangeListenerSupport<T extends Object> implements Valu
     /**
      * The type of the value that is expected.
      */
-    private final WeakReference<Class<?>> expectedValueTypeRef;
+    private final Class<?> expectedValueType;
 
     /**
      * Determines whether the value is a list (true if it is)
@@ -61,7 +61,7 @@ abstract class InvocationChangeListenerSupport<T extends Object> implements Valu
     public InvocationChangeListenerSupport(Object target, Class<?> expectedValueType, boolean list,
             String referentTypeLabel) {
         this.targetRef = new WeakReference<Object>(target);
-        this.expectedValueTypeRef = new WeakReference<Class<?>>(expectedValueType);
+        this.expectedValueType = expectedValueType;
         this.list = list;
         this.referentTypeLabel = referentTypeLabel;
     }
@@ -117,7 +117,7 @@ abstract class InvocationChangeListenerSupport<T extends Object> implements Valu
                 targetClass = ((OnceOnlyTypeHolder) target).get();
             }
         }
-        throw new ReferentUpdateException(referentTypeLabel, referentName, valueType, expectedValueTypeRef.get(), list,
+        throw new ReferentUpdateException(referentTypeLabel, referentName, valueType, expectedValueType, list,
                 targetClass, cause);
     }
 }

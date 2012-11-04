@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2011 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,24 @@
  * limitations under the License.
  */
 
-package org.brekka.stillingar.example.support;
+package org.brekka.stillingar.jaxb.conversion;
+
+import java.util.UUID;
 
 /**
- * TODO Description of ConfiguredHttpClient
- *
- * @author Andrew Taylor (andrew@brekka.org)
+ * @author Andrew Taylor
  */
-public class ConfiguredHttpClient {
+public class UUIDConverter extends AbstractTypeConverter<UUID> {
 
+    public Class<UUID> targetType() {
+        return UUID.class;
+    }    
+    
+    public UUID convert(Object value) {
+        if (value instanceof String) {
+            return UUID.fromString((String) value);
+        }
+        throw noConversionAvailable(value);
+    }
+    
 }

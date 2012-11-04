@@ -16,7 +16,6 @@
 
 package org.brekka.stillingar.spring.bpp;
 
-import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -30,7 +29,7 @@ class MethodValueChangeListener<T extends Object> extends InvocationChangeListen
     /**
      * The method being updated
      */
-    private final WeakReference<Method> methodRef;
+    private final Method method;
 
     /**
      * @param method
@@ -44,17 +43,13 @@ class MethodValueChangeListener<T extends Object> extends InvocationChangeListen
      */
     public MethodValueChangeListener(Method method, Object target, Class<?> expectedValueType, boolean list) {
         super(target, expectedValueType, list, "Method");
-        this.methodRef = new WeakReference<Method>(method);
+        this.method = method;
     }
 
     /**
      * Use reflection to invoke the setter with the new value on the target object.
      */
     public void onChange(T newValue, T oldValue, Object target) {
-        Method method = methodRef.get();
-        if (method == null) {
-            return;
-        }
         try {
             method.invoke(target, newValue);
         } catch (IllegalAccessException e) {

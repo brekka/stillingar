@@ -12,6 +12,8 @@
                             <xsd:element name="ID" type="st:UUIDType" maxOccurs="1" minOccurs="0"></xsd:element>
                             <xsd:element name="Message" type="xsd:string" maxOccurs="1" minOccurs="1"></xsd:element>
                             <xsd:element name="Expires" type="xsd:dateTime" maxOccurs="1" minOccurs="0"></xsd:element>
+                            <xsd:element name="Language" type="xsd:language" maxOccurs="1" minOccurs="0"></xsd:element>
+                            <xsd:element name="References" type="st:UUIDType" maxOccurs="unbounded" minOccurs="0"></xsd:element>
                         </xsd:sequence>
                     </xsd:complexType>
                 </xsd:element>

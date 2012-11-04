@@ -42,7 +42,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 /**
- * TODO Description of TwoPhasedGroupsUpdaterTest
+ * Test of the TwoPhasedGroupsUpdater class
  *
  * @author Andrew Taylor (andrew@brekka.org)
  */

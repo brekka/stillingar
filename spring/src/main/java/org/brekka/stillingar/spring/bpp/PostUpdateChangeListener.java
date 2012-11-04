@@ -43,7 +43,7 @@ class PostUpdateChangeListener implements GroupChangeListener, Expirable {
     /**
      * The method to invoke
      */
-    private final WeakReference<Method> methodRef;
+    private final Method method;
 
     /**
      * Value resolvers for the parameters of the method.
@@ -60,7 +60,7 @@ class PostUpdateChangeListener implements GroupChangeListener, Expirable {
      */
     public PostUpdateChangeListener(Object target, Method method, List<ParameterValueResolver> parameterValues) {
         this.targetRef = new WeakReference<Object>(target);
-        this.methodRef = new WeakReference<Method>(method);
+        this.method = method;
         this.parameterValues = parameterValues;
     }
 
@@ -69,8 +69,7 @@ class PostUpdateChangeListener implements GroupChangeListener, Expirable {
      */
     public final void onChange(ConfigurationSource configurationSource) {
         Object target = targetRef.get();
-        Method method = methodRef.get();
-        if (target == null || method == null) {
+        if (target == null) {
             return;
         }
         onChange(configurationSource, target, method);
@@ -107,7 +106,7 @@ class PostUpdateChangeListener implements GroupChangeListener, Expirable {
      */
     @Override
     public boolean isExpired() {
-        return (targetRef.isEnqueued() || methodRef.isEnqueued());
+        return (targetRef.isEnqueued());
     }
 
     /**
@@ -130,6 +129,6 @@ class PostUpdateChangeListener implements GroupChangeListener, Expirable {
      * @return the method
      */
     public Method getMethod() {
-        return methodRef.get();
+        return method;
     }
 }

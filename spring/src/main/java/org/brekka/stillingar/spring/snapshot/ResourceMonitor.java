@@ -19,14 +19,22 @@ package org.brekka.stillingar.spring.snapshot;
 import org.springframework.core.io.Resource;
 
 /**
- * Used to determine whether a resource has changed.
+ * Determine whether a resource has changed.
  *
  * @author Andrew Taylor (andrew@brekka.org)
  */
 public interface ResourceMonitor {
 
-    void initialize(Resource resource);
+    /**
+     * Initialise the monitor with the resource that will be monitored.
+     * @param resource the resource to monitor
+     */
+    void initialise(Resource resource);
     
+    /**
+     * Determine whether the resource has changed.
+     * @return true if the resource has changed.
+     */
     boolean hasChanged();
     
 }

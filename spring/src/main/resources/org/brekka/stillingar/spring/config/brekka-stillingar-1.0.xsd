@@ -119,6 +119,12 @@
                         <xsd:attribute name="encoding" type="xsd:string" use="optional"></xsd:attribute>
                     </xsd:complexType>
                 </xsd:element>
+                <xsd:element name="handlers" maxOccurs="1" minOccurs="0">
+                    <xsd:complexType>
+                        <xsd:attribute name="event-ref" type="xsd:string" use="optional" />
+                        <xsd:attribute name="rejected-ref" type="xsd:string" use="optional" />
+                    </xsd:complexType>
+                </xsd:element>
                 <xsd:element name="jaxb" maxOccurs="1" minOccurs="0">
                     <xsd:complexType>
                         <xsd:sequence>

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.brekka.stillingar.xmlbeans.conversion;
+package org.brekka.stillingar.jaxb.conversion;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -30,24 +30,12 @@ public class ConversionManager {
     
     public ConversionManager() {
         this(Arrays.<TypeConverter<?>>asList(
-            new BigDecimalConverter(),
-            new BigIntegerConverter(),
-            new BooleanConverter(),
-            new ByteConverter(),
-            new ByteArrayConverter(),
             new CalendarConverter(),
             new DateConverter(),
-            new DoubleConverter(),
-            new ElementConverter(),
-            new FloatConverter(),
-            new IntegerConverter(),
-            new LongConverter(),
-            new ShortConverter(),
-            new StringConverter(),
             new URIConverter(),
             new DocumentConverter(),
-            new LocaleConverter(),
-            new UUIDConverter()
+            new UUIDConverter(),
+            new LocaleConverter()
         ));
     }
     

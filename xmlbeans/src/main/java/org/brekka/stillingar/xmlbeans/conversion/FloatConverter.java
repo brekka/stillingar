@@ -44,7 +44,6 @@ public class FloatConverter extends AbstractTypeConverter<Float> {
         } else if (xmlValue instanceof XmlDecimal) {
             XmlDecimal decimal = (XmlDecimal) xmlValue;
             BigDecimal bigDecimalValue = decimal.getBigDecimalValue();
-            // TODO warn about out of range for float
             value = Float.valueOf(bigDecimalValue.floatValue());
         } else {
             throw noConversionAvailable(xmlValue);
