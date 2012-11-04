@@ -71,7 +71,7 @@ import org.w3c.dom.NodeList;
  * 
  * @author Andrew Taylor (andrew@brekka.org)
  */
-public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
+class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
 
     private static final int MINIMUM_RELOAD_INTERVAL = 500;
     
@@ -111,13 +111,16 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
         BeanDefinitionBuilder postProcessor = BeanDefinitionBuilder
                 .genericBeanDefinition(ConfigurationBeanPostProcessor.class);
         postProcessor.addConstructorArgReference(id);
-        if (element.hasAttribute("marker-annotation")) {
-            String markerAnnotation = element.getAttribute("marker-annotation");
-            Class<?> theClass = ClassUtils.resolveClassName(markerAnnotation, Thread.currentThread().getContextClassLoader());
-            if (!theClass.isAnnotation()) {
-                throw new ConfigurationException(String.format("The class '%s' is not an annotation", markerAnnotation));
+        Element annotationConfigElement = selectSingleChildElement(element, "annotation-config", true);
+        if (annotationConfigElement != null) {
+            String marker = annotationConfigElement.getAttribute("marker");
+            if (StringUtils.hasLength(marker)) {
+                Class<?> theClass = ClassUtils.resolveClassName(marker, Thread.currentThread().getContextClassLoader());
+                if (!theClass.isAnnotation()) {
+                    throw new ConfigurationException(String.format("The class '%s' is not an annotation", marker));
+                }
+                postProcessor.addPropertyValue("markerAnnotation", theClass);
             }
-            postProcessor.addPropertyValue("markerAnnotation", theClass);
         }
         parserContext.registerBeanComponent(new BeanComponentDefinition(postProcessor.getBeanDefinition(), id
                 + "-postProcessor"));

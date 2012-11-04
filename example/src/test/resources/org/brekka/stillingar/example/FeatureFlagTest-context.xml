@@ -10,7 +10,7 @@
 
     <bean class="org.brekka.stillingar.example.FeatureFlagTest" />
 
-    <stil:configuration id="stillingar-example" engine="xmlbeans"> 
+    <stil:configuration-service id="stillingar-example" engine="xmlbeans"> 
         <stil:selector>
             <stil:location>
                 <stil:system-property>stillingar.dir</stil:system-property>
@@ -18,5 +18,5 @@
         </stil:selector>
         <stil:property-placeholder />
         <stil:namespace prefix="c"     url="http://brekka.org/xml/stillingar/example/v1" />
-    </stil:configuration> 
+    </stil:configuration-service> 
 </beans>

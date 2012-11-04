@@ -29,7 +29,7 @@ import org.springframework.core.io.Resource;
  * 
  * @author Andrew Taylor (andrew@brekka.org)
  */
-public class DefaultConfigurationSourceFactoryBean implements FactoryBean<ConfigurationSource> {
+class DefaultConfigurationSourceFactoryBean implements FactoryBean<ConfigurationSource> {
 
     /**
      * The resource to load the default configuration from

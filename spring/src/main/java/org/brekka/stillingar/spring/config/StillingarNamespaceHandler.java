@@ -27,7 +27,9 @@ public class StillingarNamespaceHandler extends NamespaceHandlerSupport {
 
 	@Override
 	public void init() {
-		registerBeanDefinitionParser("configuration", new ConfigurationBeanDefinitionParser());
+		registerBeanDefinitionParser("configuration-service", new ConfigurationServiceBeanDefinitionParser());
+		registerBeanDefinitionParser("property-placeholder", new PropertyPlaceholderBeanDefinitionParser());
+		registerBeanDefinitionParser("annotation-config", new AnnotationConfigBeanDefinitionParser());
 	}
 
 }

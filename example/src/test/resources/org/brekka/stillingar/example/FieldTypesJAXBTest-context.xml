@@ -12,7 +12,9 @@
 
     <bean class="org.brekka.stillingar.example.FieldTypesJAXBTest" />
 
-    <stil:configuration id="stillingar-example" engine="jaxb" reload-interval="5000"> 
+    <context:annotation-config />
+
+    <stil:configuration-service id="stillingar-example" engine="jaxb" reload-interval="5000" > 
         <stil:selector>
             <stil:location>
                 <stil:system-property>stillingar.dir</stil:system-property>
@@ -23,5 +25,6 @@
             <stil:schema>file:src/main/xsd/ExampleConfiguration-1.0.xsd</stil:schema>
         </stil:jaxb>
         <stil:namespace prefix="c"     url="http://brekka.org/xml/stillingar/example/v1" />
-    </stil:configuration>
+    </stil:configuration-service>
+    
 </beans>

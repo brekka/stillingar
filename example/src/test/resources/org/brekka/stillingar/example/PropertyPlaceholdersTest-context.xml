@@ -22,7 +22,7 @@
         <property name="value" value="$config{//c:MOTD}" />
     </bean>
 
-    <stil:configuration id="stillingar-example" engine="xmlbeans" reload-interval="5000"> 
+    <stil:configuration-service id="stillingar-example" engine="xmlbeans" reload-interval="5000"> 
         <stil:selector>
             <stil:location>
                 <stil:system-property>stillingar.dir</stil:system-property>
@@ -30,5 +30,5 @@
         </stil:selector>
         <stil:property-placeholder prefix="$config{" />
         <stil:namespace prefix="c"     url="http://brekka.org/xml/stillingar/example/v1" />
-    </stil:configuration> 
+    </stil:configuration-service> 
 </beans>

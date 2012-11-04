@@ -12,8 +12,13 @@
     
     <bean class="org.brekka.stillingar.example.support.MessageOfTheDay" />
 
-    <stil:configuration id="stillingar-example" engine="xmlbeans"> 
+    <stil:configuration-service id="stillingar-example" engine="xmlbeans"> 
         <stil:property-placeholder />
         <stil:namespace prefix="c"     url="http://brekka.org/xml/stillingar/example/v1" />
-    </stil:configuration> 
+    </stil:configuration-service> 
+    
+    <stil:property-placeholder prefix="$test{" suffix="}" service-ref="stillingar-example"/> 
+    
+    
+    
 </beans>

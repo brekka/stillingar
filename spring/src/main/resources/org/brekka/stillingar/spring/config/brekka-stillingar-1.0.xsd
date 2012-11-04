@@ -17,7 +17,7 @@
 <xsd:schema xmlns:stil="http://brekka.org/schema/stillingar/v1" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     targetNamespace="http://brekka.org/schema/stillingar/v1" elementFormDefault="qualified" attributeFormDefault="unqualified">
 
-    <xsd:element name="configuration">
+    <xsd:element name="configuration-service">
         <xsd:complexType>
             <xsd:sequence>
                 <xsd:choice minOccurs="0" maxOccurs="1">
@@ -113,6 +113,7 @@
                         <xsd:attribute name="suffix" type="xsd:string" use="optional" />
                     </xsd:complexType>
                 </xsd:element>
+                <xsd:element name="annotation-config" type="stil:annotation-configType" minOccurs="0" maxOccurs="1" />
                 <xsd:element name="defaults" maxOccurs="1" minOccurs="0">
                     <xsd:complexType>
                         <xsd:attribute name="path" type="xsd:string" use="required"></xsd:attribute>
@@ -214,15 +215,29 @@
                     </xsd:documentation>
                 </xsd:annotation>
             </xsd:attribute>
-            <xsd:attribute name="marker-annotation" type="xsd:string" use="optional" default="org.brekka.stillingar.api.annotations.Configured">
-                <xsd:annotation>
-                    <xsd:documentation>
-                        Only classes marked with this annotation will be configured by the Stillingar
-                        post processor. By default any classes marked with org.brekka.stillingar.api.annotations.Configured
-                        will be configured.
-                    </xsd:documentation>
-                </xsd:annotation>
-            </xsd:attribute>
         </xsd:complexType>
     </xsd:element>
+    
+    <xsd:element name="property-placeholder">
+        <xsd:complexType>
+            <xsd:attribute name="service-ref" type="xsd:string" use="required" />
+            <xsd:attribute name="prefix" type="xsd:string" use="required" />
+            <xsd:attribute name="suffix" type="xsd:string" use="required" />
+        </xsd:complexType>
+    </xsd:element>
+    
+    <xsd:element name="annotation-config">
+        <xsd:complexType>
+            <xsd:complexContent>
+                <xsd:extension base="stil:annotation-configType">
+                    <xsd:attribute name="service-ref" type="xsd:string" use="required" />
+                </xsd:extension>
+            </xsd:complexContent>
+        </xsd:complexType>
+    </xsd:element>
+    
+    <xsd:complexType name="annotation-configType">
+        <xsd:attribute name="marker" type="xsd:string" use="optional" />
+    </xsd:complexType>
+    
 </xsd:schema>
