@@ -18,11 +18,14 @@ package org.brekka.stillingar.spring.snapshot;
 
 import static java.lang.String.format;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 
+import org.apache.xmlbeans.impl.common.IOUtil;
 import org.brekka.stillingar.api.ConfigurationException;
 import org.brekka.stillingar.api.ConfigurationSource;
 import org.brekka.stillingar.api.ConfigurationSourceLoader;
@@ -52,6 +55,11 @@ public class ResourceSnapshotManager implements SnapshotManager {
 	private final ResourceSelector resourceSelector;
 	
 	/**
+	 * Monitors activity on the resource.
+	 */
+	private final ResourceMonitor resourceMonitor;
+	
+	/**
 	 * Can listen for when a resource is rejected.
 	 */
 	private RejectedResourceHandler rejectedResourceHandler; 
@@ -62,24 +70,18 @@ public class ResourceSnapshotManager implements SnapshotManager {
 	private Resource configurationResource;
 	
 	/**
-	 * The lastModified of the original at the time we last tried to read it. If it throws an exception
-	 * then we should not attempt to parse again until the resource last modified is greater than this
-	 * value.
-	 */
-	private long lastAttempt;
-	
-	/**
 	 * @param resourceSelector Determines where the resources that the snapshots will be based on will be loaded from.
 	 * @param configurationSourceLoader Will actually load the snapshots
 	 */
 	public ResourceSnapshotManager(
 			ResourceSelector resourceSelector,
-			ConfigurationSourceLoader configurationSourceLoader) {
+			ConfigurationSourceLoader configurationSourceLoader,
+			ResourceMonitor resourceMonitor) {
 		this.resourceSelector = resourceSelector;
 		this.configurationSourceLoader = configurationSourceLoader;
+		this.resourceMonitor = resourceMonitor;
 	}
 	
-
 	
 	/* (non-Javadoc)
 	 * @see org.brekka.stillingar.core.snapshot.SnapshotManager#retrieveInitial()
@@ -89,6 +91,7 @@ public class ResourceSnapshotManager implements SnapshotManager {
 	    Resource configurationResource = resourceSelector.getResource();
 	    this.configurationResource = configurationResource;
 	    Snapshot snapshot = performLoad(configurationResource);
+	    this.resourceMonitor.initialize(configurationResource);
 	    return snapshot;
 	}
 
@@ -102,27 +105,12 @@ public class ResourceSnapshotManager implements SnapshotManager {
 	        throw new ConfigurationException("Cannot call 'retrieveUpdated' until 'retrieveInitial' has been called" +
 	        		" for the first time");
 	    }
-	    long resourceLastModified;
-        try {
-            resourceLastModified = configurationResource.lastModified();
-        } catch (IOException e) {
-            throw new ConfigurationException(String.format(
-                    "Unable to determine the last modified for the resource '%s'", configurationResource));
-        }
-	    if (resourceLastModified <= lastAttempt) {
-	        // Resource has not changed
-	        return null;
-	    }
-	    
-	    try {
-	        Snapshot snapshot = performLoad(configurationResource);
+        if (resourceMonitor.hasChanged()) {
+            Snapshot snapshot = performLoad(configurationResource);
             snapshot = performLoad(configurationResource);
-            this.lastAttempt = resourceLastModified;
             return snapshot;
-        } catch (ConfigurationException e) {
-            throw new InvalidSnapshotException(String.format(
-                    "Error extracting snapshot from resource '%s'", configurationResource), e);
         }
+        return null;
 	}
 	
 	/* (non-Javadoc)

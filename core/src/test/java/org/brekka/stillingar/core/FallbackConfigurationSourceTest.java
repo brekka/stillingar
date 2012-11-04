@@ -66,10 +66,6 @@ public class FallbackConfigurationSourceTest {
         assertSame(secondary, source.getSecondarySource());
     }
     
-    @Test(expected=IllegalArgumentException.class)
-    public void testNoSources() {
-        new FallbackConfigurationSource(null, null).getClass();
-    }
     
     /**
      * Test method for {@link org.brekka.stillingar.core.FallbackConfigurationSource#getPrimarySource()}.

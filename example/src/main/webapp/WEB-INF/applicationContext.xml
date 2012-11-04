@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context" xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:jee="http://www.springframework.org/schema/jee" xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:stil="http://brekka.org/schema/stillingar/v1"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://brekka.org/schema/stillingar/v1 http://brekka.org/schema/stillingar/brekka-stillingar-1.0.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd
+        http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd
+    ">
+
+
+    <!-- 
+        Standard configuration. Beans annotated with @Configured will be configured by this service. 
+     -->
+    <stil:configuration id="stillingar-example" engine="xmlbeans" reload-interval="5000" >
+        <stil:selector>
+            <stil:name>
+                <stil:version pattern="^((\d+)\.\d+).*$">
+                    <stil:maven groupId="org.brekka.stillingar" artifactId="stillingar-example" />
+                </stil:version>
+            </stil:name>
+        </stil:selector>
+        <!-- Will use placeholder of the format $example{...} -->
+        <stil:property-placeholder />
+        <stil:namespace prefix="c" url="http://brekka.org/xml/stillingar/example/v1" />
+    </stil:configuration>
+    
+<!--     <stil:configuration id="legacy" engine="xmlbeans" reload-interval="5000"  -->
+<!--                         marker-annotation="org.brekka.stillingar.example.annotation.LegacyConfigured" > -->
+<!--         Will use placeholder of the format $special{...} -->
+<!--         <stil:property-placeholder /> -->
+<!--         <stil:namespace prefix="c" url="http://brekka.org/xml/stillingar/test/v1" /> -->
+<!--     </stil:configuration> -->
+</beans>

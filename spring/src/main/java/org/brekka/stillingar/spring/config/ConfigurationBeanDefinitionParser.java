@@ -40,8 +40,10 @@ import org.brekka.stillingar.spring.resource.dir.SystemPropertyDirectory;
 import org.brekka.stillingar.spring.resource.dir.WebappDirectory;
 import org.brekka.stillingar.spring.snapshot.ConfigurationSnapshotRefresher;
 import org.brekka.stillingar.spring.snapshot.LoggingSnapshotEventHandler;
+import org.brekka.stillingar.spring.snapshot.PollingResourceMonitor;
 import org.brekka.stillingar.spring.snapshot.ResourceSnapshotManager;
 import org.brekka.stillingar.spring.snapshot.SnapshotDeltaValueInterceptor;
+import org.brekka.stillingar.spring.snapshot.WatchedResourceMonitor;
 import org.brekka.stillingar.spring.version.ApplicationVersionFromMaven;
 import org.brekka.stillingar.spring.xmlbeans.ApplicationContextConverter;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
@@ -73,6 +75,12 @@ import org.w3c.dom.NodeList;
 public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
 
     private static final int MINIMUM_RELOAD_INTERVAL = 500;
+    
+    /**
+     * Determine if Watchable is available (Java 7).
+     */
+    private boolean watchableAvailable = ClassUtils.isPresent("java.nio.file.Watchable", 
+            this.getClass().getClassLoader());
 
     @Override
     protected Class<SnapshotBasedConfigurationService> getBeanClass(Element element) {
@@ -230,11 +238,11 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
 
     protected void prepareReloadMechanism(Element element, ParserContext parserContext) {
         String id = element.getAttribute("id");
-        String attribute = element.getAttribute("reload-interval");
-        if (attribute != null && !attribute.isEmpty()) {
+        String reloadIntervalStr = element.getAttribute("reload-interval");
+        if (StringUtils.hasLength(reloadIntervalStr)) {
             int reloadInterval = 0;
             try {
-                reloadInterval = Integer.valueOf(attribute);
+                reloadInterval = Integer.valueOf(reloadIntervalStr);
             } catch (NumberFormatException e) {
                 throw new IllegalArgumentException("The attribute reload-interval is invalid", e);
             }
@@ -248,8 +256,17 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
                 BeanDefinitionBuilder scheduledExecutorTask = BeanDefinitionBuilder
                         .genericBeanDefinition(ScheduledExecutorTask.class);
                 scheduledExecutorTask.addConstructorArgValue(updateTask.getBeanDefinition());
-                scheduledExecutorTask.addPropertyValue("period", reloadInterval);
-                scheduledExecutorTask.addPropertyValue("delay", reloadInterval);
+                if (watchableAvailable) {
+                    /*
+                     * The WatchedResourceMonitor is blocking with a timeout of reloadInterval. Must set a period, choose
+                     * an interval of 1s.
+                     */
+                    scheduledExecutorTask.addPropertyValue("period", 1000);
+                    scheduledExecutorTask.addPropertyValue("delay", 0);
+                } else {
+                    scheduledExecutorTask.addPropertyValue("period", reloadInterval);
+                    scheduledExecutorTask.addPropertyValue("delay", reloadInterval);
+                }
 
                 ManagedList<Object> taskList = new ManagedList<Object>();
                 taskList.add(scheduledExecutorTask.getBeanDefinition());
@@ -273,6 +290,26 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(ResourceSnapshotManager.class);
         builder.addConstructorArgValue(prepareResourceSelector(element, engine, parserContext));
         builder.addConstructorArgReference(getLoaderReference(element));
+        builder.addConstructorArgValue(prepareResourceMonitor(element));
+        return builder.getBeanDefinition();
+    }
+
+    /**
+     * @param element
+     * @return
+     */
+    protected AbstractBeanDefinition prepareResourceMonitor(Element element) {
+        BeanDefinitionBuilder builder = null;
+        String reloadIntervalStr = element.getAttribute("reload-interval");
+        if (watchableAvailable 
+                && StringUtils.hasLength(reloadIntervalStr)) { // Must have a reload-interval to use watched.
+            builder = BeanDefinitionBuilder.genericBeanDefinition(WatchedResourceMonitor.class);
+            builder.addConstructorArgValue(Integer.valueOf(reloadIntervalStr));
+        }
+        if (builder == null) {
+            builder = BeanDefinitionBuilder.genericBeanDefinition(PollingResourceMonitor.class);
+        }
+        
         return builder.getBeanDefinition();
     }
 
@@ -394,14 +431,14 @@ public class ConfigurationBeanDefinitionParser extends AbstractSingleBeanDefinit
                 }
             }
         } else {
-            // home, webapp (if available) and platforms
-            if (ClassUtils.isPresent("org.springframework.web.context.WebApplicationContext", this.getClass().getClassLoader())) {
-                list.add(prepareWebappLocation(element, null));
-            }
             list.add(prepareHomeLocation(element, null));
             PlatformDirectory[] values = PlatformDirectory.values();
             for (PlatformDirectory platformDirectory : values) {
                 list.add(platformDirectory);
+            }
+            // home, webapp (if available) and platforms
+            if (ClassUtils.isPresent("org.springframework.web.context.WebApplicationContext", this.getClass().getClassLoader())) {
+                list.add(prepareWebappLocation(element, null));
             }
         }
         return list;

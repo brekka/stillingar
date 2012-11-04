@@ -44,7 +44,7 @@
         <module>xmlbeans</module>
         <module>xmlbeans-xpath</module>
         <module>jaxb</module>
-        <module>test-integration</module>
+        <module>example</module>
     </modules>
 
     <properties>

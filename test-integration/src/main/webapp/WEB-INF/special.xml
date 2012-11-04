@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Configuration xmlns="http://brekka.org/xml/stillingar/test/v1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://brekka.org/xml/stillingar/test/v1 http://brekka.org/schema/stillingar/test/TestConfiguration-1.0.xsd">
-    <MOTD>
-        <ID>64829ee9-d265-47bb-8fb4-4ab4ada0cdfc</ID>
-        <Message>Test message</Message>
-        <Expires>2012-12-31T12:00:00</Expires>
-    </MOTD>
-</Configuration>
