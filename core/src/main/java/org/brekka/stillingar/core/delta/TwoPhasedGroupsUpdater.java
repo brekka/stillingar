@@ -79,7 +79,8 @@ public class TwoPhasedGroupsUpdater {
      *             if any problems are encountered resolving the values to update the {@link ValueDefinition}s with.
      */
     public List<GroupChangeAction> phaseOneUpdate() throws ChangeConfigurationException {
-        Collection<ValueDefinitionGroup> valueGroups = this.valueGroups;
+        // Take a copy of the valueGroups. Only update the values that existed at this moment in time.
+        Collection<ValueDefinitionGroup> valueGroups = new ArrayList<ValueDefinitionGroup>(this.valueGroups);
         List<GroupChangeAction> updateActionList = new ArrayList<GroupChangeAction>(valueGroups.size());
         List<GroupConfigurationException> groupErrors = new ArrayList<GroupConfigurationException>();
 

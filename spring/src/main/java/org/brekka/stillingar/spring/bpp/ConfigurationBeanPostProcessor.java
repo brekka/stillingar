@@ -29,6 +29,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.brekka.stillingar.api.ConfigurationException;
 import org.brekka.stillingar.api.ConfigurationSource;
 import org.brekka.stillingar.api.annotations.ConfigurationListener;
@@ -43,6 +45,7 @@ import org.brekka.stillingar.core.ValueListDefinition;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -58,14 +61,24 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
  * 
  * @author Andrew Taylor
  */
-public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFactoryAware {
+public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFactoryAware, DisposableBean {
 
+    /**
+     * Logger providing helpful output (if enabled).
+     */
+    private static final Log log = LogFactory.getLog(ConfigurationBeanPostProcessor.class);
+    
     /**
      * The configuration source from which configuration values will be resolved, and potentially registered to receive
      * automatic updates.
      */
     private final ConfigurationSource configurationSource;
 
+    /**
+     * The list of registered groups
+     */
+    private final List<ValueDefinitionGroup> registeredValueGroups = new ArrayList<ValueDefinitionGroup>();
+    
     /**
      * Will be used to identify whether a bean is singleton or not, and also to lookup beans for the
      * {@link ConfigurationListener} mechanism.
@@ -81,7 +94,11 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
      * A cache of value definition groups, used when a given type
      */
     private Map<Class<?>, ValueDefinitionGroup> onceOnlyDefinitionCache = new HashMap<Class<?>, ValueDefinitionGroup>();
-
+    
+    /**
+     * @param configurationSource The configuration source from which configuration values will be resolved, and potentially registered to receive
+     * automatic updates.
+     */
     public ConfigurationBeanPostProcessor(ConfigurationSource configurationSource) {
         this.configurationSource = configurationSource;
     }
@@ -104,6 +121,26 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
 
         }
         return bean;
+    }
+    
+    /**
+     * Unregister all registered beans from the configuration service.
+     */
+    @Override
+    public void destroy() throws Exception {
+        if (log.isInfoEnabled()) {
+            log.info(String.format("Destroy bean post processor - %d registered groups", registeredValueGroups.size()));
+        }
+        synchronized (registeredValueGroups) {
+            ConfigurationService configurationService = (ConfigurationService) configurationSource;
+            for (ValueDefinitionGroup group : registeredValueGroups) {
+                configurationService.unregister(group);
+                if (log.isInfoEnabled()) {
+                    log.info(String.format("Group '%s' has been unregisterd from configuration service", group.getName()));
+                }
+            }
+            registeredValueGroups.clear();
+        }
     }
 
     /**
@@ -170,7 +207,14 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
      */
     protected void processWithUpdates(Object bean, String beanName) {
         ValueDefinitionGroup group = prepareValueGroup(beanName, bean);
-        ((ConfigurationService) configurationSource).register(group, true);
+        ConfigurationService configurationService = (ConfigurationService) configurationSource;
+        configurationService.register(group, true);
+        synchronized (registeredValueGroups) {
+            if (log.isInfoEnabled()) {
+                log.info(String.format("Registered group '%s' with configuration service", group.getName()));
+            }
+            registeredValueGroups.add(group);
+        }
     }
 
     /**

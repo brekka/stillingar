@@ -16,7 +16,13 @@
 
 package org.brekka.stillingar.spring.snapshot;
 
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.brekka.stillingar.api.ConfigurationException;
 import org.brekka.stillingar.core.delta.DeltaValueInterceptor;
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.Lifecycle;
 
 /**
@@ -27,6 +33,8 @@ import org.springframework.context.Lifecycle;
  */
 public class SnapshotDeltaValueInterceptor implements DeltaValueInterceptor {
 
+    private static final Log log = LogFactory.getLog(SnapshotDeltaValueInterceptor.class);
+    
     /*
      * (non-Javadoc)
      * 
@@ -34,11 +42,24 @@ public class SnapshotDeltaValueInterceptor implements DeltaValueInterceptor {
      */
     @Override
     public <T> T created(T value) {
-        if (value instanceof Lifecycle) {
+        if (value instanceof InitializingBean) {
+            InitializingBean initializingBean = (InitializingBean) value;
+            if (log.isInfoEnabled()) {
+                log.info(String.format("Starting InitializingBean: %s", value));
+            }
+            try {
+                initializingBean.afterPropertiesSet();
+            } catch (Exception e) {
+                throw new ConfigurationException(String.format(
+                        "Failed to initialize bean '%s'", value), e);
+            }
+        } else if (value instanceof Lifecycle) {
             Lifecycle lifecycle = (Lifecycle) value;
-            System.out.println("Starting: " + value);
+            if (log.isInfoEnabled()) {
+                log.info(String.format("Starting Lifecycle bean: %s", value));
+            }
             lifecycle.start();
-        }
+        } 
         return value;
     }
 
@@ -49,10 +70,23 @@ public class SnapshotDeltaValueInterceptor implements DeltaValueInterceptor {
      */
     @Override
     public void released(Object value) {
-        if (value instanceof Lifecycle) {
+        if (value instanceof DisposableBean) {
+            DisposableBean disposableBean = (DisposableBean) value;
+            try {
+                disposableBean.destroy();
+            } catch (Exception e) {
+                throw new ConfigurationException(String.format(
+                        "Error while disposing bean '%s'", value), e);
+            }
+            if (log.isInfoEnabled()) {
+                log.info(String.format("Stopped DisposableBean: %s", value));
+            }
+        } else if (value instanceof Lifecycle) {
             Lifecycle lifecycle = (Lifecycle) value;
             lifecycle.stop();
-            System.out.println("Stopped: " + value);
+            if (log.isInfoEnabled()) {
+                log.info(String.format("Stopped Lifecycle bean: %s", value));
+            }
         }
     }
 }

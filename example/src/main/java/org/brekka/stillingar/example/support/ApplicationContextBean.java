@@ -16,28 +16,21 @@
 
 package org.brekka.stillingar.example.support;
 
-import org.brekka.stillingar.api.annotations.ConfigurationListener;
 import org.brekka.stillingar.api.annotations.Configured;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 
+/**
+ * Loads an ApplicationContext
+ *
+ * @author Andrew Taylor (andrew@brekka.org)
+ */
 @Configured
-public class ApplicationContextBean implements InitializingBean  {
+public class ApplicationContextBean {
     
+    @Configured("/c:Configuration/c:ApplicationContext/b:beans")
     private ApplicationContext applicationContext;
-    
     
     public ApplicationContext getContext() {
         return applicationContext;
-    }
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-    }
-    
-    @ConfigurationListener
-    public void configure(@Configured("/c:Configuration/c:ApplicationContext/beans:beans") 
-                             ApplicationContext applicationContext) {
-        this.applicationContext = applicationContext;
     }
 }

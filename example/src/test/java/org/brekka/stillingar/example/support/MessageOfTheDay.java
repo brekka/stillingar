@@ -36,5 +36,4 @@ public class MessageOfTheDay {
     public String getMessage() {
         return message;
     }
-    
 }
