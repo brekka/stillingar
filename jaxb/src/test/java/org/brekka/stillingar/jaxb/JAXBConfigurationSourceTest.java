@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
@@ -214,6 +215,12 @@ public class JAXBConfigurationSourceTest {
     public void testRetrieveUUID() throws Exception {
         assertEquals(UUID.fromString("64829ee9-d265-47bb-8fb4-4ab4ada0cdfc"), configurationSource.retrieve("//c:MOTD//c:ID", UUID.class));
     }
+    
+    @Test
+    public void testRetrieveEnum() {
+        assertEquals(TimeUnit.DAYS, configurationSource.retrieve("//c:Security/c:TimeUnit", TimeUnit.class));
+    }
+
     
     @Test
     public void testRetrieveUUIDList() throws Exception {

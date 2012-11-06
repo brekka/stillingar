@@ -45,6 +45,7 @@ import org.brekka.stillingar.xmlbeans.conversion.DateConverter;
 import org.brekka.stillingar.xmlbeans.conversion.DocumentConverter;
 import org.brekka.stillingar.xmlbeans.conversion.DoubleConverter;
 import org.brekka.stillingar.xmlbeans.conversion.ElementConverter;
+import org.brekka.stillingar.xmlbeans.conversion.EnumConverter;
 import org.brekka.stillingar.xmlbeans.conversion.FloatConverter;
 import org.brekka.stillingar.xmlbeans.conversion.IntegerConverter;
 import org.brekka.stillingar.xmlbeans.conversion.LocaleConverter;
@@ -66,7 +67,7 @@ public class XmlBeansSnapshotLoader implements ConfigurationSourceLoader {
             new ByteArrayConverter(), new CalendarConverter(), new DateConverter(), new DoubleConverter(), 
             new UUIDConverter(), new FloatConverter(), new IntegerConverter(), new LongConverter(), 
             new ShortConverter(), new StringConverter(), new URIConverter(), new DocumentConverter(), 
-            new ElementConverter(), new LocaleConverter());
+            new ElementConverter(), new LocaleConverter(), new EnumConverter());
 
     private final ConversionManager conversionManager;
 

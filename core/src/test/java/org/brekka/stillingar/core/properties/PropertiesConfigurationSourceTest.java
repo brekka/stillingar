@@ -18,10 +18,14 @@ package org.brekka.stillingar.core.properties;
 
 import static org.junit.Assert.*;
 
+import java.net.URI;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Locale;
 import java.util.Properties;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import org.brekka.stillingar.api.ConfigurationException;
 import org.junit.Before;
@@ -49,6 +53,10 @@ public class PropertiesConfigurationSourceTest {
         p.setProperty("floatKey", "85.69");
         p.setProperty("doubleKey", "8589897474565965547558.69");
         p.setProperty("booleanKey", "true");
+        p.setProperty("uuidKey", "a65a0ab0-285b-11e2-81c1-0800200c9a66");
+        p.setProperty("uriKey", "http://example.org/example");
+        p.setProperty("localeKey", "en");
+        p.setProperty("enumKey", "DAYS");
         configurationSource = new PropertiesConfigurationSource(p);
     }
     
@@ -139,6 +147,38 @@ public class PropertiesConfigurationSourceTest {
     @Test
     public void testRetrieveBoolean() {
         assertEquals(Boolean.TRUE, configurationSource.retrieve("booleanKey", Boolean.class));
+    }
+    
+    /**
+     * Test method for {@link org.brekka.stillingar.core.properties.PropertiesConfigurationSource#retrieve(java.lang.String, java.lang.Class)}.
+     */
+    @Test
+    public void testRetrieveUUID() {
+        assertEquals(UUID.fromString("a65a0ab0-285b-11e2-81c1-0800200c9a66"), configurationSource.retrieve("uuidKey", UUID.class));
+    }
+    
+    /**
+     * Test method for {@link org.brekka.stillingar.core.properties.PropertiesConfigurationSource#retrieve(java.lang.String, java.lang.Class)}.
+     */
+    @Test
+    public void testRetrieveEnum() {
+        assertEquals(TimeUnit.DAYS, configurationSource.retrieve("enumKey", TimeUnit.class));
+    }
+    
+    /**
+     * Test method for {@link org.brekka.stillingar.core.properties.PropertiesConfigurationSource#retrieve(java.lang.String, java.lang.Class)}.
+     */
+    @Test
+    public void testRetrieveURI() throws Exception {
+        assertEquals(new URI("http://example.org/example"), configurationSource.retrieve("uriKey", URI.class));
+    }
+    
+    /**
+     * Test method for {@link org.brekka.stillingar.core.properties.PropertiesConfigurationSource#retrieve(java.lang.String, java.lang.Class)}.
+     */
+    @Test
+    public void testRetrieveLocale() throws Exception {
+        assertEquals(new Locale("en"), configurationSource.retrieve("localeKey", Locale.class));
     }
     
     /**

@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import net.iharder.Base64;
 
@@ -183,6 +184,7 @@ public class XmlBeansConfigurationSourceTest {
         assertTrue(configurationSource.retrieve("//c:Fraud//c:Enabled", Boolean.class));
     }
     
+    
     @Test
     public void testRetrieveBytes() throws Exception {
         byte[] expected = Base64.decode("U3RpbGxpbmdhcg==");
@@ -210,6 +212,11 @@ public class XmlBeansConfigurationSourceTest {
     @Test
     public void testRetrieveUUID() throws Exception {
         assertEquals(UUID.fromString("64829ee9-d265-47bb-8fb4-4ab4ada0cdfc"), configurationSource.retrieve("//c:MOTD//c:ID", UUID.class));
+    }
+    
+    @Test
+    public void testRetrieveEnum() {
+        assertEquals(TimeUnit.DAYS, configurationSource.retrieve("//c:Security/c:TimeUnit", TimeUnit.class));
     }
 
     @Test

@@ -16,41 +16,20 @@
 
 package org.brekka.stillingar.core.conversion;
 
+import static java.lang.String.format;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * TODO Documentation
+ * 
  * @author Andrew Taylor
  */
 public class ConversionManager {
 
     private final Map<Class<?>, TypeConverter<?>> converters;
-    
-    /*
-    public ConversionManager() {
-        this(Arrays.<TypeConverter<?>>asList(
-            new BigDecimalConverter(),
-            new BigIntegerConverter(),
-            new BooleanConverter(),
-            new ByteConverter(),
-            new ByteArrayConverter(),
-            new CalendarConverter(),
-            new DateConverter(),
-            new DoubleConverter(),
-            new ElementConverter(),
-            new FloatConverter(),
-            new IntegerConverter(),
-            new LongConverter(),
-            new ShortConverter(),
-            new StringConverter(),
-            new URIConverter(),
-            new DocumentConverter(),
-            new LocaleConverter(),
-            new UUIDConverter()
-        ));
-    }
-    */
     
     public ConversionManager(Collection<TypeConverter<?>> converters) {
         this.converters = prepare(converters);
@@ -62,6 +41,30 @@ public class ConversionManager {
             return null;
         }
         return (TypeConverter<To>) this.converters.get(targetType);
+    }
+    
+    public boolean hasConverter(Class<?> targetType) {
+        if (targetType.isEnum()) {
+            return getConverterForTarget(Enum.class) != null;
+        }
+        return getConverterForTarget(targetType) != null;
+    }
+    
+    @SuppressWarnings("unchecked")
+    public <T> T convert(Object value, Class<T> valueType) {
+        if (valueType.isEnum()) {
+            Object converterForTarget = getConverterForTarget(Enum.class);
+            if (converterForTarget instanceof EnumConverter) {
+                EnumConverter converter = (EnumConverter) converterForTarget;
+                return (T) converter.convert(value, (Class<Enum<?>>) valueType);
+            }
+        }
+        TypeConverter<T> converterForTarget = getConverterForTarget(valueType);
+        if (converterForTarget == null) {
+            throw new IllegalArgumentException(format("Unable to find converter"
+                    + " to convert value '%s' to requested type '%s'.", value, valueType.getName()));
+        }
+        return converterForTarget.convert(value);
     }
     
     public synchronized void addConverter(TypeConverter<?> converter) {

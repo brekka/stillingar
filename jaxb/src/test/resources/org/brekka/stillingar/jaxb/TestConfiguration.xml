@@ -43,6 +43,7 @@
         <PublicKey>U3RpbGxpbmdhcg==</PublicKey>
         <Factor>33543</Factor>
         <Flag>126</Flag>
+        <TimeUnit>DAYS</TimeUnit>
     </Security>
     <Logging>
         <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">

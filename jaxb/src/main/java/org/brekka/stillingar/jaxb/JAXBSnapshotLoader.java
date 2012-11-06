@@ -46,6 +46,7 @@ import org.brekka.stillingar.core.conversion.BooleanConverter;
 import org.brekka.stillingar.core.conversion.ByteConverter;
 import org.brekka.stillingar.core.conversion.ConversionManager;
 import org.brekka.stillingar.core.conversion.DoubleConverter;
+import org.brekka.stillingar.core.conversion.EnumConverter;
 import org.brekka.stillingar.core.conversion.FloatConverter;
 import org.brekka.stillingar.core.conversion.IntegerConverter;
 import org.brekka.stillingar.core.conversion.LocaleConverter;
@@ -72,7 +73,7 @@ public class JAXBSnapshotLoader implements ConfigurationSourceLoader {
             new BigDecimalConverter(), new BigIntegerConverter(), new BooleanConverter(), new ByteConverter(),
             new CalendarConverter(), new DateConverter(), new DoubleConverter(),
             new FloatConverter(), new IntegerConverter(), new LongConverter(), new ShortConverter(),
-            new StringConverter(), new URIConverter(), new ElementConverter(), 
+            new StringConverter(), new URIConverter(), new ElementConverter(), new EnumConverter(), 
             new DocumentConverter(), new LocaleConverter(), new UUIDConverter());
     
 

@@ -79,6 +79,19 @@
                             <xsd:element name="PublicKey" type="xsd:base64Binary"></xsd:element>
                             <xsd:element name="Factor" type="xsd:integer"></xsd:element>
                             <xsd:element name="Flag" type="xsd:byte"></xsd:element>
+                            <xsd:element name="TimeUnit" minOccurs="0">
+                                <xsd:simpleType>
+                                    <xsd:restriction base="xsd:string">
+                                        <xsd:enumeration value="DAYS" />
+                                        <xsd:enumeration value="HOURS" />
+                                        <xsd:enumeration value="MINUTES" />
+                                        <xsd:enumeration value="SECONDS" />
+                                        <xsd:enumeration value="MILLISECONDS" />
+                                        <xsd:enumeration value="MICROSECONDS" />
+                                        <xsd:enumeration value="NANOSECONDS" />
+                                    </xsd:restriction>
+                                </xsd:simpleType>
+                            </xsd:element>
                         </xsd:sequence>
                     </xsd:complexType>
                 </xsd:element>

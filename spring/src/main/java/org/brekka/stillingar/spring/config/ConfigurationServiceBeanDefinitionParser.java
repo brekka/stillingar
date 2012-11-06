@@ -583,7 +583,7 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
                 "BooleanConverter", "ByteConverter", "ByteArrayConverter", "CalendarConverter", "DateConverter",
                 "DoubleConverter", "ElementConverter", "FloatConverter", "IntegerConverter", "LongConverter",
                 "ShortConverter", "StringConverter", "URIConverter", "DocumentConverter", "LocaleConverter",
-                "UUIDConverter");
+                "UUIDConverter", "EnumConverter");
         ManagedList<AbstractBeanDefinition> converters = toManagedConverterList(converterShortNames, "org.brekka.stillingar.xmlbeans.conversion");
 
         BeanDefinitionBuilder appCxtBeanDefBuilder = BeanDefinitionBuilder.genericBeanDefinition(ApplicationContextConverter.class);
@@ -602,7 +602,7 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
                 "BooleanConverter", "ByteConverter", "ByteArrayConverter",
                 "DoubleConverter", "xml.ElementConverter", "FloatConverter", "IntegerConverter", "LongConverter",
                 "ShortConverter", "StringConverter", "URIConverter", "xml.DocumentConverter", "LocaleConverter",
-                "UUIDConverter");
+                "UUIDConverter", "EnumConverter");
         ManagedList<AbstractBeanDefinition> converters = toManagedConverterList(coreConverterShortNames, "org.brekka.stillingar.core.conversion");
         
         List<String> jaxbConverterShortNames = Arrays.asList("CalendarConverter", "DateConverter");

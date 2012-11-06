@@ -197,15 +197,14 @@ class XmlBeansConfigurationSource implements ConfigurationSource {
     protected <T> T convert(Class<T> expectedType, XmlObject object, String expression) {
         T value = null;
         boolean nullValue = false;
-        TypeConverter<T> typeConverter = conversionManager.getConverterForTarget(expectedType);
         if (object == null) {
             // Leave as null
             nullValue = true;
         } else if (expectedType.isAssignableFrom(object.getClass())) {
             value = (T) object;
-        } else if (typeConverter != null) {
+        } else if (conversionManager.hasConverter(expectedType)) {
             try {
-                value = typeConverter.convert(object);
+                value = conversionManager.convert(object, expectedType);
             } catch (IllegalArgumentException e) {
                 throw new ValueConfigurationException(format(
                         "conversion failure"), expectedType, expression, e);

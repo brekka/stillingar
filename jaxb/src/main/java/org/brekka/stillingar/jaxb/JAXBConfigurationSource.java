@@ -253,24 +253,22 @@ public class JAXBConfigurationSource implements ConfigurationSource {
     protected Object resolveObject(Node node, Class<?> expectedType) {
         // Special handling for document
         if (expectedType == Document.class) {
-            TypeConverter<?> converterForTarget = conversionManager.getConverterForTarget(expectedType);
-            return converterForTarget.convert(node);
+            return conversionManager.convert(node, expectedType);
         }
         
         // Resolve the object using JAXB
         Object value = resolveObject(node);
         if (value != null) {
-            TypeConverter<?> converterForTarget = conversionManager.getConverterForTarget(expectedType);
-            if (converterForTarget != null) {
+            if (conversionManager.hasConverter(expectedType)) {
                 if (value instanceof List) {
                     List<?> valueList = (List<?>) value;
                     List<Object> changed = new ArrayList<Object>();
                     for (Object object : valueList) {
-                        changed.add(converterForTarget.convert(object));
+                        changed.add(conversionManager.convert(object, expectedType));
                     }
                     value = changed;
                 } else {
-                    value = converterForTarget.convert(value);
+                    value = conversionManager.convert(value, expectedType);
                 }
             }
         }

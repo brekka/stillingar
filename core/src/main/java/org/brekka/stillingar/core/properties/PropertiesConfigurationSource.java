@@ -18,7 +18,6 @@ package org.brekka.stillingar.core.properties;
 
 import static java.lang.String.format;
 
-import java.beans.PropertyEditor;
 import java.beans.PropertyEditorManager;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +25,7 @@ import java.util.Properties;
 
 import org.brekka.stillingar.api.ConfigurationException;
 import org.brekka.stillingar.api.ConfigurationSource;
+import org.brekka.stillingar.core.conversion.ConversionManager;
 
 /**
  * A {@link ConfigurationSource} implementation that is backed by a {@link Properties} instance. The nature of
@@ -45,11 +45,26 @@ public class PropertiesConfigurationSource implements ConfigurationSource {
     private final Properties properties;
     
     /**
+     * The conversion manager
+     */
+    private final ConversionManager conversionManager;
+    
+    
+    
+    /**
+     * @param properties
+     */
+    public PropertiesConfigurationSource(Properties properties) {
+        this(properties, new ConversionManager(PropertiesConfigurationSourceLoader.CONVERTERS));
+    }
+
+    /**
      * @param properties
      *            The properties from which configuration values will be resolved.
      */
-    public PropertiesConfigurationSource(Properties properties) {
+    public PropertiesConfigurationSource(Properties properties, ConversionManager conversionManager) {
         this.properties = properties;
+        this.conversionManager = conversionManager;
     }
     
     /**
@@ -117,41 +132,25 @@ public class PropertiesConfigurationSource implements ConfigurationSource {
         return valueList;
     }
 
-    @SuppressWarnings("unchecked")
+    /**
+     * Perform type conversion.
+     * 
+     * @param valueType
+     * @param value
+     * @param key
+     * @return
+     */
     protected <T> T resolve(Class<T> valueType, String value, String key) {
         T retVal;
-        if (valueType == String.class) {
-            retVal = (T) value;
-        } else if (value != null) {
-            Class<?> type = primitiveTypeFor(valueType);
-            if (type == null) {
-                type = valueType;
+        if (value != null) {
+            try {
+                retVal = conversionManager.convert(value, valueType);
+            } catch (IllegalArgumentException e) {
+                throw new ConfigurationException(format("Type conversion error for key '%s'", key), e);
             }
-            PropertyEditor editor = PropertyEditorManager.findEditor(valueType);
-            if (editor == null) {
-                throw new ConfigurationException(format("Unable to find PropertyEditor "
-                        + "to convert value '%s' to requested type '%s' for key '%s'", value, valueType.getName(), key));
-            }
-            editor.setAsText(value);
-            retVal = (T) editor.getValue();
         } else {
             retVal = null;
         }
         return retVal;
-    }
-    
-    /**
-     * Copied from java.beans.ReflectionUtils since it is not public
-     * @param wrapper
-     * @return
-     */
-    public static Class<?> primitiveTypeFor(Class<?> wrapper) {
-        if (wrapper == Boolean.class) return Boolean.TYPE;
-        if (wrapper == Short.class)   return Short.TYPE;
-        if (wrapper == Integer.class) return Integer.TYPE;
-        if (wrapper == Long.class)    return Long.TYPE;
-        if (wrapper == Float.class)   return Float.TYPE;
-        if (wrapper == Double.class)  return Double.TYPE;
-        return null;
     }
 }

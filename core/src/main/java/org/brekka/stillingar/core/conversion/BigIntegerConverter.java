@@ -36,6 +36,9 @@ public class BigIntegerConverter extends AbstractTypeConverter<BigInteger> {
         } else if (obj instanceof String) {
             String strValue = (String) obj;
             value = new BigInteger(strValue);
+        } else if (obj instanceof Number) {
+            Number number = (Number) obj;
+            value = BigInteger.valueOf(number.longValue());
         } else {
             throw noConversionAvailable(obj);
         }
