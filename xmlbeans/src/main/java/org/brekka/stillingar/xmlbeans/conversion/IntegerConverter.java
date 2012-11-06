@@ -20,24 +20,14 @@ import java.math.BigInteger;
 
 import org.apache.xmlbeans.XmlInt;
 import org.apache.xmlbeans.XmlInteger;
-import org.apache.xmlbeans.XmlObject;
 
 /**
  * @author Andrew Taylor
  */
-public class IntegerConverter extends AbstractTypeConverter<Integer> {
+public class IntegerConverter extends org.brekka.stillingar.core.conversion.IntegerConverter {
 
-    
-    public Class<Integer> targetType() {
-        return Integer.class;
-    }
-    
     @Override
-    public Class<?> primitiveType() {
-        return Integer.TYPE;
-    }
-    
-    public Integer convert(XmlObject xmlValue) {
+    public Integer convert(Object xmlValue) {
         Integer value;
         if (xmlValue instanceof XmlInt) {
             value = Integer.valueOf(((XmlInt) xmlValue).getIntValue());
@@ -46,11 +36,8 @@ public class IntegerConverter extends AbstractTypeConverter<Integer> {
             BigInteger bigIntegerValue = integer.getBigIntegerValue();
             value = Integer.valueOf(bigIntegerValue.intValue());
         } else {
-            throw noConversionAvailable(xmlValue);
+            value = super.convert(xmlValue);
         }
         return value;
     }
-
- 
-    
 }

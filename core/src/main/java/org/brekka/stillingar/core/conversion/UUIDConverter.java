@@ -14,23 +14,30 @@
  * limitations under the License.
  */
 
-package org.brekka.stillingar.xmlbeans.conversion;
+package org.brekka.stillingar.core.conversion;
 
-import org.apache.xmlbeans.XmlBoolean;
+import java.util.UUID;
 
 /**
  * @author Andrew Taylor
  */
-public class BooleanConverter extends org.brekka.stillingar.core.conversion.BooleanConverter {
+public class UUIDConverter extends AbstractTypeConverter<UUID> {
 
-    @Override
-    public Boolean convert(Object obj) {
-        Boolean value;
-        if (obj instanceof XmlBoolean) {
-            value = Boolean.valueOf(((XmlBoolean) obj).getBooleanValue());
+    public final Class<UUID> targetType() {
+        return UUID.class;
+    }    
+    
+    public UUID convert(Object obj) {
+        UUID value;
+        if (obj instanceof UUID) {
+            value = (UUID) obj;
+        } else if (obj instanceof String) {
+            String strValue = (String) obj;
+            value = UUID.fromString(strValue);
         } else {
-            value = super.convert(obj);
+            throw noConversionAvailable(obj);
         }
         return value;
     }
+    
 }

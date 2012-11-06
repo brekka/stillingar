@@ -17,28 +17,19 @@
 package org.brekka.stillingar.xmlbeans.conversion;
 
 import org.apache.xmlbeans.XmlBase64Binary;
-import org.apache.xmlbeans.XmlObject;
 
 /**
  * @author Andrew Taylor
  */
-public class ByteArrayConverter extends AbstractTypeConverter<byte[]> {
+public class ByteArrayConverter extends org.brekka.stillingar.core.conversion.ByteArrayConverter {
 
-    private static final byte[] EMPTY = new byte[0];
-    
-    
-    @SuppressWarnings("unchecked")
-    public Class<byte[]> targetType() {
-        return (Class<byte[]>) EMPTY.getClass();
-    }
-    
-    
-    public byte[] convert(XmlObject xmlValue) {
+    @Override
+    public byte[] convert(Object obj) {
         byte[] value;
-        if (xmlValue instanceof XmlBase64Binary) {
-            value = ((XmlBase64Binary) xmlValue).getByteArrayValue();
+        if (obj instanceof XmlBase64Binary) {
+            value = ((XmlBase64Binary) obj).getByteArrayValue();
         } else {
-            throw noConversionAvailable(xmlValue);
+            value = super.convert(obj);
         }
         return value;
     }

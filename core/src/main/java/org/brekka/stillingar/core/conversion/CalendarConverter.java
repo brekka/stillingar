@@ -14,33 +14,33 @@
  * limitations under the License.
  */
 
-package org.brekka.stillingar.xmlbeans.conversion;
+package org.brekka.stillingar.core.conversion;
 
-import java.math.BigInteger;
-
-import org.apache.xmlbeans.XmlInteger;
-import org.apache.xmlbeans.XmlLong;
+import java.util.Calendar;
 
 /**
  * @author Andrew Taylor
  */
-public class LongConverter extends org.brekka.stillingar.core.conversion.LongConverter {
+public class CalendarConverter extends AbstractTypeConverter<Calendar> {
 
+    
+    public final Class<Calendar> targetType() {
+        return Calendar.class;
+    }
+    
+    
+    /* (non-Javadoc)
+     * @see org.brekka.stillingar.core.conversion.TypeConverter#convert(java.lang.Object)
+     */
     @Override
-    public Long convert(Object xmlValue) {
-        Long value;
-        if (xmlValue instanceof XmlLong) {
-            value = Long.valueOf(((XmlLong) xmlValue).getLongValue());
-        } else if (xmlValue instanceof XmlInteger) {
-            XmlInteger integer = (XmlInteger) xmlValue;
-            BigInteger bigIntegerValue = integer.getBigIntegerValue();
-            value = Long.valueOf(bigIntegerValue.longValue());
+    public Calendar convert(Object obj) {
+        Calendar value;
+        if (obj instanceof Calendar) {
+            value = (Calendar) obj;
         } else {
-            value = super.convert(xmlValue);
+            throw noConversionAvailable(obj);
         }
         return value;
     }
-
- 
     
 }

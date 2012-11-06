@@ -14,23 +14,25 @@
  * limitations under the License.
  */
 
-package org.brekka.stillingar.xmlbeans.conversion;
+package org.brekka.stillingar.core.conversion;
 
-import org.apache.xmlbeans.XmlBoolean;
+import java.util.Locale;
 
 /**
  * @author Andrew Taylor
  */
-public class BooleanConverter extends org.brekka.stillingar.core.conversion.BooleanConverter {
+public class LocaleConverter extends AbstractTypeConverter<Locale> {
 
-    @Override
-    public Boolean convert(Object obj) {
-        Boolean value;
-        if (obj instanceof XmlBoolean) {
-            value = Boolean.valueOf(((XmlBoolean) obj).getBooleanValue());
-        } else {
-            value = super.convert(obj);
-        }
-        return value;
+    public Class<Locale> targetType() {
+        return Locale.class;
+    }    
+    
+    public Locale convert(Object value) {
+        if (value instanceof Locale) {
+            return (Locale) value;
+        } if (value instanceof String) {
+            return new Locale((String) value);
+        } 
+        throw noConversionAvailable(value);
     }
 }

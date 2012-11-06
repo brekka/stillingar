@@ -14,28 +14,34 @@
  * limitations under the License.
  */
 
-package org.brekka.stillingar.xmlbeans.conversion;
+package org.brekka.stillingar.core.conversion;
 
-import java.util.Calendar;
-
-import org.apache.xmlbeans.XmlDate;
-import org.apache.xmlbeans.XmlDateTime;
-import org.apache.xmlbeans.XmlTime;
 
 /**
  * @author Andrew Taylor
  */
-public class CalendarConverter extends org.brekka.stillingar.core.conversion.CalendarConverter {
+public class IntegerConverter extends AbstractTypeConverter<Integer> {
 
+    
+    public final Class<Integer> targetType() {
+        return Integer.class;
+    }
+    
     @Override
-    public Calendar convert(Object obj) {
-        Calendar value;
-        if (obj instanceof XmlDateTime) {
-            value = ((XmlDateTime) obj).getCalendarValue();
-        } else if (obj instanceof XmlDate) {
-            value = ((XmlDate) obj).getCalendarValue();
-        } else if (obj instanceof XmlTime) {
-            value = ((XmlTime) obj).getCalendarValue();
+    public final Class<?> primitiveType() {
+        return Integer.TYPE;
+    }
+    
+    public Integer convert(Object obj) {
+        Integer value;
+        if (obj instanceof Integer) {
+            value = (Integer) obj;
+        } else if (obj instanceof String) {
+            String strValue = (String) obj;
+            value = Integer.valueOf(strValue);
+        } else if (obj instanceof Number) {
+            Number number = (Number) obj;
+            value = number.intValue();
         } else {
             throw noConversionAvailable(obj);
         }

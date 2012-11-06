@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package org.brekka.stillingar.jaxb.conversion;
+package org.brekka.stillingar.core.conversion;
 
 
 import static java.lang.String.format;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 
 /**
  * @author Andrew Taylor
@@ -28,24 +29,32 @@ import java.net.URISyntaxException;
 public class URIConverter extends AbstractTypeConverter<URI> {
 
     
-    public Class<URI> targetType() {
+    public final Class<URI> targetType() {
         return URI.class;
     }
     
-    public URI convert(Object value) {
-        URI uri;
-        if (value instanceof String) {
-            String uriStr = (String) value;
+    public URI convert(Object obj) {
+        URI value;
+        if (obj instanceof URI) {
+            value = (URI) obj;
+        } else if (obj instanceof URL) {
             try {
-                uri = new URI(uriStr);
+                value = ((URL) obj).toURI();
+            } catch (URISyntaxException e) {
+                throw new IllegalArgumentException(format("Unable to convert URL '%s' to URI", obj), e);
+            }
+        } else if (obj instanceof String) {
+            String uriStr = (String) obj;
+            try {
+                value = new URI(uriStr);
             } catch (URISyntaxException e) {
                 throw new IllegalArgumentException(format("Failed to parse URI '%s'",
                         uriStr), e);
             }
         } else {
-            throw noConversionAvailable(value);
+            throw noConversionAvailable(obj);
         }
-        return uri;
+        return value;
     }
     
 }

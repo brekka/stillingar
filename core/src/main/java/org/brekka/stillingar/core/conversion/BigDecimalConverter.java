@@ -14,28 +14,31 @@
  * limitations under the License.
  */
 
-package org.brekka.stillingar.xmlbeans.conversion;
+package org.brekka.stillingar.core.conversion;
 
-import java.util.Calendar;
-
-import org.apache.xmlbeans.XmlDate;
-import org.apache.xmlbeans.XmlDateTime;
-import org.apache.xmlbeans.XmlTime;
+import java.math.BigDecimal;
 
 /**
  * @author Andrew Taylor
  */
-public class CalendarConverter extends org.brekka.stillingar.core.conversion.CalendarConverter {
+public class BigDecimalConverter extends AbstractTypeConverter<BigDecimal> {
 
-    @Override
-    public Calendar convert(Object obj) {
-        Calendar value;
-        if (obj instanceof XmlDateTime) {
-            value = ((XmlDateTime) obj).getCalendarValue();
-        } else if (obj instanceof XmlDate) {
-            value = ((XmlDate) obj).getCalendarValue();
-        } else if (obj instanceof XmlTime) {
-            value = ((XmlTime) obj).getCalendarValue();
+    
+    public final Class<BigDecimal> targetType() {
+        return BigDecimal.class;
+    }
+    
+    
+    public BigDecimal convert(Object obj) {
+        BigDecimal value;
+        if (obj instanceof BigDecimal) {
+            value = (BigDecimal) obj;
+        } else if (obj instanceof String) {
+            String strValue = (String) obj;
+            value = new BigDecimal(strValue);
+        } else if (obj instanceof Number) {
+            Number number = (Number) obj;
+            value = BigDecimal.valueOf(number.doubleValue());
         } else {
             throw noConversionAvailable(obj);
         }

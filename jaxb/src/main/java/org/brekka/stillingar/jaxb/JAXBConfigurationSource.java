@@ -34,8 +34,8 @@ import javax.xml.xpath.XPathFactory;
 
 import org.brekka.stillingar.api.ConfigurationException;
 import org.brekka.stillingar.api.ConfigurationSource;
-import org.brekka.stillingar.jaxb.conversion.ConversionManager;
-import org.brekka.stillingar.jaxb.conversion.TypeConverter;
+import org.brekka.stillingar.core.conversion.ConversionManager;
+import org.brekka.stillingar.core.conversion.TypeConverter;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;

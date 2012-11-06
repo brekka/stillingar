@@ -23,19 +23,14 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.apache.xmlbeans.XmlAnyURI;
-import org.apache.xmlbeans.XmlObject;
 
 /**
  * @author Andrew Taylor
  */
-public class URIConverter extends AbstractTypeConverter<URI> {
+public class URIConverter extends org.brekka.stillingar.core.conversion.URIConverter {
 
-    
-    public Class<URI> targetType() {
-        return URI.class;
-    }
-    
-    public URI convert(XmlObject xmlValue) {
+    @Override
+    public URI convert(Object xmlValue) {
         URI value;
         if (xmlValue instanceof XmlAnyURI) {
             XmlAnyURI xmlUri = (XmlAnyURI) xmlValue;
@@ -47,7 +42,7 @@ public class URIConverter extends AbstractTypeConverter<URI> {
                         uri), e);
             }
         } else {
-            throw noConversionAvailable(xmlValue);
+            value = super.convert(xmlValue);
         }
         return value;
     }

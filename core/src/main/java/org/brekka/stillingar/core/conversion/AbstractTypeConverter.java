@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.brekka.stillingar.jaxb.conversion;
+package org.brekka.stillingar.core.conversion;
 
 import static java.lang.String.format;
 
@@ -23,7 +23,7 @@ import static java.lang.String.format;
  * 
  * @author Andrew Taylor
  */
-public abstract class AbstractTypeConverter<T> implements TypeConverter<T> {
+public abstract class AbstractTypeConverter<To> implements TypeConverter<To> {
 
     /**
      * Default, return null

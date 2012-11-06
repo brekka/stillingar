@@ -24,9 +24,12 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.brekka.stillingar.api.ConfigurationException;
+import org.brekka.stillingar.core.conversion.ConversionManager;
+import org.brekka.stillingar.core.conversion.xml.DocumentConverter;
 import org.brekka.stillingar.core.properties.PropertiesConfigurationSourceLoader;
 import org.brekka.stillingar.core.snapshot.SnapshotBasedConfigurationService;
 import org.brekka.stillingar.spring.bpp.ConfigurationBeanPostProcessor;
+import org.brekka.stillingar.spring.converter.ApplicationContextConverter;
 import org.brekka.stillingar.spring.expr.DefaultPlaceholderParser;
 import org.brekka.stillingar.spring.pc.ConfigurationPlaceholderConfigurer;
 import org.brekka.stillingar.spring.resource.BasicResourceNameResolver;
@@ -44,7 +47,6 @@ import org.brekka.stillingar.spring.snapshot.PollingResourceMonitor;
 import org.brekka.stillingar.spring.snapshot.ResourceSnapshotManager;
 import org.brekka.stillingar.spring.snapshot.SnapshotDeltaValueInterceptor;
 import org.brekka.stillingar.spring.version.ApplicationVersionFromMaven;
-import org.brekka.stillingar.spring.xmlbeans.ApplicationContextConverter;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -576,40 +578,41 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
     }
 
     protected AbstractBeanDefinition prepareXmlBeansConversionManager() {
-        BeanDefinitionBuilder builder = BeanDefinitionBuilder
-                .genericBeanDefinition("org.brekka.stillingar.xmlbeans.conversion.ConversionManager");
-        ManagedList<Object> converters = new ManagedList<Object>();
+        BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(ConversionManager.class);
         List<String> converterShortNames = Arrays.asList("BigDecimalConverter", "BigIntegerConverter",
                 "BooleanConverter", "ByteConverter", "ByteArrayConverter", "CalendarConverter", "DateConverter",
                 "DoubleConverter", "ElementConverter", "FloatConverter", "IntegerConverter", "LongConverter",
                 "ShortConverter", "StringConverter", "URIConverter", "DocumentConverter", "LocaleConverter",
                 "UUIDConverter");
-        for (String shortName : converterShortNames) {
-            BeanDefinitionBuilder converterBldr = BeanDefinitionBuilder
-                    .genericBeanDefinition("org.brekka.stillingar.xmlbeans.conversion." + shortName);
-            converters.add(converterBldr.getBeanDefinition());
-        }
+        ManagedList<AbstractBeanDefinition> converters = toManagedConverterList(converterShortNames, "org.brekka.stillingar.xmlbeans.conversion");
 
-        converters.add(BeanDefinitionBuilder.genericBeanDefinition(ApplicationContextConverter.class)
-                .getBeanDefinition());
+        BeanDefinitionBuilder appCxtBeanDefBuilder = BeanDefinitionBuilder.genericBeanDefinition(ApplicationContextConverter.class);
+        appCxtBeanDefBuilder.addConstructorArgValue(
+                BeanDefinitionBuilder.genericBeanDefinition("org.brekka.stillingar.xmlbeans.conversion.DocumentConverter").getBeanDefinition()
+        );
+        converters.add(appCxtBeanDefBuilder.getBeanDefinition());
         builder.addConstructorArgValue(converters);
         return builder.getBeanDefinition();
     }
-    
+
     protected AbstractBeanDefinition prepareJAXBConversionManager() {
         BeanDefinitionBuilder builder = BeanDefinitionBuilder
-                .genericBeanDefinition("org.brekka.stillingar.jaxb.conversion.ConversionManager");
-        ManagedList<Object> converters = new ManagedList<Object>();
-        List<String> converterShortNames = Arrays.asList("CalendarConverter", "DateConverter",
-                "DocumentConverter", "LocaleConverter", "URIConverter", "UUIDConverter");
-        for (String shortName : converterShortNames) {
-            BeanDefinitionBuilder converterBldr = BeanDefinitionBuilder
-                    .genericBeanDefinition("org.brekka.stillingar.jaxb.conversion." + shortName);
-            converters.add(converterBldr.getBeanDefinition());
-        }
+                .genericBeanDefinition(ConversionManager.class);
+        List<String> coreConverterShortNames = Arrays.asList("BigDecimalConverter", "BigIntegerConverter",
+                "BooleanConverter", "ByteConverter", "ByteArrayConverter",
+                "DoubleConverter", "xml.ElementConverter", "FloatConverter", "IntegerConverter", "LongConverter",
+                "ShortConverter", "StringConverter", "URIConverter", "xml.DocumentConverter", "LocaleConverter",
+                "UUIDConverter");
+        ManagedList<AbstractBeanDefinition> converters = toManagedConverterList(coreConverterShortNames, "org.brekka.stillingar.core.conversion");
+        
+        List<String> jaxbConverterShortNames = Arrays.asList("CalendarConverter", "DateConverter");
+        converters.addAll(toManagedConverterList(jaxbConverterShortNames, "org.brekka.stillingar.jaxb.conversion."));
 
-        converters.add(BeanDefinitionBuilder.genericBeanDefinition(ApplicationContextConverter.class)
-                .getBeanDefinition());
+        BeanDefinitionBuilder appCxtBeanDefBuilder = BeanDefinitionBuilder.genericBeanDefinition(ApplicationContextConverter.class);
+        appCxtBeanDefBuilder.addConstructorArgValue(
+                BeanDefinitionBuilder.genericBeanDefinition(DocumentConverter.class).getBeanDefinition()
+        );
+        converters.add(appCxtBeanDefBuilder.getBeanDefinition());
         builder.addConstructorArgValue(converters);
         return builder.getBeanDefinition();
     }
@@ -719,6 +722,20 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
 
         }
         return elementList;
+    }
+    
+    /**
+     * @param converters
+     * @param converterShortNames
+     */
+    private static ManagedList<AbstractBeanDefinition> toManagedConverterList(List<String> converterShortNames, String packagePrefix) {
+        ManagedList<AbstractBeanDefinition> converters = new ManagedList<AbstractBeanDefinition>();
+        for (String shortName : converterShortNames) {
+            BeanDefinitionBuilder converterBldr = BeanDefinitionBuilder
+                    .genericBeanDefinition(packagePrefix + "." + shortName);
+            converters.add(converterBldr.getBeanDefinition());
+        }
+        return converters;
     }
 
     enum Engine {

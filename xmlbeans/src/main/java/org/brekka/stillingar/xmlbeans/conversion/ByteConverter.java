@@ -17,29 +17,19 @@
 package org.brekka.stillingar.xmlbeans.conversion;
 
 import org.apache.xmlbeans.XmlByte;
-import org.apache.xmlbeans.XmlObject;
 
 /**
  * @author Andrew Taylor
  */
-public class ByteConverter extends AbstractTypeConverter<Byte> {
+public class ByteConverter extends org.brekka.stillingar.core.conversion.ByteConverter {
 
-    
-    public Class<Byte> targetType() {
-        return Byte.class;
-    }
-    
     @Override
-    public Class<?> primitiveType() {
-        return Byte.TYPE;
-    }
-    
-    public Byte convert(XmlObject xmlValue) {
+    public Byte convert(Object obj) {
         Byte value;
-        if (xmlValue instanceof XmlByte) {
-            value = Byte.valueOf(((XmlByte) xmlValue).getByteValue());
+        if (obj instanceof XmlByte) {
+            value = Byte.valueOf(((XmlByte) obj).getByteValue());
         } else {
-            throw noConversionAvailable(xmlValue);
+            value = super.convert(obj);
         }
         return value;
     }

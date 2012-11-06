@@ -19,25 +19,21 @@ package org.brekka.stillingar.xmlbeans.conversion;
 import java.util.UUID;
 
 import org.apache.xmlbeans.XmlAnySimpleType;
-import org.apache.xmlbeans.XmlObject;
 
 /**
  * @author Andrew Taylor
  */
-public class UUIDConverter extends AbstractTypeConverter<UUID> {
+public class UUIDConverter extends org.brekka.stillingar.core.conversion.UUIDConverter {
 
-    public Class<UUID> targetType() {
-        return UUID.class;
-    }    
-    
-    public UUID convert(XmlObject xmlValue) {
-        String valueStr;
+    @Override
+    public UUID convert(Object xmlValue) {
+        UUID value;
         if (xmlValue instanceof XmlAnySimpleType) {
-            valueStr = ((XmlAnySimpleType) xmlValue).getStringValue();
+            String valueStr = ((XmlAnySimpleType) xmlValue).getStringValue();
+            value = UUID.fromString(valueStr);
         } else {
-            valueStr = xmlValue.xmlText();
+            value = super.convert(xmlValue);
         }
-        UUID value = UUID.fromString(valueStr);
         return value;
     }
     

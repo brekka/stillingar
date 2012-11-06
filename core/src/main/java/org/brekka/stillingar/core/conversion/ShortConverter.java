@@ -14,29 +14,36 @@
  * limitations under the License.
  */
 
-package org.brekka.stillingar.xmlbeans.conversion;
+package org.brekka.stillingar.core.conversion;
 
-import java.math.BigInteger;
-
-import org.apache.xmlbeans.XmlInteger;
-import org.apache.xmlbeans.XmlLong;
 
 /**
  * @author Andrew Taylor
  */
-public class LongConverter extends org.brekka.stillingar.core.conversion.LongConverter {
+public class ShortConverter extends AbstractTypeConverter<Short> {
 
+    
+    public final Class<Short> targetType() {
+        return Short.class;
+    }
+    
     @Override
-    public Long convert(Object xmlValue) {
-        Long value;
-        if (xmlValue instanceof XmlLong) {
-            value = Long.valueOf(((XmlLong) xmlValue).getLongValue());
-        } else if (xmlValue instanceof XmlInteger) {
-            XmlInteger integer = (XmlInteger) xmlValue;
-            BigInteger bigIntegerValue = integer.getBigIntegerValue();
-            value = Long.valueOf(bigIntegerValue.longValue());
+    public final Class<?> primitiveType() {
+        return Short.TYPE;
+    }
+    
+    public Short convert(Object obj) {
+        Short value;
+        if (obj instanceof Short) {
+            value = (Short) obj;
+        } else if (obj instanceof String) {
+            String strValue = (String) obj;
+            value = Short.valueOf(strValue);
+        } else if (obj instanceof Number) {
+            Number number = (Number) obj;
+            value = number.shortValue();
         } else {
-            value = super.convert(xmlValue);
+            throw noConversionAvailable(obj);
         }
         return value;
     }

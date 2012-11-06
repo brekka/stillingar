@@ -19,23 +19,19 @@ package org.brekka.stillingar.xmlbeans.conversion;
 import java.util.Locale;
 
 import org.apache.xmlbeans.XmlLanguage;
-import org.apache.xmlbeans.XmlObject;
 
 /**
  * @author Andrew Taylor
  */
-public class LocaleConverter extends AbstractTypeConverter<Locale> {
+public class LocaleConverter extends org.brekka.stillingar.core.conversion.LocaleConverter {
 
-    public Class<Locale> targetType() {
-        return Locale.class;
-    }    
-    
-    public Locale convert(XmlObject xmlValue) {
+    @Override
+    public Locale convert(Object xmlValue) {
         Locale value;
         if (xmlValue instanceof XmlLanguage) {
             value = new Locale(((XmlLanguage) xmlValue).getStringValue());
         } else {
-            value = new Locale(xmlValue.xmlText());
+            value = super.convert(xmlValue);
         }
         return value;
     }

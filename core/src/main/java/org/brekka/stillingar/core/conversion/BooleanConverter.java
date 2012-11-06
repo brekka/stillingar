@@ -14,22 +14,36 @@
  * limitations under the License.
  */
 
-package org.brekka.stillingar.xmlbeans.conversion;
+package org.brekka.stillingar.core.conversion;
 
-import org.apache.xmlbeans.XmlBoolean;
 
 /**
  * @author Andrew Taylor
  */
-public class BooleanConverter extends org.brekka.stillingar.core.conversion.BooleanConverter {
+public class BooleanConverter extends AbstractTypeConverter<Boolean> {
 
+    
+    public final Class<Boolean> targetType() {
+        return Boolean.class;
+    }
+    
     @Override
+    public final Class<?> primitiveType() {
+        return Boolean.TYPE;
+    }
+    
     public Boolean convert(Object obj) {
         Boolean value;
-        if (obj instanceof XmlBoolean) {
-            value = Boolean.valueOf(((XmlBoolean) obj).getBooleanValue());
+        if (obj instanceof Boolean) {
+            value = (Boolean) obj;
+        } else if (obj instanceof String) {
+            String strValue = (String) obj;
+            value = Boolean.valueOf(strValue);
+        } else if (obj instanceof Number) {
+            Number number = (Number) obj;
+            value = number.intValue() == 1;
         } else {
-            value = super.convert(obj);
+            throw noConversionAvailable(obj);
         }
         return value;
     }

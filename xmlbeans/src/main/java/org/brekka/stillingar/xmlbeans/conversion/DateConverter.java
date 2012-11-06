@@ -20,27 +20,21 @@ import java.util.Date;
 
 import org.apache.xmlbeans.XmlDate;
 import org.apache.xmlbeans.XmlDateTime;
-import org.apache.xmlbeans.XmlObject;
 
 /**
  * @author Andrew Taylor
  */
-public class DateConverter extends AbstractTypeConverter<Date> {
+public class DateConverter extends org.brekka.stillingar.core.conversion.DateConverter {
 
-    
-    public Class<Date> targetType() {
-        return Date.class;
-    }
-    
-    
-    public Date convert(XmlObject xmlValue) {
+    @Override
+    public Date convert(Object obj) {
         Date value;
-        if (xmlValue instanceof XmlDateTime) {
-            value = ((XmlDateTime) xmlValue).getDateValue();
-        } else if (xmlValue instanceof XmlDate) {
-            value = ((XmlDate) xmlValue).getDateValue();
+        if (obj instanceof XmlDateTime) {
+            value = ((XmlDateTime) obj).getDateValue();
+        } else if (obj instanceof XmlDate) {
+            value = ((XmlDate) obj).getDateValue();
         } else {
-            throw noConversionAvailable(xmlValue);
+            throw noConversionAvailable(obj);
         }
         return value;
     }

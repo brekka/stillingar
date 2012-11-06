@@ -22,7 +22,7 @@ import java.util.Collections;
 
 import org.brekka.stillingar.api.ConfigurationException;
 import org.brekka.stillingar.api.ConfigurationSource;
-import org.brekka.stillingar.xmlbeans.conversion.ConversionManager;
+import org.brekka.stillingar.core.conversion.ConversionManager;
 import org.brekka.stillingar.xmlbeans.conversion.StringConverter;
 import org.junit.Test;
 
@@ -41,7 +41,7 @@ public class XmlBeansSnapshotLoaderTest {
 
     @Test
     public void testXmlBeansSnapshotLoaderConversionManager() {
-        ConversionManager manager = new ConversionManager();
+        ConversionManager manager = new ConversionManager(XmlBeansSnapshotLoader.CONVERTERS);
         manager.addConverter(new StringConverter());
         new XmlBeansSnapshotLoader(manager).toString();
     }

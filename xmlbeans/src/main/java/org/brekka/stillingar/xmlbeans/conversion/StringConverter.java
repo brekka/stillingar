@@ -17,23 +17,19 @@
 package org.brekka.stillingar.xmlbeans.conversion;
 
 import org.apache.xmlbeans.XmlAnySimpleType;
-import org.apache.xmlbeans.XmlObject;
 
 /**
  * @author Andrew Taylor
  */
-public class StringConverter extends AbstractTypeConverter<String> {
+public class StringConverter extends org.brekka.stillingar.core.conversion.StringConverter {
 
-    public Class<String> targetType() {
-        return String.class;
-    }    
-    
-    public String convert(XmlObject xmlValue) {
+    @Override
+    public String convert(Object xmlValue) {
         String value;
         if (xmlValue instanceof XmlAnySimpleType) {
             value = ((XmlAnySimpleType) xmlValue).getStringValue();
         } else {
-            value = xmlValue.xmlText();
+            value = super.convert(xmlValue);
         }
         return value;
     }

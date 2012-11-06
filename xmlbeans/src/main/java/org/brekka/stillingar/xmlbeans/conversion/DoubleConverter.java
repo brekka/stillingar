@@ -20,24 +20,14 @@ import java.math.BigDecimal;
 
 import org.apache.xmlbeans.XmlDecimal;
 import org.apache.xmlbeans.XmlDouble;
-import org.apache.xmlbeans.XmlObject;
 
 /**
  * @author Andrew Taylor
  */
-public class DoubleConverter extends AbstractTypeConverter<Double> {
+public class DoubleConverter extends org.brekka.stillingar.core.conversion.DoubleConverter {
 
-    
-    public Class<Double> targetType() {
-        return Double.class;
-    }
-    
     @Override
-    public Class<?> primitiveType() {
-        return Double.TYPE;
-    }
-    
-    public Double convert(XmlObject xmlValue) {
+    public Double convert(Object xmlValue) {
         Double value;
         if (xmlValue instanceof XmlDouble) {
             value = Double.valueOf(((XmlDouble) xmlValue).getDoubleValue());
@@ -46,7 +36,7 @@ public class DoubleConverter extends AbstractTypeConverter<Double> {
             BigDecimal bigDecimalValue = decimal.getBigDecimalValue();
             value = Double.valueOf(bigDecimalValue.doubleValue());
         } else {
-            throw noConversionAvailable(xmlValue);
+            value = super.convert(xmlValue);
         }
         return value;
     }

@@ -24,19 +24,21 @@ import org.w3c.dom.Node;
 /**
  * @author Andrew Taylor
  */
-public class ElementConverter extends AbstractTypeConverter<Element> {
-
+public class ElementConverter extends org.brekka.stillingar.core.conversion.xml.ElementConverter {
     
-    public Class<Element> targetType() {
-        return Element.class;
+    @Override
+    public Element convert(Object obj) {
+        Element value;
+        if (obj instanceof XmlObject) {
+            XmlObject xmlObject = (XmlObject) obj;
+            value = xmlObjectToElement(xmlObject);
+        } else {
+            throw noConversionAvailable(obj);
+        }
+        return value;
     }
     
-    
-    public Element convert(XmlObject xmlValue) {
-        return xmlObjectToElement(xmlValue);
-    }
-    
-    public static Element xmlObjectToElement(XmlObject xmlValue) {
+    protected Element xmlObjectToElement(XmlObject xmlValue) {
         Node domNode = xmlValue.getDomNode();
         Element value = null;
         if (domNode instanceof Element) {

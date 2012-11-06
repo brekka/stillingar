@@ -19,25 +19,20 @@ package org.brekka.stillingar.xmlbeans.conversion;
 import java.math.BigInteger;
 
 import org.apache.xmlbeans.XmlInteger;
-import org.apache.xmlbeans.XmlObject;
 
 /**
  * @author Andrew Taylor
  */
-public class BigIntegerConverter extends AbstractTypeConverter<BigInteger> {
+public class BigIntegerConverter extends org.brekka.stillingar.core.conversion.BigIntegerConverter {
 
     
-    public Class<BigInteger> targetType() {
-        return BigInteger.class;
-    }
-    
-    
-    public BigInteger convert(XmlObject xmlValue) {
+    @Override
+    public BigInteger convert(Object xmlValue) {
         BigInteger value;
         if (xmlValue instanceof XmlInteger) {
             value = ((XmlInteger) xmlValue).getBigIntegerValue();
         } else {
-            throw noConversionAvailable(xmlValue);
+            value = super.convert(xmlValue);
         }
         return value;
     }

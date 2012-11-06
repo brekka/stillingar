@@ -20,24 +20,14 @@ import java.math.BigDecimal;
 
 import org.apache.xmlbeans.XmlDecimal;
 import org.apache.xmlbeans.XmlFloat;
-import org.apache.xmlbeans.XmlObject;
 
 /**
  * @author Andrew Taylor
  */
-public class FloatConverter extends AbstractTypeConverter<Float> {
+public class FloatConverter extends org.brekka.stillingar.core.conversion.FloatConverter {
 
-    
-    public Class<Float> targetType() {
-        return Float.class;
-    }
-    
     @Override
-    public Class<?> primitiveType() {
-        return Float.TYPE;
-    }
-    
-    public Float convert(XmlObject xmlValue) {
+    public Float convert(Object xmlValue) {
         Float value;
         if (xmlValue instanceof XmlFloat) {
             value = Float.valueOf(((XmlFloat) xmlValue).getFloatValue());
@@ -46,7 +36,7 @@ public class FloatConverter extends AbstractTypeConverter<Float> {
             BigDecimal bigDecimalValue = decimal.getBigDecimalValue();
             value = Float.valueOf(bigDecimalValue.floatValue());
         } else {
-            throw noConversionAvailable(xmlValue);
+            value = super.convert(xmlValue);
         }
         return value;
     }

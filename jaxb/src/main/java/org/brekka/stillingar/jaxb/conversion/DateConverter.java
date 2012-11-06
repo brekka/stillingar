@@ -23,24 +23,17 @@ import javax.xml.datatype.XMLGregorianCalendar;
 /**
  * @author Andrew Taylor
  */
-public class DateConverter extends AbstractTypeConverter<Date> {
+public class DateConverter extends org.brekka.stillingar.core.conversion.DateConverter {
 
-    
-    public Class<Date> targetType() {
-        return Date.class;
-    }
-    
-    
-    public Date convert(Object value) {
-        Date date;
-        if (value instanceof Date) {
-            date = (Date) value;
-        } else if (value instanceof XMLGregorianCalendar) {
-            XMLGregorianCalendar xCal = (XMLGregorianCalendar) value;
-            date = xCal.toGregorianCalendar().getTime();
+    @Override
+    public Date convert(Object obj) {
+        Date value;
+        if (obj instanceof XMLGregorianCalendar) {
+            XMLGregorianCalendar xCal = (XMLGregorianCalendar) obj;
+            value = xCal.toGregorianCalendar().getTime();
         } else {
-            throw noConversionAvailable(value);
+            value = super.convert(obj);
         }
-        return date;
+        return value;
     }
 }

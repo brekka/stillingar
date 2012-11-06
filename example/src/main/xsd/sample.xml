@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<v1:Configuration xmlns:v1="http://brekka.org/xml/stillingar/example/v1">
+    <b:beans xmlns:b="http://www.springframework.org/schema/beans">
+        <stil:annotation-config service-ref="stillingar-example" xmlns:stil="http://brekka.org/schema/stillingar/v1" />
+    </b:beans>
+    <v1:ApplicationContext />
+</v1:Configuration>

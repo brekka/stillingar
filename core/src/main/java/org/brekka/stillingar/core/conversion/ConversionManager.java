@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package org.brekka.stillingar.jaxb.conversion;
+package org.brekka.stillingar.core.conversion;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,27 +27,41 @@ public class ConversionManager {
 
     private final Map<Class<?>, TypeConverter<?>> converters;
     
+    /*
     public ConversionManager() {
         this(Arrays.<TypeConverter<?>>asList(
+            new BigDecimalConverter(),
+            new BigIntegerConverter(),
+            new BooleanConverter(),
+            new ByteConverter(),
+            new ByteArrayConverter(),
             new CalendarConverter(),
             new DateConverter(),
+            new DoubleConverter(),
+            new ElementConverter(),
+            new FloatConverter(),
+            new IntegerConverter(),
+            new LongConverter(),
+            new ShortConverter(),
+            new StringConverter(),
             new URIConverter(),
             new DocumentConverter(),
-            new UUIDConverter(),
-            new LocaleConverter()
+            new LocaleConverter(),
+            new UUIDConverter()
         ));
     }
+    */
     
     public ConversionManager(Collection<TypeConverter<?>> converters) {
         this.converters = prepare(converters);
     }
     
     @SuppressWarnings("unchecked")
-    public <T> TypeConverter<T> getConverterForTarget(Class<T> targetType) {
+    public <To> TypeConverter<To> getConverterForTarget(Class<To> targetType) {
         if (targetType == null) {
             return null;
         }
-        return (TypeConverter<T>) this.converters.get(targetType);
+        return (TypeConverter<To>) this.converters.get(targetType);
     }
     
     public synchronized void addConverter(TypeConverter<?> converter) {

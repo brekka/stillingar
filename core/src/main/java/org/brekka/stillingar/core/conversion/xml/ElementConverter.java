@@ -14,23 +14,27 @@
  * limitations under the License.
  */
 
-package org.brekka.stillingar.jaxb.conversion;
+package org.brekka.stillingar.core.conversion.xml;
 
-import java.util.Locale;
+import org.brekka.stillingar.core.conversion.AbstractTypeConverter;
+import org.w3c.dom.Element;
 
 /**
  * @author Andrew Taylor
  */
-public class LocaleConverter extends AbstractTypeConverter<Locale> {
+public class ElementConverter extends AbstractTypeConverter<Element> {
 
-    public Class<Locale> targetType() {
-        return Locale.class;
-    }    
-    
-    public Locale convert(Object value) {
-        if (value instanceof String) {
-            return new Locale((String) value);
-        } 
-        throw noConversionAvailable(value);
+    public final Class<Element> targetType() {
+        return Element.class;
+    }
+
+    public Element convert(Object obj) {
+        Element element;
+        if (obj instanceof Element) {
+            element = (Element) obj;
+        } else {
+            throw noConversionAvailable(obj);
+        }
+        return element;
     }
 }

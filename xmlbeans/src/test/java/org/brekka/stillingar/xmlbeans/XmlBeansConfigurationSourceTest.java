@@ -16,7 +16,10 @@
 
 package org.brekka.stillingar.xmlbeans;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -34,13 +37,12 @@ import java.util.UUID;
 import net.iharder.Base64;
 
 import org.brekka.stillingar.api.ValueConfigurationException;
-import org.brekka.stillingar.xmlbeans.conversion.ConversionManager;
+import org.brekka.stillingar.core.conversion.ConversionManager;
 import org.brekka.xml.stillingar.test.v1.ConfigurationDocument;
 import org.brekka.xml.stillingar.test.v1.ConfigurationDocument.Configuration.CompanyX;
 import org.brekka.xml.stillingar.test.v1.ConfigurationDocument.Configuration.CompanyY;
 import org.brekka.xml.stillingar.test.v1.ConfigurationDocument.Configuration.Services.Rules.Fraud;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -60,7 +62,7 @@ public class XmlBeansConfigurationSourceTest {
         Map<String, String> nsMap = new HashMap<String, String>();
         nsMap.put("c", "http://brekka.org/xml/stillingar/test/v1");
         nsMap.put("b", "http://www.springframework.org/schema/beans");
-        configurationSource = new XmlBeansConfigurationSource(document, nsMap, new ConversionManager());
+        configurationSource = new XmlBeansConfigurationSource(document, nsMap, new ConversionManager(XmlBeansSnapshotLoader.CONVERTERS));
     }
 
     /**

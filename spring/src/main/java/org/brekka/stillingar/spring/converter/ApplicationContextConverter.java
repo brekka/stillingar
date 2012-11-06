@@ -14,21 +14,16 @@
  * limitations under the License.
  */
 
-package org.brekka.stillingar.spring.xmlbeans;
+package org.brekka.stillingar.spring.converter;
 
-import javax.xml.transform.TransformerFactory;
-
-import org.apache.xmlbeans.XmlObject;
-import org.brekka.stillingar.xmlbeans.conversion.AbstractTypeConverter;
-import org.brekka.stillingar.xmlbeans.conversion.DocumentConverter;
-import org.brekka.stillingar.xmlbeans.conversion.ElementConverter;
+import org.brekka.stillingar.core.conversion.AbstractTypeConverter;
+import org.brekka.stillingar.core.conversion.xml.DocumentConverter;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.support.GenericApplicationContext;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 /**
  * Type converter that will parse an section of XML to produce a Spring Application Context. This will allow an
@@ -39,22 +34,22 @@ import org.w3c.dom.Element;
 public class ApplicationContextConverter extends AbstractTypeConverter<ApplicationContext> implements
         ApplicationContextAware {
 
-    private final TransformerFactory factory;
+    private final DocumentConverter documentConverter;
 
     private ApplicationContext applicationContext;
 
-    public ApplicationContextConverter() {
-        this(TransformerFactory.newInstance());
-    }
-
-    public ApplicationContextConverter(TransformerFactory factory) {
-        this.factory = factory;
+    public ApplicationContextConverter(DocumentConverter documentConverter) {
+        this.documentConverter = documentConverter;
     }
 
     @Override
-    public ApplicationContext convert(XmlObject xmlValue) {
-        Element element = ElementConverter.xmlObjectToElement(xmlValue);
-        Document document = DocumentConverter.elementToDocument(element, factory);
+    public final Class<ApplicationContext> targetType() {
+        return ApplicationContext.class;
+    }
+    
+    @Override
+    public ApplicationContext convert(Object obj) {
+        Document document = documentConverter.convert(obj);
         GenericApplicationContext context;
         if (applicationContext == null) {
             context = new GenericApplicationContext();
@@ -65,11 +60,6 @@ public class ApplicationContextConverter extends AbstractTypeConverter<Applicati
         reader.registerBeanDefinitions(document, null);
         context.refresh();
         return context;
-    }
-
-    @Override
-    public Class<ApplicationContext> targetType() {
-        return ApplicationContext.class;
     }
 
     @Override

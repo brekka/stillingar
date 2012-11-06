@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -32,7 +33,27 @@ import org.apache.xmlbeans.XmlOptions;
 import org.brekka.stillingar.api.ConfigurationException;
 import org.brekka.stillingar.api.ConfigurationSource;
 import org.brekka.stillingar.api.ConfigurationSourceLoader;
-import org.brekka.stillingar.xmlbeans.conversion.ConversionManager;
+import org.brekka.stillingar.core.conversion.ConversionManager;
+import org.brekka.stillingar.core.conversion.TypeConverter;
+import org.brekka.stillingar.xmlbeans.conversion.BigDecimalConverter;
+import org.brekka.stillingar.xmlbeans.conversion.BigIntegerConverter;
+import org.brekka.stillingar.xmlbeans.conversion.BooleanConverter;
+import org.brekka.stillingar.xmlbeans.conversion.ByteArrayConverter;
+import org.brekka.stillingar.xmlbeans.conversion.ByteConverter;
+import org.brekka.stillingar.xmlbeans.conversion.CalendarConverter;
+import org.brekka.stillingar.xmlbeans.conversion.DateConverter;
+import org.brekka.stillingar.xmlbeans.conversion.DocumentConverter;
+import org.brekka.stillingar.xmlbeans.conversion.DoubleConverter;
+import org.brekka.stillingar.xmlbeans.conversion.ElementConverter;
+import org.brekka.stillingar.xmlbeans.conversion.FloatConverter;
+import org.brekka.stillingar.xmlbeans.conversion.IntegerConverter;
+import org.brekka.stillingar.xmlbeans.conversion.LocaleConverter;
+import org.brekka.stillingar.xmlbeans.conversion.LongConverter;
+import org.brekka.stillingar.xmlbeans.conversion.ShortConverter;
+import org.brekka.stillingar.xmlbeans.conversion.StringConverter;
+import org.brekka.stillingar.xmlbeans.conversion.URIConverter;
+import org.brekka.stillingar.xmlbeans.conversion.UUIDConverter;
+
 
 /**
  * Loader of Apache XMLBeans based snapshots.
@@ -40,6 +61,12 @@ import org.brekka.stillingar.xmlbeans.conversion.ConversionManager;
  * @author Andrew Taylor
  */
 public class XmlBeansSnapshotLoader implements ConfigurationSourceLoader {
+    static final List<TypeConverter<?>> CONVERTERS = Arrays.<TypeConverter<?>> asList(
+            new BigDecimalConverter(), new BigIntegerConverter(), new BooleanConverter(), new ByteConverter(),
+            new ByteArrayConverter(), new CalendarConverter(), new DateConverter(), new DoubleConverter(), 
+            new UUIDConverter(), new FloatConverter(), new IntegerConverter(), new LongConverter(), 
+            new ShortConverter(), new StringConverter(), new URIConverter(), new DocumentConverter(), 
+            new ElementConverter(), new LocaleConverter());
 
     private final ConversionManager conversionManager;
 
@@ -48,7 +75,7 @@ public class XmlBeansSnapshotLoader implements ConfigurationSourceLoader {
     private boolean validate = true;
 
     public XmlBeansSnapshotLoader() {
-        this(new ConversionManager());
+        this(new ConversionManager(CONVERTERS));
     }
 
     public XmlBeansSnapshotLoader(ConversionManager conversionManager) {

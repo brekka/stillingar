@@ -14,24 +14,31 @@
  * limitations under the License.
  */
 
-package org.brekka.stillingar.jaxb.conversion;
+package org.brekka.stillingar.core.conversion;
 
-import java.util.UUID;
+import java.math.BigInteger;
 
 /**
  * @author Andrew Taylor
  */
-public class UUIDConverter extends AbstractTypeConverter<UUID> {
+public class BigIntegerConverter extends AbstractTypeConverter<BigInteger> {
 
-    public Class<UUID> targetType() {
-        return UUID.class;
-    }    
     
-    public UUID convert(Object value) {
-        if (value instanceof String) {
-            return UUID.fromString((String) value);
-        }
-        throw noConversionAvailable(value);
+    public final Class<BigInteger> targetType() {
+        return BigInteger.class;
     }
     
+    
+    public BigInteger convert(Object obj) {
+        BigInteger value;
+        if (obj instanceof BigInteger) {
+            value = (BigInteger) obj;
+        } else if (obj instanceof String) {
+            String strValue = (String) obj;
+            value = new BigInteger(strValue);
+        } else {
+            throw noConversionAvailable(obj);
+        }
+        return value;
+    }
 }

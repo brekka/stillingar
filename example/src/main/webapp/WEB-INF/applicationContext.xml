@@ -11,6 +11,9 @@
     ">
 
 
+
+
+
     <!-- 
         Standard configuration. Beans annotated with @Configured will be configured by this service. 
      -->
@@ -28,10 +31,4 @@
     </stil:configuration-service>
     
     
-<!--     <stil:configuration id="legacy" engine="xmlbeans" reload-interval="5000"  -->
-<!--                         marker-annotation="org.brekka.stillingar.example.annotation.LegacyConfigured" > -->
-<!--         Will use placeholder of the format $special{...} -->
-<!--         <stil:property-placeholder /> -->
-<!--         <stil:namespace prefix="c" url="http://brekka.org/xml/stillingar/test/v1" /> -->
-<!--     </stil:configuration> -->
 </beans>

@@ -30,8 +30,8 @@ import org.apache.xmlbeans.XmlCursor.TokenType;
 import org.apache.xmlbeans.XmlObject;
 import org.brekka.stillingar.api.ConfigurationSource;
 import org.brekka.stillingar.api.ValueConfigurationException;
-import org.brekka.stillingar.xmlbeans.conversion.ConversionManager;
-import org.brekka.stillingar.xmlbeans.conversion.TypeConverter;
+import org.brekka.stillingar.core.conversion.ConversionManager;
+import org.brekka.stillingar.core.conversion.TypeConverter;
 
 /**
  * Configuration snapshot based on Apache XmlBeans.

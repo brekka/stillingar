@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.xml.bind.JAXBContext;
@@ -39,7 +40,25 @@ import javax.xml.validation.SchemaFactory;
 import org.brekka.stillingar.api.ConfigurationException;
 import org.brekka.stillingar.api.ConfigurationSource;
 import org.brekka.stillingar.api.ConfigurationSourceLoader;
-import org.brekka.stillingar.jaxb.conversion.ConversionManager;
+import org.brekka.stillingar.core.conversion.BigDecimalConverter;
+import org.brekka.stillingar.core.conversion.BigIntegerConverter;
+import org.brekka.stillingar.core.conversion.BooleanConverter;
+import org.brekka.stillingar.core.conversion.ByteConverter;
+import org.brekka.stillingar.core.conversion.ConversionManager;
+import org.brekka.stillingar.core.conversion.DoubleConverter;
+import org.brekka.stillingar.core.conversion.FloatConverter;
+import org.brekka.stillingar.core.conversion.IntegerConverter;
+import org.brekka.stillingar.core.conversion.LocaleConverter;
+import org.brekka.stillingar.core.conversion.LongConverter;
+import org.brekka.stillingar.core.conversion.ShortConverter;
+import org.brekka.stillingar.core.conversion.StringConverter;
+import org.brekka.stillingar.core.conversion.TypeConverter;
+import org.brekka.stillingar.core.conversion.URIConverter;
+import org.brekka.stillingar.core.conversion.UUIDConverter;
+import org.brekka.stillingar.core.conversion.xml.DocumentConverter;
+import org.brekka.stillingar.core.conversion.xml.ElementConverter;
+import org.brekka.stillingar.jaxb.conversion.CalendarConverter;
+import org.brekka.stillingar.jaxb.conversion.DateConverter;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -49,6 +68,13 @@ import org.xml.sax.SAXException;
  * @author Andrew Taylor (andrew@brekka.org)
  */
 public class JAXBSnapshotLoader implements ConfigurationSourceLoader {
+    static final List<TypeConverter<?>> CONVERTERS = Arrays.<TypeConverter<?>> asList(
+            new BigDecimalConverter(), new BigIntegerConverter(), new BooleanConverter(), new ByteConverter(),
+            new CalendarConverter(), new DateConverter(), new DoubleConverter(),
+            new FloatConverter(), new IntegerConverter(), new LongConverter(), new ShortConverter(),
+            new StringConverter(), new URIConverter(), new ElementConverter(), 
+            new DocumentConverter(), new LocaleConverter(), new UUIDConverter());
+    
 
     /**
      * The context path in which to look for the JAXB beans.
@@ -72,7 +98,7 @@ public class JAXBSnapshotLoader implements ConfigurationSourceLoader {
     
     
     public JAXBSnapshotLoader(String contextPath, List<URL> schemas, NamespaceContext xPathNamespaceContext) {
-        this(contextPath, schemas, xPathNamespaceContext, new ConversionManager());
+        this(contextPath, schemas, xPathNamespaceContext, new ConversionManager(CONVERTERS));
     }
     
     /**

@@ -19,25 +19,15 @@ package org.brekka.stillingar.xmlbeans.conversion;
 import java.math.BigInteger;
 
 import org.apache.xmlbeans.XmlInteger;
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlShort;
 
 /**
  * @author Andrew Taylor
  */
-public class ShortConverter extends AbstractTypeConverter<Short> {
+public class ShortConverter extends org.brekka.stillingar.core.conversion.ShortConverter {
 
-    
-    public Class<Short> targetType() {
-        return Short.class;
-    }
-    
     @Override
-    public Class<?> primitiveType() {
-        return Short.TYPE;
-    }
-    
-    public Short convert(XmlObject xmlValue) {
+    public Short convert(Object xmlValue) {
         Short value;
         if (xmlValue instanceof XmlShort) {
             value = Short.valueOf(((XmlShort) xmlValue).getShortValue());
@@ -46,7 +36,7 @@ public class ShortConverter extends AbstractTypeConverter<Short> {
             BigInteger bigIntegerValue = integer.getBigIntegerValue();
             value = Short.valueOf(bigIntegerValue.shortValue());
         } else {
-            throw noConversionAvailable(xmlValue);
+            value = super.convert(xmlValue);
         }
         return value;
     }

@@ -29,7 +29,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -43,13 +42,12 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import net.iharder.Base64;
 
-import org.brekka.stillingar.jaxb.conversion.ConversionManager;
+import org.brekka.stillingar.core.conversion.ConversionManager;
 import org.brekka.stillingar.test.jaxb.Configuration.CompanyX;
 import org.brekka.stillingar.test.jaxb.Configuration.CompanyY;
 import org.brekka.stillingar.test.jaxb.Configuration.FeatureFlag;
 import org.brekka.stillingar.test.jaxb.Configuration.Services.Rules.Fraud;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -77,7 +75,8 @@ public class JAXBConfigurationSourceTest {
         nsMap.put("c", "http://brekka.org/xml/stillingar/test/v1");
         nsMap.put("b", "http://www.springframework.org/schema/beans");
         NamespaceContext namespaceContext = new TestNamespaceContext(nsMap);
-        configurationSource = new JAXBConfigurationSource(document, object, namespaceContext, new ConversionManager());
+        configurationSource = new JAXBConfigurationSource(document, object, namespaceContext, 
+                new ConversionManager(JAXBSnapshotLoader.CONVERTERS));
     }
 
     /**
