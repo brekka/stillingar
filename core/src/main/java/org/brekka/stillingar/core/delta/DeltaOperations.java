@@ -155,12 +155,12 @@ public class DeltaOperations {
             /*
              * Make the value updates by calling the listeners. Make an attempt to update all values, in case
              */
-            try {
-                for (ValueChangeAction valueUpdateAction : actionList) {
+            for (ValueChangeAction valueUpdateAction : actionList) {
+                try {
                     enactValueChange(valueUpdateAction);
+                } catch (ConfigurationException e) {
+                    valueUpdateErrors.add(e);
                 }
-            } catch (ConfigurationException e) {
-                valueUpdateErrors.add(e);
             }
 
             if (!valueUpdateErrors.isEmpty()) {

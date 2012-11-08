@@ -25,6 +25,7 @@ import java.util.Properties;
 
 import org.brekka.stillingar.api.ConfigurationException;
 import org.brekka.stillingar.api.ConfigurationSource;
+import org.brekka.stillingar.api.ValueConfigurationException;
 import org.brekka.stillingar.core.conversion.ConversionManager;
 
 /**
@@ -78,14 +79,16 @@ public class PropertiesConfigurationSource implements ConfigurationSource {
      * @see org.brekka.stillingar.core.ConfigurationSource#isAvailable(java.lang.Class)
      */
     public boolean isAvailable(Class<?> valueType) {
-        throw new ConfigurationException("A Properties configuration source does not support lookup by type.");
+        throw new ValueConfigurationException(
+                "A Properties configuration source does not support lookup by type.", null, null);
     }
 
     /**
      * NOT supported. Always throws {@link ConfigurationException}.
      */
     public <T> T retrieve(Class<T> valueType) {
-        throw new ConfigurationException("A property key must be specified when using Properties");
+        throw new ValueConfigurationException(
+                "A property key must be specified when using Properties", null, null);
     }
 
     /**
@@ -106,7 +109,8 @@ public class PropertiesConfigurationSource implements ConfigurationSource {
      * NOT supported. Always throws {@link ConfigurationException}.
      */
     public <T> List<T> retrieveList(Class<T> valueType) {
-        throw new ConfigurationException("A property key must be specified when using Properties");
+        throw new ValueConfigurationException(
+                "A property key must be specified when using Properties", null, null);
     }
 
     /**
@@ -146,7 +150,8 @@ public class PropertiesConfigurationSource implements ConfigurationSource {
             try {
                 retVal = conversionManager.convert(value, valueType);
             } catch (IllegalArgumentException e) {
-                throw new ConfigurationException(format("Type conversion error for key '%s'", key), e);
+                throw new ValueConfigurationException(format(
+                        "Type conversion", key), valueType, key, e);
             }
         } else {
             retVal = null;

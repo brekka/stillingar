@@ -32,7 +32,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * PropertiesConfigurationSource Test
+ * DOMConfigurationSource Test
  *
  * @author Andrew Taylor (andrew@brekka.org)
  */

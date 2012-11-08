@@ -62,10 +62,11 @@ public class ValueConfigurationException extends ConfigurationException {
 	@Override
 	public String getMessage() {
 	    String message;
+	    String valueTypeName = (valueType != null ? valueType.getName() : "?");
 	    if (expression != null) {
-	        message = format("%s - '%s' (%s)", reason, expression, (valueType != null ? valueType.getName() : null));
+	        message = format("%s - '%s'{%s}", reason, expression, valueTypeName);
 	    } else {
-	        message = format("%s - %s", reason, (valueType != null ? valueType.getName() : null));
+	        message = format("%s - {%s}", reason, valueTypeName);
 	    }
 		return message;
 	}

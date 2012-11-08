@@ -36,6 +36,11 @@ public class GroupConfigurationException extends RuntimeException {
      * Serial UID
      */
     private static final long serialVersionUID = -4249124307775439267L;
+    
+    /**
+     * Determines whether suppression is enabled
+     */
+    private static final boolean SUPPRESSED_SUPPORTED = detectSuppressed();
 
     /**
      * The name of the group encountering the error.
@@ -81,6 +86,11 @@ public class GroupConfigurationException extends RuntimeException {
         this.groupName = groupName;
         this.phase = phase;
         this.errorList = errors;
+        if (SUPPRESSED_SUPPORTED) {
+            for (ConfigurationException configurationException : errors) {
+                addSuppressed(configurationException);
+            }
+        }
     }
 
     @Override
@@ -91,11 +101,11 @@ public class GroupConfigurationException extends RuntimeException {
                 message = format("Failed to invoke listener method for group '%s'", groupName);
                 break;
             case VALUE_ASSIGNMENT:
-                message = format("Configuration group '%s' encountered %d errors during value assignment: %s",
+                message = format("Configuration group '%s' encountered %d errors during value assignment%s",
                         groupName, errorList.size(), combineValueErrors());
                 break;
             case VALUE_DISCOVERY:
-                message = format("Configuration group '%s' encountered %d errors during value discovery: %s",
+                message = format("Configuration group '%s' encountered %d errors during value discovery%s",
                         groupName, errorList.size(), combineValueErrors());
                 break;
             default:
@@ -106,8 +116,11 @@ public class GroupConfigurationException extends RuntimeException {
     }
 
     private String combineValueErrors() {
+        if (SUPPRESSED_SUPPORTED) {
+            return ".";
+        }
         StringBuilder sb = new StringBuilder();
-        sb.append(" { ");
+        sb.append(": { ");
         int cnt = 1;
         for (Iterator<ConfigurationException> iterator = errorList.iterator(); iterator.hasNext();) {
             ConfigurationException e = iterator.next();
@@ -176,5 +189,18 @@ public class GroupConfigurationException extends RuntimeException {
          * Phase 3 - listener invocation
          */
         LISTENER_INVOCATION,
+    }
+    
+
+    /**
+     * @return
+     */
+    private static boolean detectSuppressed() {
+        try {
+            return Throwable.class.getMethod("getSuppressed") != null;
+        } catch (NoSuchMethodException e) {
+        } catch (SecurityException e) {
+        }
+        return false;
     }
 }

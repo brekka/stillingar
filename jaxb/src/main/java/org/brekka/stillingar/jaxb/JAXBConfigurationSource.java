@@ -16,6 +16,8 @@
 
 package org.brekka.stillingar.jaxb;
 
+import static java.lang.String.format;
+
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
@@ -32,10 +34,9 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.brekka.stillingar.api.ConfigurationException;
 import org.brekka.stillingar.api.ConfigurationSource;
+import org.brekka.stillingar.api.ValueConfigurationException;
 import org.brekka.stillingar.core.conversion.ConversionManager;
-import org.brekka.stillingar.core.conversion.TypeConverter;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -90,7 +91,7 @@ public class JAXBConfigurationSource implements ConfigurationSource {
      */
     @Override
     public boolean isAvailable(String expression) {
-        Object result = doXPath(expression, XPathConstants.NODESET);
+        Object result = doXPath(expression, XPathConstants.NODESET, null);
         if (result instanceof NodeList) {
             NodeList nodeList = (NodeList) result;
             return nodeList.getLength() > 0;
@@ -107,7 +108,7 @@ public class JAXBConfigurationSource implements ConfigurationSource {
     @Override
     public <T> T retrieve(String expression, Class<T> valueType) {
         T retVal;
-        Object result = doXPath(expression, XPathConstants.NODE);
+        Object result = doXPath(expression, XPathConstants.NODE, valueType);
         if (result instanceof Node) {
             Node node = (Node) result;
             if (valueType != Object.class 
@@ -120,19 +121,26 @@ public class JAXBConfigurationSource implements ConfigurationSource {
                 } else if (valueType.isAssignableFrom(resolvedObject.getClass())) {
                     retVal = (T) resolvedObject;
                 } else if (List.class.isAssignableFrom(resolvedObject.getClass())) {
-                    retVal = resolveValueFromList(node, (List<T>) resolvedObject);
+                    try {
+                        retVal = resolveValueFromList(node, (List<T>) resolvedObject);
+                    } catch (IllegalStateException e) {
+                        throw new ValueConfigurationException(format(
+                                "Failed identify correct element from list", resolvedObject.getClass().getName()
+                                ), valueType, expression, e);
+                    }
                 } else if (valueType.isPrimitive()
                         && !resolvedObject.getClass().isPrimitive()) {
                     retVal = (T) resolvedObject;
                 } else {
-                    throw new ConfigurationException(String.format(
-                            "Expected '%s', found '%s'", valueType.getName(),
-                            resolvedObject.getClass().getName()));
+                    throw new ValueConfigurationException(format(
+                            "Unable to handle result type '%s'", resolvedObject.getClass().getName()
+                            ), valueType, expression);
                 }
             }
         } else {
-            throw new ConfigurationException(String.format(
-                    "Not a single node '%s', found '%s'", expression, result));
+            String resultType = result != null ? result.getClass().getName() : null;
+            throw new ValueConfigurationException(format(
+                    "Expected a single XML node, found '%s'", resultType), valueType, expression);
         }
         return retVal;
     }
@@ -148,7 +156,7 @@ public class JAXBConfigurationSource implements ConfigurationSource {
         List<T> retVal;
         if (Node.class.isAssignableFrom(valueType)) {
             // Regular DOM
-            Object result = doXPath(expression, XPathConstants.NODESET);
+            Object result = doXPath(expression, XPathConstants.NODESET, valueType);
             if (result instanceof NodeList) {
                 NodeList nodeList = (NodeList) result;
                 retVal = new ArrayList<T>(nodeList.getLength());
@@ -156,12 +164,13 @@ public class JAXBConfigurationSource implements ConfigurationSource {
                     retVal.add((T) nodeList.item(i));
                 }
             } else {
-                throw new ConfigurationException(String.format(
-                        "Not a list of nodes '%s', found '%s'", expression, result));
+                throw new ValueConfigurationException(format(
+                        "Result is not a list of nodes, it is instead: '%s'", 
+                        result), valueType, expression);
             }
         } else {
             // Use JAXB
-            Object result = doXPath(expression, XPathConstants.NODE);
+            Object result = doXPath(expression, XPathConstants.NODE, valueType);
             if (result instanceof Node) {
                 Node node = (Node) result;
                 Object resolvedObject = resolveObject(node, valueType);
@@ -170,13 +179,16 @@ public class JAXBConfigurationSource implements ConfigurationSource {
                 } else if (List.class.isAssignableFrom(resolvedObject.getClass())) {
                     retVal = (List<T>) resolvedObject;
                 } else {
-                    throw new ConfigurationException(String.format(
-                            "Expected list, found '%s'", valueType.getName(),
-                            resolvedObject.getClass().getName()));
+                    throw new ValueConfigurationException(format(
+                            "Unable to handle non-list based result type '%s'", 
+                            resolvedObject.getClass().getName()
+                            ), valueType, expression);
                 }
             } else {
-                throw new ConfigurationException(String.format(
-                        "Not a list of nodes '%s', found '%s'", expression, result));
+                String resultType = result != null ? result.getClass().getName() : null;
+                throw new ValueConfigurationException(format(
+                        "Expected a list of XML nodes, found '%s'", resultType), 
+                        valueType, expression);
             }
         }
         return retVal;
@@ -209,8 +221,9 @@ public class JAXBConfigurationSource implements ConfigurationSource {
         } else if (values.size() == 1) {
             retVal = values.get(0);
         } else {
-            throw new ConfigurationException(String.format("Found %d instances of '%s'", values.size(),
-                    valueType.getName()));
+            throw new ValueConfigurationException(format(
+                    "Expected a single value, found %d", values.size()), 
+                    valueType, null);
         }
         return retVal;
     }
@@ -228,7 +241,7 @@ public class JAXBConfigurationSource implements ConfigurationSource {
     }
     
 
-    protected Object doXPath(String expression, QName returnType) {
+    protected Object doXPath(String expression, QName returnQName, Class<?> returnType) {
         Object retVal;
         XPathFactory xFactory = XPathFactory.newInstance();
         XPath xpath = xFactory.newXPath();
@@ -237,17 +250,24 @@ public class JAXBConfigurationSource implements ConfigurationSource {
         }
         try {
             XPathExpression expr = xpath.compile(expression);
-            retVal = expr.evaluate(document, returnType);
+            retVal = expr.evaluate(document, returnQName);
         } catch (XPathExpressionException e) {
-            throw new ConfigurationException(String.format(
-                    "Invalid XPath expression '%s'", expression, e));
+            throw new ValueConfigurationException(
+                    "Not a vaild XPath expression",  returnType, expression, e);
         }
         return retVal;
     }
     
     protected boolean find(Class<?> lookingFor) {
         Map<Object, Void> seen = new IdentityHashMap<Object, Void>();
-        return collect(object, lookingFor, seen, null);
+        try {
+            return collect(object, lookingFor, seen, null);
+        } catch (IllegalStateException e) {
+            throw new ValueConfigurationException(format(
+                    "Finding all values of the requested type under fields of the JAXB model class '%s'",
+                    object.getClass().getName()), 
+                    lookingFor, null, e);
+        }
     }
     
     protected Object resolveObject(Node node, Class<?> expectedType) {
@@ -316,7 +336,7 @@ public class JAXBConfigurationSource implements ConfigurationSource {
         }
         
         if (list.size() != nodeList.size()) {
-            throw new ConfigurationException(String.format("Unable to reliably identify the corresponding" +
+            throw new IllegalStateException(String.format("Unable to reliably identify the corresponding" +
                     " JAXB object as there are %d candidates and only %d DOM nodes. This is most likely" +
                     " a result of the expression containing a more complex selector than just index based lookup.", 
                     list.size(), childNodes.getLength()));
@@ -329,14 +349,21 @@ public class JAXBConfigurationSource implements ConfigurationSource {
             }
         }
         
-        throw new ConfigurationException(String.format("Failed to find the correct indexed node " +
+        throw new IllegalStateException(String.format("Failed to find the correct indexed node " +
         		"(DOM had %d children, JAXB had %d candidates)", childNodes.getLength(), list.size()));
     }
 
 
     protected static <T> boolean collect(Object current, Class<T> lookingFor, List<T> values) {
         Map<Object, Void> seen = new IdentityHashMap<Object, Void>();
-        return collect(current, lookingFor, seen, values);
+        try {
+            return collect(current, lookingFor, seen, values);
+        } catch (IllegalStateException e) {
+            throw new ValueConfigurationException(format(
+                    "Looking for requested value type field on the JAXB model class '%s'",
+                    current.getClass().getName()), 
+                    lookingFor, null, e);
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -390,10 +417,10 @@ public class JAXBConfigurationSource implements ConfigurationSource {
         try {
             next = field.get(current);
         } catch (IllegalAccessException e) {
-            throw new ConfigurationException(String.format("Unable to access the value of field '%s' of object " +
-            		"with type '%s'", field.getName(), current.getClass().getName()), e);
+            throw new IllegalStateException(format(
+                    "Unable to access the value of field '%s' of object with type '%s'", 
+                    field.getName(), current.getClass().getName()), e);
         }
         return next;
     }
-
 }

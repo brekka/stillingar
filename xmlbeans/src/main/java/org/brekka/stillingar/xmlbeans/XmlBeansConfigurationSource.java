@@ -31,7 +31,6 @@ import org.apache.xmlbeans.XmlObject;
 import org.brekka.stillingar.api.ConfigurationSource;
 import org.brekka.stillingar.api.ValueConfigurationException;
 import org.brekka.stillingar.core.conversion.ConversionManager;
-import org.brekka.stillingar.core.conversion.TypeConverter;
 
 /**
  * Configuration snapshot based on Apache XmlBeans.
@@ -207,12 +206,12 @@ class XmlBeansConfigurationSource implements ConfigurationSource {
                 value = conversionManager.convert(object, expectedType);
             } catch (IllegalArgumentException e) {
                 throw new ValueConfigurationException(format(
-                        "conversion failure"), expectedType, expression, e);
+                        "Conversion failure"), expectedType, expression, e);
             }
         }
         if (!nullValue && value == null) {
             throw new ValueConfigurationException(format(
-                    "no conversion from type '%s' to '%s'",
+                    "No conversion available from type '%s' to expected type '%s'",
                     object != null ? object.getClass().getName() : "null", 
                     expectedType.getName()), expectedType,
                     expression);

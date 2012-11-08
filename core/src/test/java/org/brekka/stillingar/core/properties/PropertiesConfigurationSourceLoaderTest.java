@@ -24,7 +24,7 @@ import org.brekka.stillingar.api.ConfigurationSource;
 import org.junit.Test;
 
 /**
- * PropertiesConfigurationSourceLoader Test
+ * DOMConfigurationSourceLoader Test
  *
  * @author Andrew Taylor (andrew@brekka.org)
  */
