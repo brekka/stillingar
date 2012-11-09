@@ -34,7 +34,7 @@ public class DateConverter extends org.brekka.stillingar.core.conversion.DateCon
         } else if (obj instanceof XmlDate) {
             value = ((XmlDate) obj).getDateValue();
         } else {
-            throw noConversionAvailable(obj);
+            value = super.convert(obj);
         }
         return value;
     }

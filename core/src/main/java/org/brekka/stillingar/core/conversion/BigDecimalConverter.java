@@ -40,7 +40,7 @@ public class BigDecimalConverter extends AbstractTypeConverter<BigDecimal> {
             Number number = (Number) obj;
             value = BigDecimal.valueOf(number.doubleValue());
         } else {
-            throw noConversionAvailable(obj);
+            value = super.convert(obj);
         }
         return value;
     }

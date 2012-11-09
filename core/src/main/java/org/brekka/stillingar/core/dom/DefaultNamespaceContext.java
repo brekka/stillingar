@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package org.brekka.stillingar.jaxb;
+package org.brekka.stillingar.core.dom;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import javax.xml.namespace.NamespaceContext;
 
@@ -31,21 +29,23 @@ import javax.xml.namespace.NamespaceContext;
  *
  * @author Andrew Taylor (andrew@brekka.org)
  */
-public class TestNamespaceContext implements NamespaceContext {
+public class DefaultNamespaceContext implements NamespaceContext {
 
     private final Map<String, String> prefixToNamespace;
     
     private final Map<String, List<String>> namespaceToPrefix;
     
-    public TestNamespaceContext(Map<String, String> nsMap) {
-        this.prefixToNamespace = new HashMap<String, String>(nsMap);
+    public DefaultNamespaceContext(String... prefixToNamespacePairs) {
+        this.prefixToNamespace = new HashMap<String, String>();
         this.namespaceToPrefix = new HashMap<String, List<String>>();
-        Set<Entry<String,String>> entrySet = nsMap.entrySet();
-        for (Entry<String, String> entry : entrySet) {
-            if (!this.namespaceToPrefix.containsKey(entry.getValue())) {
-                this.namespaceToPrefix.put(entry.getValue(), new ArrayList<String>());
+        for (int i = 0; i < prefixToNamespacePairs.length; i+= 2) {
+            String prefix = prefixToNamespacePairs[i];
+            String namespace = prefixToNamespacePairs[i + 1];
+            if (!this.namespaceToPrefix.containsKey(namespace)) {
+                this.namespaceToPrefix.put(namespace, new ArrayList<String>());
             }
-            this.namespaceToPrefix.get(entry.getValue()).add(entry.getKey());
+            this.namespaceToPrefix.get(namespace).add(prefix);
+            this.prefixToNamespace.put(prefix, namespace);
         }
     }
     
@@ -83,5 +83,4 @@ public class TestNamespaceContext implements NamespaceContext {
         }
         return list.iterator();
     }
-
 }

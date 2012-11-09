@@ -40,7 +40,7 @@ public class ByteConverter extends AbstractTypeConverter<Byte> {
             String strValue = (String) obj;
             value = Byte.valueOf(strValue);
         } else {
-            throw noConversionAvailable(obj);
+            value = super.convert(obj);
         }
         return value;
     }

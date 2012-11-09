@@ -43,7 +43,7 @@ public class ShortConverter extends AbstractTypeConverter<Short> {
             Number number = (Number) obj;
             value = number.shortValue();
         } else {
-            throw noConversionAvailable(obj);
+            value = super.convert(obj);
         }
         return value;
     }

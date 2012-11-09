@@ -129,14 +129,14 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
     @Override
     public void destroy() throws Exception {
         if (log.isInfoEnabled()) {
-            log.info(String.format("Destroy bean post processor - %d registered groups", registeredValueGroups.size()));
+            log.info(String.format("Bean post processor preparing to destroy %d registered groups", registeredValueGroups.size()));
         }
         synchronized (registeredValueGroups) {
             ConfigurationService configurationService = (ConfigurationService) configurationSource;
             for (ValueDefinitionGroup group : registeredValueGroups) {
                 configurationService.unregister(group);
                 if (log.isInfoEnabled()) {
-                    log.info(String.format("Group '%s' has been unregisterd from configuration service", group.getName()));
+                    log.info(String.format("Group '%s' has been unregistered from the configuration service", group.getName()));
                 }
             }
             registeredValueGroups.clear();
@@ -211,7 +211,7 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
         configurationService.register(group, true);
         synchronized (registeredValueGroups) {
             if (log.isInfoEnabled()) {
-                log.info(String.format("Registered group '%s' with configuration service", group.getName()));
+                log.info(String.format("Registered the group '%s' with configuration service", group.getName()));
             }
             registeredValueGroups.add(group);
         }

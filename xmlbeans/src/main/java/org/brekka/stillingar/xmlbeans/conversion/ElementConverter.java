@@ -33,7 +33,7 @@ public class ElementConverter extends org.brekka.stillingar.core.conversion.xml.
             XmlObject xmlObject = (XmlObject) obj;
             value = xmlObjectToElement(xmlObject);
         } else {
-            throw noConversionAvailable(obj);
+            value = super.convert(obj);
         }
         return value;
     }

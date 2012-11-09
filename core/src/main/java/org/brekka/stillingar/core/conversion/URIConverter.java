@@ -52,7 +52,7 @@ public class URIConverter extends AbstractTypeConverter<URI> {
                         uriStr), e);
             }
         } else {
-            throw noConversionAvailable(obj);
+            value = super.convert(obj);
         }
         return value;
     }

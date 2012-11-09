@@ -35,7 +35,7 @@ public class UUIDConverter extends AbstractTypeConverter<UUID> {
             String strValue = (String) obj;
             value = UUID.fromString(strValue);
         } else {
-            throw noConversionAvailable(obj);
+            value = super.convert(obj);
         }
         return value;
     }

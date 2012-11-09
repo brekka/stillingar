@@ -40,7 +40,7 @@ public class BigIntegerConverter extends AbstractTypeConverter<BigInteger> {
             Number number = (Number) obj;
             value = BigInteger.valueOf(number.longValue());
         } else {
-            throw noConversionAvailable(obj);
+            value = super.convert(obj);
         }
         return value;
     }

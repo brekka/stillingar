@@ -192,6 +192,7 @@
                 <xsd:simpleType>
                     <xsd:restriction base="xsd:string">
                         <xsd:enumeration value="xmlbeans"></xsd:enumeration>
+                        <xsd:enumeration value="dom"></xsd:enumeration>
                         <xsd:enumeration value="props"></xsd:enumeration>
                         <xsd:enumeration value="jaxb"></xsd:enumeration>
                     </xsd:restriction>

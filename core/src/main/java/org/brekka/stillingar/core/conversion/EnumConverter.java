@@ -61,7 +61,7 @@ public class EnumConverter extends AbstractTypeConverter<Enum<?>> {
             String strValue = (String) obj;
             value = Enum.valueOf((Class) enumType, strValue);
         } else {
-            throw noConversionAvailable(obj);
+            value = super.convert(obj);
         }
         return value;
     }

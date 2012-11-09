@@ -194,11 +194,10 @@ class XmlBeansConfigurationSource implements ConfigurationSource {
 
     @SuppressWarnings("unchecked")
     protected <T> T convert(Class<T> expectedType, XmlObject object, String expression) {
-        T value = null;
-        boolean nullValue = false;
+        T value;
         if (object == null) {
             // Leave as null
-            nullValue = true;
+            value = null;
         } else if (expectedType.isAssignableFrom(object.getClass())) {
             value = (T) object;
         } else if (conversionManager.hasConverter(expectedType)) {
@@ -208,13 +207,10 @@ class XmlBeansConfigurationSource implements ConfigurationSource {
                 throw new ValueConfigurationException(format(
                         "Conversion failure"), expectedType, expression, e);
             }
-        }
-        if (!nullValue && value == null) {
+        } else {
             throw new ValueConfigurationException(format(
-                    "No conversion available from type '%s' to expected type '%s'",
-                    object != null ? object.getClass().getName() : "null", 
-                    expectedType.getName()), expectedType,
-                    expression);
+                    "No conversion available from type '%s'", object.getClass()
+                    .getName()), expectedType, expression);
         }
         return value;
     }

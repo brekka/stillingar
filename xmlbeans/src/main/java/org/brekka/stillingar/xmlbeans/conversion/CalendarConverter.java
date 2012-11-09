@@ -37,7 +37,7 @@ public class CalendarConverter extends org.brekka.stillingar.core.conversion.Cal
         } else if (obj instanceof XmlTime) {
             value = ((XmlTime) obj).getCalendarValue();
         } else {
-            throw noConversionAvailable(obj);
+            value = super.convert(obj);
         }
         return value;
     }

@@ -23,16 +23,19 @@ import java.util.Locale;
  */
 public class LocaleConverter extends AbstractTypeConverter<Locale> {
 
-    public Class<Locale> targetType() {
+    public final Class<Locale> targetType() {
         return Locale.class;
     }    
     
-    public Locale convert(Object value) {
-        if (value instanceof Locale) {
-            return (Locale) value;
-        } if (value instanceof String) {
-            return new Locale((String) value);
-        } 
-        throw noConversionAvailable(value);
+    public Locale convert(Object obj) {
+        Locale value;
+        if (obj instanceof Locale) {
+            value = (Locale) obj;
+        } else if (obj instanceof String) {
+            value = new Locale((String) obj);
+        } else {
+            value = super.convert(obj);
+        }
+        return value;
     }
 }

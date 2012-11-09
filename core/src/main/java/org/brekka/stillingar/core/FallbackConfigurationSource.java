@@ -159,8 +159,9 @@ public class FallbackConfigurationSource implements ConfigurationSource {
         if (secondarySource.isAvailable(expression)) {
             return secondarySource.retrieve(expression, valueType);
         }
-        throw new ConfigurationException(String.format("Expression '%s' did not resolve to any value of type '%s', "
-                + "in any of the available configuration sources", expression, valueType.getName()));
+        throw new ConfigurationException(String.format("Expression '%s' did not evaluate to a value "
+                + "in any of the available configuration sources. Expected return type '%s'.", 
+                expression, valueType.getName()));
     }
 
     /*
@@ -201,7 +202,7 @@ public class FallbackConfigurationSource implements ConfigurationSource {
             return secondarySource.retrieveList(expression, valueType);
         }
         throw new ConfigurationException(String.format(
-                "Expression '%s' did not resolve to any list value of type '%s', "
-                        + "in any of the available configuration sources", expression, valueType.getName()));
+                "Expression '%s' did not evaluate to any values within any of the available " +
+                "configuration sources. Expected to return list of type '%s'.", expression, valueType.getName()));
     }
 }

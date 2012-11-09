@@ -50,9 +50,9 @@ public class DocumentConverter extends AbstractTypeConverter<Document> {
             Node node = result.getNode();
             return (Document) node;
         } catch (TransformerConfigurationException e) {
-            throw new IllegalArgumentException(e);
+            throw new IllegalArgumentException("Element to document transform configuration problem", e);
         } catch (TransformerException e) {
-            throw new IllegalArgumentException(e);
+            throw new IllegalArgumentException("Failed to transform element to document", e);
         }
     }
 }

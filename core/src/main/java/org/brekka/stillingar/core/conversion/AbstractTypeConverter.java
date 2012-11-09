@@ -33,15 +33,16 @@ public abstract class AbstractTypeConverter<To> implements TypeConverter<To> {
     }
 
     /**
-     * Create an {@link IllegalArgumentException} with a message detailing that the specified value cannot be converted
-     * to the target type.
+     * Simply throws an {@link IllegalArgumentException} with details of the incoming object type and the expected
+     * conversion type.
      * 
      * @param value
-     *            the value that could not be converted.
-     * @return an exception
+     *            the value for which no conversion could be performed for the given type.
+     * @throws IllegalAccessException indicating the types involved.
      */
-    protected IllegalArgumentException noConversionAvailable(Object value) {
-        return new IllegalArgumentException(format("No conversion possible from '%s' to '%s'", value.getClass()
+    @Override
+    public To convert(Object value) {
+        throw new IllegalArgumentException(format("No conversion possible from '%s' to '%s'", value.getClass()
                 .getName(), targetType().getName()));
     }
 }

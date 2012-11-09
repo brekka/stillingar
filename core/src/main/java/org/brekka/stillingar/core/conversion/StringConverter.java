@@ -32,7 +32,7 @@ public class StringConverter extends AbstractTypeConverter<String> {
             String strValue = (String) obj;
             value = strValue;
         } else {
-            throw noConversionAvailable(obj);
+            value = super.convert(obj);
         }
         return value;
     }

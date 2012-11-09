@@ -22,7 +22,7 @@ import java.util.Date;
 /**
  * @author Andrew Taylor
  */
-public class DateConverter extends AbstractTypeConverter<Date> {
+public class DateConverter extends AbstractTemporalConverter<Date> {
 
     public final Class<Date> targetType() {
         return Date.class;
@@ -39,8 +39,10 @@ public class DateConverter extends AbstractTypeConverter<Date> {
         } else if (obj instanceof Calendar) {
             Calendar cal = (Calendar) obj;
             value = cal.getTime();
+        } else if (obj instanceof String) {
+            value = parseString((String) obj);
         } else {
-            throw noConversionAvailable(obj);
+            value = super.convert(obj);
         }
         return value;
     }

@@ -43,7 +43,7 @@ public class FloatConverter extends AbstractTypeConverter<Float> {
             Number number = (Number) obj;
             value = number.floatValue();
         } else {
-            throw noConversionAvailable(obj);
+            value = super.convert(obj);
         }
         return value;
     }

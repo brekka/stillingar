@@ -43,7 +43,7 @@ public class IntegerConverter extends AbstractTypeConverter<Integer> {
             Number number = (Number) obj;
             value = number.intValue();
         } else {
-            throw noConversionAvailable(obj);
+            value = super.convert(obj);
         }
         return value;
     }

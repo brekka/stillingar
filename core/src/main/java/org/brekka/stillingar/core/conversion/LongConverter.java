@@ -42,7 +42,7 @@ public class LongConverter extends AbstractTypeConverter<Long> {
             Number number = (Number) obj;
             value = number.longValue();
         } else {
-            throw noConversionAvailable(obj);
+            value = super.convert(obj);
         }
         return value;
     }

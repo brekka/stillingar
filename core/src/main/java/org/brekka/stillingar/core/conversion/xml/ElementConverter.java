@@ -33,7 +33,7 @@ public class ElementConverter extends AbstractTypeConverter<Element> {
         if (obj instanceof Element) {
             element = (Element) obj;
         } else {
-            throw noConversionAvailable(obj);
+            element = super.convert(obj);
         }
         return element;
     }

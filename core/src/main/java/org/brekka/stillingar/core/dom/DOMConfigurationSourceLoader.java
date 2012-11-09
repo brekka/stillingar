@@ -1,0 +1,110 @@
+/**
+ * 
+ */
+package org.brekka.stillingar.core.dom;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.xml.namespace.NamespaceContext;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.brekka.stillingar.api.ConfigurationException;
+import org.brekka.stillingar.api.ConfigurationSource;
+import org.brekka.stillingar.api.ConfigurationSourceLoader;
+import org.brekka.stillingar.core.conversion.BigDecimalConverter;
+import org.brekka.stillingar.core.conversion.BigIntegerConverter;
+import org.brekka.stillingar.core.conversion.BooleanConverter;
+import org.brekka.stillingar.core.conversion.ByteConverter;
+import org.brekka.stillingar.core.conversion.CalendarConverter;
+import org.brekka.stillingar.core.conversion.ConversionManager;
+import org.brekka.stillingar.core.conversion.DateConverter;
+import org.brekka.stillingar.core.conversion.DoubleConverter;
+import org.brekka.stillingar.core.conversion.EnumConverter;
+import org.brekka.stillingar.core.conversion.FloatConverter;
+import org.brekka.stillingar.core.conversion.IntegerConverter;
+import org.brekka.stillingar.core.conversion.LocaleConverter;
+import org.brekka.stillingar.core.conversion.LongConverter;
+import org.brekka.stillingar.core.conversion.ShortConverter;
+import org.brekka.stillingar.core.conversion.StringConverter;
+import org.brekka.stillingar.core.conversion.TypeConverter;
+import org.brekka.stillingar.core.conversion.URIConverter;
+import org.brekka.stillingar.core.conversion.UUIDConverter;
+import org.brekka.stillingar.core.conversion.xml.DocumentConverter;
+import org.brekka.stillingar.core.conversion.xml.ElementConverter;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
+
+/**
+ * Properties based configuration loader.
+ * 
+ * @author Andrew Taylor (andrew@brekka.org)
+ */
+public class DOMConfigurationSourceLoader implements ConfigurationSourceLoader {
+
+    static final List<TypeConverter<?>> CONVERTERS = Arrays.<TypeConverter<?>> asList(
+            new BigDecimalConverter(), new BigIntegerConverter(), new BooleanConverter(), new ByteConverter(),
+            new DoubleConverter(), new FloatConverter(), new IntegerConverter(), new LongConverter(), 
+            new ShortConverter(), new StringConverter(), new URIConverter(), new ElementConverter(), 
+            new DocumentConverter(), new LocaleConverter(), new UUIDConverter(), new EnumConverter(),
+            new ElementConverter(), new DocumentConverter(), new CalendarConverter(), new DateConverter());
+    
+    /**
+     * The conversion manager
+     */
+    private final ConversionManager conversionManager;
+    
+    /**
+     * Namespace context to use in XPath operations (can be null).
+     */
+    private final NamespaceContext xPathNamespaceContext;
+    
+    /**
+     * 
+     */
+    public DOMConfigurationSourceLoader() {
+        this(null, new ConversionManager(CONVERTERS));
+    }
+    
+    /**
+     * @param xPathNamespaceContext
+     */
+    public DOMConfigurationSourceLoader(NamespaceContext xPathNamespaceContext) {
+        this(xPathNamespaceContext, new ConversionManager(CONVERTERS));
+    }
+    
+    /**
+     * @param conversionManager
+     */
+    public DOMConfigurationSourceLoader(NamespaceContext xPathNamespaceContext, ConversionManager conversionManager) {
+        this.conversionManager = conversionManager;
+        this.xPathNamespaceContext = xPathNamespaceContext;
+    }
+    
+
+    /* (non-Javadoc)
+     * @see org.brekka.stillingar.core.ConfigurationSourceLoader#parse(java.io.InputStream, java.nio.charset.Charset)
+     */
+    public ConfigurationSource parse(InputStream sourceStream, Charset encoding) throws ConfigurationException,
+            IOException {
+        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        if (xPathNamespaceContext != null) {
+            documentBuilderFactory.setNamespaceAware(true);
+        }
+        Document document;
+        try {
+            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+            document = documentBuilder.parse(sourceStream);
+        } catch (ParserConfigurationException e) {
+            throw new ConfigurationException("Parsing DOM XML", e);
+        } catch (SAXException e) {
+            throw new ConfigurationException("DOM XML", e);
+        }
+        return new DOMConfigurationSource(document, xPathNamespaceContext, conversionManager);
+    }
+}

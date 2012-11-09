@@ -43,7 +43,7 @@ public class DoubleConverter extends AbstractTypeConverter<Double> {
             Number number = (Number) obj;
             value = number.doubleValue();
         } else {
-            throw noConversionAvailable(obj);
+            value = super.convert(obj);
         }
         return value;
     }

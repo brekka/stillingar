@@ -18,12 +18,13 @@ package org.brekka.stillingar.core.conversion;
 
 import java.util.Calendar;
 
+
 /**
  * @author Andrew Taylor
  */
-public class CalendarConverter extends AbstractTypeConverter<Calendar> {
+public class CalendarConverter extends AbstractTemporalConverter<Calendar> {
 
-    
+
     public final Class<Calendar> targetType() {
         return Calendar.class;
     }
@@ -37,10 +38,14 @@ public class CalendarConverter extends AbstractTypeConverter<Calendar> {
         Calendar value;
         if (obj instanceof Calendar) {
             value = (Calendar) obj;
+        } else if (obj instanceof String) {
+            value = parseString((String) obj);
         } else {
-            throw noConversionAvailable(obj);
+            value = super.convert(obj);
         }
         return value;
     }
+
+
     
 }

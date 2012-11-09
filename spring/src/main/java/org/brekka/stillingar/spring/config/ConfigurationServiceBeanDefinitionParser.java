@@ -26,6 +26,7 @@ import java.util.List;
 import org.brekka.stillingar.api.ConfigurationException;
 import org.brekka.stillingar.core.conversion.ConversionManager;
 import org.brekka.stillingar.core.conversion.xml.DocumentConverter;
+import org.brekka.stillingar.core.dom.DOMConfigurationSourceLoader;
 import org.brekka.stillingar.core.properties.PropertiesConfigurationSourceLoader;
 import org.brekka.stillingar.core.snapshot.SnapshotBasedConfigurationService;
 import org.brekka.stillingar.spring.bpp.ConfigurationBeanPostProcessor;
@@ -176,6 +177,9 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
                 builder.addConstructorArgValue(prepareXmlBeansConversionManager());
                 prepareXMLBeanNamespaces(element, builder);
                 break;
+            case DOM:
+                prepareDOM(element, parserContext, builder);
+                break;
             case JAXB:
                 prepareJAXB(element, parserContext, builder);
                 break;
@@ -188,6 +192,18 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
         }
         AbstractBeanDefinition beanDefinition = builder.getBeanDefinition();
         parserContext.registerBeanComponent(new BeanComponentDefinition(beanDefinition, loaderReference));
+    }
+    
+    /**
+     * @param element
+     * @param builder
+     */
+    protected void prepareDOM(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
+        // Namespaces
+        builder.addConstructorArgValue(prepareDOMNamespaces(element));
+        
+        // ConversionManager
+        builder.addConstructorArgValue(prepareDOMConversionManager());
     }
 
     /**
@@ -217,17 +233,17 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
         builder.addConstructorArgValue(schemaUrlList);
 
         // Namespaces
-        builder.addConstructorArgValue(prepareJAXBNamespaces(element));
+        builder.addConstructorArgValue(prepareDOMNamespaces(element));
         
-//        // ConversionManager
-//        builder.addConstructorArgValue(prepareJAXBConversionManager());
+        // ConversionManager
+        builder.addConstructorArgValue(prepareJAXBConversionManager());
     }
 
     /**
      * @param element
      * @return
      */
-    protected AbstractBeanDefinition prepareJAXBNamespaces(Element element) {
+    protected AbstractBeanDefinition prepareDOMNamespaces(Element element) {
         ManagedMap<String, String> namespaceMap = toNamespaceMap(element);
         if (namespaceMap.isEmpty()) {
             return null;
@@ -594,19 +610,31 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
         builder.addConstructorArgValue(converters);
         return builder.getBeanDefinition();
     }
+    
+    protected AbstractBeanDefinition prepareDOMConversionManager() {
+        BeanDefinitionBuilder builder = BeanDefinitionBuilder
+                .genericBeanDefinition(ConversionManager.class);
+        ManagedList<AbstractBeanDefinition> converters = prepareCoreConverters();
+
+        List<String> coreConverterShortNames = Arrays.asList("DateConverter", "CalendarConverter");
+        converters.addAll(toManagedConverterList(coreConverterShortNames, "org.brekka.stillingar.core.conversion"));
+        
+        BeanDefinitionBuilder appCxtBeanDefBuilder = BeanDefinitionBuilder.genericBeanDefinition(ApplicationContextConverter.class);
+        appCxtBeanDefBuilder.addConstructorArgValue(
+                BeanDefinitionBuilder.genericBeanDefinition(DocumentConverter.class).getBeanDefinition()
+        );
+        converters.add(appCxtBeanDefBuilder.getBeanDefinition());
+        builder.addConstructorArgValue(converters);
+        return builder.getBeanDefinition();
+    }
 
     protected AbstractBeanDefinition prepareJAXBConversionManager() {
         BeanDefinitionBuilder builder = BeanDefinitionBuilder
                 .genericBeanDefinition(ConversionManager.class);
-        List<String> coreConverterShortNames = Arrays.asList("BigDecimalConverter", "BigIntegerConverter",
-                "BooleanConverter", "ByteConverter", "ByteArrayConverter",
-                "DoubleConverter", "xml.ElementConverter", "FloatConverter", "IntegerConverter", "LongConverter",
-                "ShortConverter", "StringConverter", "URIConverter", "xml.DocumentConverter", "LocaleConverter",
-                "UUIDConverter", "EnumConverter");
-        ManagedList<AbstractBeanDefinition> converters = toManagedConverterList(coreConverterShortNames, "org.brekka.stillingar.core.conversion");
+        ManagedList<AbstractBeanDefinition> converters = prepareCoreConverters();
         
         List<String> jaxbConverterShortNames = Arrays.asList("CalendarConverter", "DateConverter");
-        converters.addAll(toManagedConverterList(jaxbConverterShortNames, "org.brekka.stillingar.jaxb.conversion."));
+        converters.addAll(toManagedConverterList(jaxbConverterShortNames, "org.brekka.stillingar.jaxb.conversion"));
 
         BeanDefinitionBuilder appCxtBeanDefBuilder = BeanDefinitionBuilder.genericBeanDefinition(ApplicationContextConverter.class);
         appCxtBeanDefBuilder.addConstructorArgValue(
@@ -615,6 +643,15 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
         converters.add(appCxtBeanDefBuilder.getBeanDefinition());
         builder.addConstructorArgValue(converters);
         return builder.getBeanDefinition();
+    }
+    
+    protected ManagedList<AbstractBeanDefinition> prepareCoreConverters() {
+        List<String> coreConverterShortNames = Arrays.asList("BigDecimalConverter", "BigIntegerConverter",
+                "BooleanConverter", "ByteConverter", "ByteArrayConverter",
+                "DoubleConverter", "xml.ElementConverter", "FloatConverter", "IntegerConverter", "LongConverter",
+                "ShortConverter", "StringConverter", "URIConverter", "xml.DocumentConverter", "LocaleConverter",
+                "UUIDConverter", "EnumConverter");
+        return toManagedConverterList(coreConverterShortNames, "org.brekka.stillingar.core.conversion");
     }
 
     /**
@@ -740,6 +777,8 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
 
     enum Engine {
         PROPS(PropertiesConfigurationSourceLoader.class.getName(), "properties"),
+        
+        DOM(DOMConfigurationSourceLoader.class.getName(), "xml"),
 
         XMLBEANS("org.brekka.stillingar.xmlbeans.XmlBeansSnapshotLoader", "xml"),
 

@@ -43,7 +43,7 @@ public class BooleanConverter extends AbstractTypeConverter<Boolean> {
             Number number = (Number) obj;
             value = number.intValue() == 1;
         } else {
-            throw noConversionAvailable(obj);
+            value = super.convert(obj);
         }
         return value;
     }
