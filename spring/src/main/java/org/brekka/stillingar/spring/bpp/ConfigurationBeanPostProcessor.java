@@ -24,7 +24,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -183,8 +185,7 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
             Object value;
             if (valueDefinition instanceof ValueListDefinition) {
                 if (valueDefinition.getExpression() != null) {
-                    value = configurationSource
-                            .retrieveList(valueDefinition.getExpression(), valueDefinition.getType());
+                    value = configurationSource.retrieveList(valueDefinition.getExpression(), valueDefinition.getType());
                 } else {
                     value = configurationSource.retrieveList(valueDefinition.getType());
                 }
@@ -196,14 +197,20 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
                 }
             }
             ValueChangeListener listener = valueDefinition.getChangeListener();
-            listener.onChange(value, null);
+            if (listener instanceof PrototypeValueChangeListener) {
+                PrototypeValueChangeListener pvcl = (PrototypeValueChangeListener) listener;
+                pvcl.onChange(value, null, bean);
+            } else {
+                listener.onChange(value, null);
+            }
         }
         GroupChangeListener changeListener = valueDefinitionGroup.getChangeListener();
-        if (changeListener != null) {
+        if (changeListener instanceof PrototypeGroupChangeListener) {
             /*
              * Note we are deliberately not obtaining the semaphore.
              */
-            changeListener.onChange(configurationSource);
+            PrototypeGroupChangeListener pgcl = (PrototypeGroupChangeListener) changeListener;
+            pgcl.onChange(configurationSource, bean);
         }
     }
 
@@ -259,6 +266,12 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
         PostUpdateChangeListener beanChangeListener = null;
 
         Method[] declaredMethods = beanClass.getDeclaredMethods();
+        Arrays.sort(declaredMethods, new Comparator<Method>() {
+            @Override
+            public int compare(Method o1, Method o2) {
+                return o1.getName().compareTo(o2.getName());
+            }
+        });
         for (Method method : declaredMethods) {
             Configured configured = method.getAnnotation(Configured.class);
 
@@ -266,9 +279,9 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
             if (configurationListener != null) {
                 if (beanChangeListener != null) {
                     throw new ConfigurationException(format(
-                            "Unable to create a configuration listener for the method '%s' "
-                                    + "as it already contains a configuration listener on the method '%s'", method,
-                            beanName, beanClass.getName(), beanChangeListener.getMethod()));
+                            "Unable to create a configuration listener for the method '%s' on the bean '%s' (type '%s') " +
+                            "as it already contains a configuration listener on the method '%s'", 
+                            method.getName(), beanName, beanClass.getName(), beanChangeListener.getMethod().getName()));
                 }
                 beanChangeListener = processListenerMethod(method, valueList, target);
 
@@ -466,19 +479,22 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
     }
 
     /**
-     * Identifies the type of the parameterized list.
+     * Identifies the type of the parameterised list.
      * 
      * @param listType
      *            the list type to inspect
-     * @return the list type or null if it is not parameterized.
+     * @return the list type or null if it is not parameterised.
      */
     @SuppressWarnings("rawtypes")
     private static Class<?> listType(Type listType) {
-        Class<?> type = null;
+        Class<?> type;
         if (listType instanceof ParameterizedType) {
             ParameterizedType pType = (ParameterizedType) listType;
             Type[] actualTypeArguments = pType.getActualTypeArguments();
             type = (Class) actualTypeArguments[0];
+        } else {
+            throw new ConfigurationException(String.format(
+                    "Not a parameterised list type: '%s'", listType));
         }
         return type;
     }

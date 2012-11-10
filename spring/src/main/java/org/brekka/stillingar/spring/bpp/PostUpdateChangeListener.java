@@ -34,7 +34,7 @@ import org.brekka.stillingar.core.GroupChangeListener;
  * 
  * @author Andrew Taylor (andrew@brekka.org)
  */
-class PostUpdateChangeListener implements GroupChangeListener, Expirable {
+class PostUpdateChangeListener implements GroupChangeListener, PrototypeGroupChangeListener, Expirable {
     /**
      * The target object containing the method to be invoked
      */
@@ -72,7 +72,7 @@ class PostUpdateChangeListener implements GroupChangeListener, Expirable {
         if (target == null) {
             return;
         }
-        onChange(configurationSource, target, method);
+        onChange(configurationSource, target);
     }
 
     /**
@@ -81,7 +81,7 @@ class PostUpdateChangeListener implements GroupChangeListener, Expirable {
      * @param target
      *            the target object on which the specified method will be invoked.
      */
-    protected void onChange(ConfigurationSource configurationSource, Object target, Method method) {
+    public void onChange(ConfigurationSource configurationSource, Object target) {
         Object[] args = new Object[parameterValues.size()];
         for (int i = 0; i < parameterValues.size(); i++) {
             ParameterValueResolver arg = parameterValues.get(i);

@@ -27,7 +27,8 @@ import org.brekka.stillingar.core.ValueChangeListener;
  * 
  * @author Andrew Taylor (andrew@brekka.org)
  */
-abstract class InvocationChangeListenerSupport<T extends Object> implements ValueChangeListener<T>, Expirable {
+abstract class InvocationChangeListenerSupport<T extends Object> implements ValueChangeListener<T>, 
+                    PrototypeValueChangeListener<T>, Expirable {
     /**
      * The object containing the value to be updated.
      */
@@ -76,16 +77,6 @@ abstract class InvocationChangeListenerSupport<T extends Object> implements Valu
         }
         onChange(newValue, oldValue, target);
     }
-    
-    /**
-     * Handle a value change.
-     * 
-     * @param newValue
-     *            the new value
-     * @param target
-     *            that target object being processed.
-     */
-    protected abstract void onChange(T newValue, T oldValue, Object target);
     
     /* (non-Javadoc)
      * @see org.brekka.stillingar.core.Expirable#isExpired()
