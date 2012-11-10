@@ -22,7 +22,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.xml.bind.JAXBContext;
@@ -40,26 +39,12 @@ import javax.xml.validation.SchemaFactory;
 import org.brekka.stillingar.api.ConfigurationException;
 import org.brekka.stillingar.api.ConfigurationSource;
 import org.brekka.stillingar.api.ConfigurationSourceLoader;
-import org.brekka.stillingar.core.conversion.BigDecimalConverter;
-import org.brekka.stillingar.core.conversion.BigIntegerConverter;
-import org.brekka.stillingar.core.conversion.BooleanConverter;
-import org.brekka.stillingar.core.conversion.ByteConverter;
 import org.brekka.stillingar.core.conversion.ConversionManager;
-import org.brekka.stillingar.core.conversion.DoubleConverter;
-import org.brekka.stillingar.core.conversion.EnumConverter;
-import org.brekka.stillingar.core.conversion.FloatConverter;
-import org.brekka.stillingar.core.conversion.IntegerConverter;
-import org.brekka.stillingar.core.conversion.LocaleConverter;
-import org.brekka.stillingar.core.conversion.LongConverter;
-import org.brekka.stillingar.core.conversion.ShortConverter;
-import org.brekka.stillingar.core.conversion.StringConverter;
+import org.brekka.stillingar.core.conversion.TemporalAdapter;
 import org.brekka.stillingar.core.conversion.TypeConverter;
-import org.brekka.stillingar.core.conversion.URIConverter;
-import org.brekka.stillingar.core.conversion.UUIDConverter;
-import org.brekka.stillingar.core.conversion.xml.DocumentConverter;
-import org.brekka.stillingar.core.conversion.xml.ElementConverter;
-import org.brekka.stillingar.jaxb.conversion.CalendarConverter;
-import org.brekka.stillingar.jaxb.conversion.DateConverter;
+import org.brekka.stillingar.core.conversion.TypeConverterListBuilder;
+import org.brekka.stillingar.core.dom.DOMConfigurationSourceLoader;
+import org.brekka.stillingar.jaxb.conversion.JAXBTemporalAdapter;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -68,15 +53,8 @@ import org.xml.sax.SAXException;
  *
  * @author Andrew Taylor (andrew@brekka.org)
  */
-public class JAXBSnapshotLoader implements ConfigurationSourceLoader {
-    static final List<TypeConverter<?>> CONVERTERS = Arrays.<TypeConverter<?>> asList(
-            new BigDecimalConverter(), new BigIntegerConverter(), new BooleanConverter(), new ByteConverter(),
-            new CalendarConverter(), new DateConverter(), new DoubleConverter(),
-            new FloatConverter(), new IntegerConverter(), new LongConverter(), new ShortConverter(),
-            new StringConverter(), new URIConverter(), new ElementConverter(), new EnumConverter(), 
-            new DocumentConverter(), new LocaleConverter(), new UUIDConverter());
+public class JAXBConfigurationSourceLoader implements ConfigurationSourceLoader {
     
-
     /**
      * The context path in which to look for the JAXB beans.
      */
@@ -98,14 +76,14 @@ public class JAXBSnapshotLoader implements ConfigurationSourceLoader {
     private final ConversionManager conversionManager;
     
     
-    public JAXBSnapshotLoader(String contextPath, List<URL> schemas, NamespaceContext xPathNamespaceContext) {
-        this(contextPath, schemas, xPathNamespaceContext, new ConversionManager(CONVERTERS));
+    public JAXBConfigurationSourceLoader(String contextPath, List<URL> schemas, NamespaceContext xPathNamespaceContext) {
+        this(contextPath, schemas, xPathNamespaceContext, new ConversionManager(prepareConverters()));
     }
     
     /**
      * @param contextPath
      */
-    public JAXBSnapshotLoader(String contextPath, List<URL> schemas, NamespaceContext xPathNamespaceContext, ConversionManager conversionManager) {
+    public JAXBConfigurationSourceLoader(String contextPath, List<URL> schemas, NamespaceContext xPathNamespaceContext, ConversionManager conversionManager) {
         this.contextPath = contextPath;
         if (schemas.isEmpty()) {
             this.schema = null;
@@ -172,5 +150,14 @@ public class JAXBSnapshotLoader implements ConfigurationSourceLoader {
                 closeable.close();
             }
         } catch (IOException e) { }
+    }
+    
+    public static List<TypeConverter<?>> prepareConverters() {
+        TemporalAdapter temporalAdapter = new JAXBTemporalAdapter();
+        return new TypeConverterListBuilder(DOMConfigurationSourceLoader.prepareConverters(temporalAdapter))
+            .inPackage("org.brekka.stillingar.core.conversion")
+                .addOptionalClass("PeriodConverter")
+            .done()
+            .toList();
     }
 }

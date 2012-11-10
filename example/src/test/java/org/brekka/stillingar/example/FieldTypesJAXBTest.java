@@ -29,12 +29,16 @@ import java.util.Random;
 import java.util.UUID;
 
 import org.apache.commons.lang.RandomStringUtils;
+import org.apache.xmlbeans.GDuration;
 import org.brekka.stillingar.example.support.ConfiguredFieldTypes;
 import org.brekka.stillingar.example.support.TestSupport;
 import org.brekka.xml.stillingar.example.v1.ConfigurationDocument;
 import org.brekka.xml.stillingar.example.v1.ConfigurationDocument.Configuration;
 import org.brekka.xml.stillingar.example.v1.ConfigurationDocument.Configuration.Testing;
 import org.brekka.xml.stillingar.example.v1.FeatureFlagType;
+import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
@@ -99,6 +103,12 @@ public class FieldTypesJAXBTest extends AbstractJUnit4SpringContextTests {
         assertEquals(testing.getShort(), t.getShortPrimitive());
         assertEquals(Short.valueOf(testing.getShort()), t.getShortValue());
         assertEquals(testing.getString(), t.getString());
+        
+        assertEquals(testing.getPeriod().toString(), t.getPeriod().toString());
+        assertEquals(new DateTime(testing.getDateTime()).toString(), t.getDateTime().toString());
+        assertEquals(new LocalDate(testing.getDate()).toString(), t.getLocalDate().toString());
+        assertEquals(new LocalTime(testing.getTime()).toString(), t.getLocalTime().toString());
+        
         assertEquals(String.format("%tT", testing.getTime()), String.format("%tT", t.getTimeAsCalendar().getTime()));
         assertTrue(Arrays.equals(t.getBinary(), testing.getBinary()));
         assertEquals(UUID.fromString(testing.getUUID()), t.getUuid());
@@ -134,6 +144,7 @@ public class FieldTypesJAXBTest extends AbstractJUnit4SpringContextTests {
         testing.setString(RandomStringUtils.randomAlphanumeric(24));
         testing.setTime(cal);
         testing.setUUID(UUID.randomUUID().toString());
+        testing.setPeriod(new GDuration("P5Y2M10DT15H"));
         byte[] binary = new byte[32];
         r.nextBytes(binary);
         testing.setBinary(binary);

@@ -42,11 +42,14 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import net.iharder.Base64;
 
 import org.brekka.stillingar.core.conversion.ConversionManager;
+import org.brekka.stillingar.core.dom.DOMConfigurationSourceLoader;
 import org.brekka.stillingar.core.dom.DefaultNamespaceContext;
+import org.brekka.stillingar.jaxb.conversion.JAXBTemporalAdapter;
 import org.brekka.stillingar.test.jaxb.Configuration.CompanyX;
 import org.brekka.stillingar.test.jaxb.Configuration.CompanyY;
 import org.brekka.stillingar.test.jaxb.Configuration.FeatureFlag;
 import org.brekka.stillingar.test.jaxb.Configuration.Services.Rules.Fraud;
+import org.joda.time.Period;
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
@@ -76,7 +79,7 @@ public class JAXBConfigurationSourceTest {
             "b", "http://www.springframework.org/schema/beans"
         );
         configurationSource = new JAXBConfigurationSource(document, object, namespaceContext, 
-                new ConversionManager(JAXBSnapshotLoader.CONVERTERS));
+                new ConversionManager(JAXBConfigurationSourceLoader.prepareConverters()));
     }
 
     /**
@@ -197,6 +200,13 @@ public class JAXBConfigurationSourceTest {
     public void testRetrieveBoolean() throws Exception {
         assertTrue(configurationSource.retrieve("//c:Fraud//c:Enabled", Boolean.class));
     }
+    
+    
+    @Test // P5Y2M10D
+    public void testRetrievePeriod() throws Exception {
+        assertEquals(new Period(5, 2, 0, 10, 0, 0, 0, 0), configurationSource.retrieve("//c:LockDuration", Period.class));
+    }
+    
     
     @Test
     public void testRetrieveBytes() throws Exception {

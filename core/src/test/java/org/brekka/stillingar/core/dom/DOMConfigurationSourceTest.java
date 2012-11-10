@@ -35,6 +35,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.brekka.stillingar.core.conversion.ConversionManager;
+import org.brekka.stillingar.core.conversion.TemporalAdapter;
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
@@ -61,7 +62,7 @@ public class DOMConfigurationSourceTest {
             "b", "http://www.springframework.org/schema/beans"
         );
         configurationSource = new DOMConfigurationSource(document, namespaceContext, 
-                new ConversionManager(DOMConfigurationSourceLoader.CONVERTERS));
+                new ConversionManager(DOMConfigurationSourceLoader.prepareConverters(new TemporalAdapter())));
     }
 
     /**

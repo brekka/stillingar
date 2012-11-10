@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 the original author or authors.
+ * Copyright 2012 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,14 +21,20 @@ import java.util.Calendar;
 import org.apache.xmlbeans.XmlDate;
 import org.apache.xmlbeans.XmlDateTime;
 import org.apache.xmlbeans.XmlTime;
+import org.brekka.stillingar.core.conversion.TemporalAdapter;
 
 /**
- * @author Andrew Taylor
+ * TODO Description of XmlBeansTemporalAdapter
+ *
+ * @author Andrew Taylor (andrew@brekka.org)
  */
-public class CalendarConverter extends org.brekka.stillingar.core.conversion.CalendarConverter {
+public class XmlBeansTemporalAdapter extends TemporalAdapter {
 
+    /* (non-Javadoc)
+     * @see org.brekka.stillingar.core.conversion.TemporalAdapter#toCalendar(java.lang.Object, boolean, boolean, java.lang.Class)
+     */
     @Override
-    public Calendar convert(Object obj) {
+    public Calendar toCalendar(Object obj, boolean supportsDate, boolean supportsTime, Class<?> expectedType) {
         Calendar value;
         if (obj instanceof XmlDateTime) {
             value = ((XmlDateTime) obj).getCalendarValue();
@@ -37,7 +43,7 @@ public class CalendarConverter extends org.brekka.stillingar.core.conversion.Cal
         } else if (obj instanceof XmlTime) {
             value = ((XmlTime) obj).getCalendarValue();
         } else {
-            value = super.convert(obj);
+            value = super.toCalendar(obj, supportsDate, supportsTime, expectedType);
         }
         return value;
     }

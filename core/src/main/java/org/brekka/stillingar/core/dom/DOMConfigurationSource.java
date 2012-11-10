@@ -58,14 +58,6 @@ public class DOMConfigurationSource implements ConfigurationSource {
      */
     private final NamespaceContext xPathNamespaceContext;
     
-    
-    /**
-     * @param document
-     */
-    public DOMConfigurationSource(Document document, NamespaceContext xPathNamespaceContext) {
-        this(document, xPathNamespaceContext, new ConversionManager(DOMConfigurationSourceLoader.CONVERTERS));
-    }
-
     /**
      * @param document
      *            The document from which configuration values will be resolved.

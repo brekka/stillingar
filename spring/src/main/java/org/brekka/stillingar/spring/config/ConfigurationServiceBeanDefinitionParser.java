@@ -21,10 +21,12 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import org.brekka.stillingar.api.ConfigurationException;
 import org.brekka.stillingar.core.conversion.ConversionManager;
+import org.brekka.stillingar.core.conversion.TemporalAdapter;
 import org.brekka.stillingar.core.conversion.xml.DocumentConverter;
 import org.brekka.stillingar.core.dom.DOMConfigurationSourceLoader;
 import org.brekka.stillingar.core.properties.PropertiesConfigurationSourceLoader;
@@ -598,11 +600,12 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
     protected AbstractBeanDefinition prepareXmlBeansConversionManager() {
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(ConversionManager.class);
         List<String> converterShortNames = Arrays.asList("BigDecimalConverter", "BigIntegerConverter",
-                "BooleanConverter", "ByteConverter", "ByteArrayConverter", "CalendarConverter", "DateConverter",
+                "BooleanConverter", "ByteConverter", "ByteArrayConverter", "UUIDConverter", "EnumConverter",
                 "DoubleConverter", "ElementConverter", "FloatConverter", "IntegerConverter", "LongConverter",
-                "ShortConverter", "StringConverter", "URIConverter", "DocumentConverter", "LocaleConverter",
-                "UUIDConverter", "EnumConverter");
+                "ShortConverter", "StringConverter", "URIConverter", "DocumentConverter", "LocaleConverter"
+        );
         ManagedList<AbstractBeanDefinition> converters = toManagedConverterList(converterShortNames, "org.brekka.stillingar.xmlbeans.conversion");
+        converters.addAll(prepareTemporalConverters("org.brekka.stillingar.xmlbeans.conversion", "XmlBeansTemporalAdapter"));
 
         BeanDefinitionBuilder appCxtBeanDefBuilder = BeanDefinitionBuilder.genericBeanDefinition(ApplicationContextConverter.class);
         appCxtBeanDefBuilder.addConstructorArgValue(
@@ -617,9 +620,7 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
         BeanDefinitionBuilder builder = BeanDefinitionBuilder
                 .genericBeanDefinition(ConversionManager.class);
         ManagedList<AbstractBeanDefinition> converters = prepareCoreConverters();
-
-        List<String> coreConverterShortNames = Arrays.asList("DateConverter", "CalendarConverter");
-        converters.addAll(toManagedConverterList(coreConverterShortNames, "org.brekka.stillingar.core.conversion"));
+        converters.addAll(prepareTemporalConverters(TemporalAdapter.class.getPackage().getName(), TemporalAdapter.class.getSimpleName()));
         
         BeanDefinitionBuilder appCxtBeanDefBuilder = BeanDefinitionBuilder.genericBeanDefinition(ApplicationContextConverter.class);
         appCxtBeanDefBuilder.addConstructorArgValue(
@@ -634,9 +635,7 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
         BeanDefinitionBuilder builder = BeanDefinitionBuilder
                 .genericBeanDefinition(ConversionManager.class);
         ManagedList<AbstractBeanDefinition> converters = prepareCoreConverters();
-        
-        List<String> jaxbConverterShortNames = Arrays.asList("CalendarConverter", "DateConverter");
-        converters.addAll(toManagedConverterList(jaxbConverterShortNames, "org.brekka.stillingar.jaxb.conversion"));
+        converters.addAll(prepareTemporalConverters("org.brekka.stillingar.jaxb.conversion", "JAXBTemporalAdapter"));
 
         BeanDefinitionBuilder appCxtBeanDefBuilder = BeanDefinitionBuilder.genericBeanDefinition(ApplicationContextConverter.class);
         appCxtBeanDefBuilder.addConstructorArgValue(
@@ -654,6 +653,38 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
                 "ShortConverter", "StringConverter", "URIConverter", "xml.DocumentConverter", "LocaleConverter",
                 "UUIDConverter", "EnumConverter");
         return toManagedConverterList(coreConverterShortNames, "org.brekka.stillingar.core.conversion");
+    }
+    
+    /**
+     * @param string
+     * @return
+     */
+    protected Collection<? extends AbstractBeanDefinition> prepareTemporalConverters(String customClassPackage, 
+            String temporalAdapterClassShortName) {
+        ManagedList<AbstractBeanDefinition> converters = new ManagedList<AbstractBeanDefinition>();
+        BeanDefinitionBuilder temporalBeanBuilder = BeanDefinitionBuilder.genericBeanDefinition(
+                customClassPackage + "." + temporalAdapterClassShortName);
+        AbstractBeanDefinition temporalBeanDef = temporalBeanBuilder.getBeanDefinition();
+        
+        List<String> temporalConverterShortNames = Arrays.asList("DateConverter", "CalendarConverter");
+        if (ClassUtils.isPresent("org.joda.time.ReadableInstant", Thread.currentThread().getContextClassLoader())) {
+            // JodaTime is present, add the support classes
+            temporalConverterShortNames = new ArrayList<String>(temporalConverterShortNames);
+            temporalConverterShortNames.addAll(Arrays.asList("DateTimeConverter", "LocalDateConverter", "LocalTimeConverter"));
+            
+            if (customClassPackage != null) {
+                BeanDefinitionBuilder converterBldr = BeanDefinitionBuilder
+                        .genericBeanDefinition(customClassPackage + ".PeriodConverter");
+                converters.add(converterBldr.getBeanDefinition());
+            }
+        }
+        for (String shortName : temporalConverterShortNames) {
+            BeanDefinitionBuilder converterBldr = BeanDefinitionBuilder
+                    .genericBeanDefinition("org.brekka.stillingar.core.conversion." + shortName);
+            converterBldr.addConstructorArgValue(temporalBeanDef);
+            converters.add(converterBldr.getBeanDefinition());
+        }
+        return converters;
     }
 
     /**
@@ -782,9 +813,9 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
         
         DOM(DOMConfigurationSourceLoader.class.getName(), "xml"),
 
-        XMLBEANS("org.brekka.stillingar.xmlbeans.XmlBeansSnapshotLoader", "xml"),
+        XMLBEANS("org.brekka.stillingar.xmlbeans.XmlBeansConfigurationSourceLoader", "xml"),
 
-        JAXB("org.brekka.stillingar.jaxb.JAXBSnapshotLoader", "xml")
+        JAXB("org.brekka.stillingar.jaxb.JAXBConfigurationSourceLoader", "xml")
 
         ;
 

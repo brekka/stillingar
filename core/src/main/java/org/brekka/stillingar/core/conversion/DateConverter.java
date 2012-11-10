@@ -22,7 +22,26 @@ import java.util.Date;
 /**
  * @author Andrew Taylor
  */
-public class DateConverter extends AbstractTemporalConverter<Date> {
+public class DateConverter extends AbstractTypeConverter<Date> {
+    
+    /**
+     * Adapter that will perform the conversion
+     */
+    private final TemporalAdapter temporalAdapter;
+    
+    /**
+     * 
+     */
+    public DateConverter() {
+        this(new TemporalAdapter());
+    }
+    
+    /**
+     * @param temporalAdapter
+     */
+    public DateConverter(TemporalAdapter temporalAdapter) {
+        this.temporalAdapter = temporalAdapter;
+    }
 
     public final Class<Date> targetType() {
         return Date.class;
@@ -36,13 +55,9 @@ public class DateConverter extends AbstractTemporalConverter<Date> {
         Date value;
         if (obj instanceof Date) {
             value = (Date) obj;
-        } else if (obj instanceof Calendar) {
-            Calendar cal = (Calendar) obj;
-            value = cal.getTime();
-        } else if (obj instanceof String) {
-            value = parseString((String) obj);
         } else {
-            value = super.convert(obj);
+            Calendar cal = temporalAdapter.toCalendar(obj, true, true, targetType());
+            value = cal.getTime();
         }
         return value;
     }

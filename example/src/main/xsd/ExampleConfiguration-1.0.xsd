@@ -30,6 +30,7 @@
                             <xsd:element name="Time" type="xsd:time" maxOccurs="1" minOccurs="0" />
                             <xsd:element name="Binary" type="xsd:base64Binary" maxOccurs="1" minOccurs="0" />
                             <xsd:element name="UUID" type="st:UUIDType" maxOccurs="1" minOccurs="0" />
+                            <xsd:element name="Period" type="xsd:duration" maxOccurs="1" minOccurs="0" />
                         </xsd:sequence>
                     </xsd:complexType>
                 </xsd:element>

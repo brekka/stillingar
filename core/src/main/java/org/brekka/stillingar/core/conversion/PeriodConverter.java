@@ -14,25 +14,35 @@
  * limitations under the License.
  */
 
-package org.brekka.stillingar.xmlbeans.conversion;
+package org.brekka.stillingar.core.conversion;
 
-import java.util.Date;
+import org.joda.time.Period;
+import org.joda.time.format.ISOPeriodFormat;
 
-import org.apache.xmlbeans.XmlDate;
-import org.apache.xmlbeans.XmlDateTime;
 
 /**
  * @author Andrew Taylor
  */
-public class DateConverter extends org.brekka.stillingar.core.conversion.DateConverter {
+public class PeriodConverter extends AbstractTypeConverter<Period> {
 
+    /**
+     * Target type
+     */
+    public final Class<Period> targetType() {
+        return Period.class;
+    }
+
+    /* (non-Javadoc)
+     * @see org.brekka.stillingar.core.conversion.TypeConverter#convert(java.lang.Object)
+     */
     @Override
-    public Date convert(Object obj) {
-        Date value;
-        if (obj instanceof XmlDateTime) {
-            value = ((XmlDateTime) obj).getDateValue();
-        } else if (obj instanceof XmlDate) {
-            value = ((XmlDate) obj).getDateValue();
+    public Period convert(Object obj) {
+        Period value;
+        if (obj instanceof Period) {
+            value = (Period) obj;
+        } else if (obj instanceof String) {
+            String period = (String) obj;
+            value = ISOPeriodFormat.standard().parsePeriod(period);
         } else {
             value = super.convert(obj);
         }

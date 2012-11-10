@@ -6,7 +6,6 @@ package org.brekka.stillingar.core.dom;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.xml.namespace.NamespaceContext;
@@ -32,7 +31,9 @@ import org.brekka.stillingar.core.conversion.LocaleConverter;
 import org.brekka.stillingar.core.conversion.LongConverter;
 import org.brekka.stillingar.core.conversion.ShortConverter;
 import org.brekka.stillingar.core.conversion.StringConverter;
+import org.brekka.stillingar.core.conversion.TemporalAdapter;
 import org.brekka.stillingar.core.conversion.TypeConverter;
+import org.brekka.stillingar.core.conversion.TypeConverterListBuilder;
 import org.brekka.stillingar.core.conversion.URIConverter;
 import org.brekka.stillingar.core.conversion.UUIDConverter;
 import org.brekka.stillingar.core.conversion.xml.DocumentConverter;
@@ -47,13 +48,6 @@ import org.xml.sax.SAXException;
  */
 public class DOMConfigurationSourceLoader implements ConfigurationSourceLoader {
 
-    static final List<TypeConverter<?>> CONVERTERS = Arrays.<TypeConverter<?>> asList(
-            new BigDecimalConverter(), new BigIntegerConverter(), new BooleanConverter(), new ByteConverter(),
-            new DoubleConverter(), new FloatConverter(), new IntegerConverter(), new LongConverter(), 
-            new ShortConverter(), new StringConverter(), new URIConverter(), new ElementConverter(), 
-            new DocumentConverter(), new LocaleConverter(), new UUIDConverter(), new EnumConverter(),
-            new ElementConverter(), new DocumentConverter(), new CalendarConverter(), new DateConverter());
-    
     /**
      * The conversion manager
      */
@@ -68,14 +62,14 @@ public class DOMConfigurationSourceLoader implements ConfigurationSourceLoader {
      * 
      */
     public DOMConfigurationSourceLoader() {
-        this(null, new ConversionManager(CONVERTERS));
+        this(null);
     }
     
     /**
      * @param xPathNamespaceContext
      */
     public DOMConfigurationSourceLoader(NamespaceContext xPathNamespaceContext) {
-        this(xPathNamespaceContext, new ConversionManager(CONVERTERS));
+        this(xPathNamespaceContext, new ConversionManager(prepareConverters(new TemporalAdapter())));
     }
     
     /**
@@ -106,5 +100,23 @@ public class DOMConfigurationSourceLoader implements ConfigurationSourceLoader {
             throw new ConfigurationException("DOM XML", e);
         }
         return new DOMConfigurationSource(document, xPathNamespaceContext, conversionManager);
+    }
+    
+    public static List<TypeConverter<?>> prepareConverters(TemporalAdapter temporalAdapter) {
+        return new TypeConverterListBuilder().<TypeConverter<?>> 
+            addAll(
+                new BigDecimalConverter(), new BigIntegerConverter(), new BooleanConverter(), new ByteConverter(),
+                new DoubleConverter(), new FloatConverter(), new IntegerConverter(), new LongConverter(), 
+                new ShortConverter(), new StringConverter(), new URIConverter(), new ElementConverter(), 
+                new DocumentConverter(), new LocaleConverter(), new UUIDConverter(), new EnumConverter(),
+                new ElementConverter(), new DocumentConverter(), 
+                new CalendarConverter(temporalAdapter), new DateConverter(temporalAdapter))
+            .inPackage("org.brekka.stillingar.core.conversion")
+                .addOptionalClass("DateTimeConverter", temporalAdapter)
+                .addOptionalClass("LocalTimeConverter", temporalAdapter)
+                .addOptionalClass("LocalDateConverter", temporalAdapter)
+                .addOptionalClass("PeriodConverter")
+            .done()
+            .toList();
     }
 }

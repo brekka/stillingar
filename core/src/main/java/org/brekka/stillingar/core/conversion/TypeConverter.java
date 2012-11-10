@@ -16,10 +16,9 @@
 
 package org.brekka.stillingar.core.conversion;
 
-
 /**
- * Provides type conversion from XMLBeans into the corresponding regular Java types.
- * Converters should never have to deal with a null input value.
+ * Provides type conversion from XMLBeans into the corresponding regular Java types. Converters should never have to
+ * deal with a null input value.
  * 
  * @author Andrew Taylor
  */
@@ -27,21 +26,26 @@ public interface TypeConverter<To> {
 
     /**
      * Convert the XML type into the corresponding regular Java type.
-     * @param value the value to convert
+     * 
+     * @param value
+     *            the value to convert
      * @return the converted value, never null.
-     * @throws IllegalArgumentException if no conversion is possible for the specified type.
+     * @throws IllegalArgumentException
+     *             if no conversion is possible for the specified type.
      */
     To convert(Object value);
-    
+
     /**
-     * The type that will be returned by this converter.
-     * @return the target type
+     * The type that will be returned by this converter. Can return null to indicate the converter should be ignored.
+     * 
+     * @return the target type (can be null).
      */
     Class<To> targetType();
-    
+
     /**
-     * The corresponding primitive type that can also be handled by the converter. Simply
-     * return null if there is no primitive type for this converter.
+     * The corresponding primitive type that can also be handled by the converter. Simply return null if there is no
+     * primitive type for this converter.
+     * 
      * @return the primitive type or null if none is available.
      */
     Class<?> primitiveType();

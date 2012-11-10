@@ -40,6 +40,7 @@
         <Factor>33543</Factor>
         <Flag>126</Flag>
         <TimeUnit>DAYS</TimeUnit>
+        <LockDuration>P5Y2M10D</LockDuration>
     </Security>
     <Logging>
         <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 the original author or authors.
+ * Copyright 2012 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,19 +20,27 @@ import java.util.Calendar;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
-/**
- * @author Andrew Taylor
- */
-public class CalendarConverter extends org.brekka.stillingar.core.conversion.CalendarConverter {
+import org.brekka.stillingar.core.conversion.TemporalAdapter;
 
+/**
+ * TODO Description of JAXBTemporalAdapter
+ *
+ * @author Andrew Taylor (andrew@brekka.org)
+ */
+public class JAXBTemporalAdapter extends TemporalAdapter {
+
+    
+    /* (non-Javadoc)
+     * @see org.brekka.stillingar.core.conversion.TemporalAdapter#toCalendar(java.lang.Object, boolean, boolean, java.lang.Class)
+     */
     @Override
-    public Calendar convert(Object obj) {
+    public Calendar toCalendar(Object obj, boolean supportsDate, boolean supportsTime, Class<?> expectedType) {
         Calendar value;
         if (obj instanceof XMLGregorianCalendar) {
             XMLGregorianCalendar xCal = (XMLGregorianCalendar) obj;
             value = xCal.toGregorianCalendar();
         } else {
-            value = super.convert(obj);
+            value = super.toCalendar(obj, supportsDate, supportsTime, expectedType);
         }
         return value;
     }

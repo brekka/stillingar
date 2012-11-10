@@ -43,6 +43,7 @@ import org.brekka.xml.stillingar.test.v1.ConfigurationDocument;
 import org.brekka.xml.stillingar.test.v1.ConfigurationDocument.Configuration.CompanyX;
 import org.brekka.xml.stillingar.test.v1.ConfigurationDocument.Configuration.CompanyY;
 import org.brekka.xml.stillingar.test.v1.ConfigurationDocument.Configuration.Services.Rules.Fraud;
+import org.joda.time.Period;
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
@@ -63,7 +64,7 @@ public class XmlBeansConfigurationSourceTest {
         Map<String, String> nsMap = new HashMap<String, String>();
         nsMap.put("c", "http://brekka.org/xml/stillingar/test/v1");
         nsMap.put("b", "http://www.springframework.org/schema/beans");
-        configurationSource = new XmlBeansConfigurationSource(document, nsMap, new ConversionManager(XmlBeansSnapshotLoader.CONVERTERS));
+        configurationSource = new XmlBeansConfigurationSource(document, nsMap, new ConversionManager(XmlBeansConfigurationSourceLoader.prepareConverters()));
     }
 
     /**
@@ -182,6 +183,11 @@ public class XmlBeansConfigurationSourceTest {
     @Test
     public void testRetrieveBoolean() throws Exception {
         assertTrue(configurationSource.retrieve("//c:Fraud//c:Enabled", Boolean.class));
+    }
+    
+    @Test // P5Y2M10D
+    public void testRetrievePeriod() throws Exception {
+        assertEquals(new Period(5, 2, 0, 10, 0, 0, 0, 0), configurationSource.retrieve("//c:LockDuration", Period.class));
     }
     
     

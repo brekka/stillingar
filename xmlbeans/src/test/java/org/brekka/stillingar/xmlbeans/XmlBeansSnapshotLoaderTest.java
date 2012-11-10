@@ -27,7 +27,7 @@ import org.brekka.stillingar.xmlbeans.conversion.StringConverter;
 import org.junit.Test;
 
 /**
- * Test of XmlBeansSnapshotLoader
+ * Test of XmlBeansConfigurationSourceLoader
  *
  * @author Andrew Taylor (andrew@brekka.org)
  */
@@ -36,40 +36,40 @@ public class XmlBeansSnapshotLoaderTest {
     
     @Test
     public void testXmlBeansSnapshotLoader() {
-        new XmlBeansSnapshotLoader().toString();
+        new XmlBeansConfigurationSourceLoader().toString();
     }
 
     @Test
     public void testXmlBeansSnapshotLoaderConversionManager() {
-        ConversionManager manager = new ConversionManager(XmlBeansSnapshotLoader.CONVERTERS);
+        ConversionManager manager = new ConversionManager(XmlBeansConfigurationSourceLoader.prepareConverters());
         manager.addConverter(new StringConverter());
-        new XmlBeansSnapshotLoader(manager).toString();
+        new XmlBeansConfigurationSourceLoader(manager).toString();
     }
     
     @Test(expected=IllegalArgumentException.class)
     public void testXmlBeansSnapshotLoaderNullConversionManager() {
-        new XmlBeansSnapshotLoader(null).toString();
+        new XmlBeansConfigurationSourceLoader(null).toString();
     }
     
     @Test
     public void testSetXPathNamepaces() {
-        new XmlBeansSnapshotLoader().setXpathNamespaces(Collections.<String,String>emptyMap());
+        new XmlBeansConfigurationSourceLoader().setXpathNamespaces(Collections.<String,String>emptyMap());
     }
     @Test(expected=IllegalArgumentException.class)
     public void testSetNullXPathNamepaces() {
-        new XmlBeansSnapshotLoader().setXpathNamespaces(null);
+        new XmlBeansConfigurationSourceLoader().setXpathNamespaces(null);
     }
 
     @Test
     public void testParseValid() throws Exception {
-        XmlBeansSnapshotLoader xmlBeansSnapshotLoader = new XmlBeansSnapshotLoader();
+        XmlBeansConfigurationSourceLoader xmlBeansSnapshotLoader = new XmlBeansConfigurationSourceLoader();
         ConfigurationSource configurationSource = xmlBeansSnapshotLoader.parse(getClass().getResourceAsStream("TestConfiguration.xml"), null);
         assertNotNull(configurationSource);
     }
     
     @Test
     public void testParseInvalidNoValidation() throws Exception {
-        XmlBeansSnapshotLoader xmlBeansSnapshotLoader = new XmlBeansSnapshotLoader();
+        XmlBeansConfigurationSourceLoader xmlBeansSnapshotLoader = new XmlBeansConfigurationSourceLoader();
         xmlBeansSnapshotLoader.setValidate(false);
         ConfigurationSource configurationSource = xmlBeansSnapshotLoader.parse(getClass().getResourceAsStream("JunkConfiguration.xml"), null);
         assertNotNull(configurationSource);
@@ -77,20 +77,20 @@ public class XmlBeansSnapshotLoaderTest {
     
     @Test(expected=ConfigurationException.class)
     public void testParseInvalidValidationOn() throws Exception {
-        XmlBeansSnapshotLoader xmlBeansSnapshotLoader = new XmlBeansSnapshotLoader();
+        XmlBeansConfigurationSourceLoader xmlBeansSnapshotLoader = new XmlBeansConfigurationSourceLoader();
         xmlBeansSnapshotLoader.setValidate(true);
         xmlBeansSnapshotLoader.parse(getClass().getResourceAsStream("JunkConfiguration.xml"), null);
     }
     
     @Test(expected=ConfigurationException.class)
     public void testParseNonXml() throws Exception {
-        XmlBeansSnapshotLoader xmlBeansSnapshotLoader = new XmlBeansSnapshotLoader();
+        XmlBeansConfigurationSourceLoader xmlBeansSnapshotLoader = new XmlBeansConfigurationSourceLoader();
         xmlBeansSnapshotLoader.parse(getClass().getResourceAsStream("NotXmlConfiguration.txt"), null);
     }
     
     @Test(expected=IllegalArgumentException.class)
     public void testParseNullStream() throws Exception {
-        XmlBeansSnapshotLoader xmlBeansSnapshotLoader = new XmlBeansSnapshotLoader();
+        XmlBeansConfigurationSourceLoader xmlBeansSnapshotLoader = new XmlBeansConfigurationSourceLoader();
         xmlBeansSnapshotLoader.parse(null, null);
     }
 

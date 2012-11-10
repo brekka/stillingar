@@ -52,6 +52,12 @@
             <artifactId>xmlbeans</artifactId>
             <version>${xmlbeans-version}</version>
         </dependency>
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>1.6.2</version>
+            <optional>true</optional>
+        </dependency>
 
 
         <dependency>

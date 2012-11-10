@@ -18,12 +18,14 @@ package org.brekka.stillingar.core.conversion;
 
 import java.util.Calendar;
 
+import org.joda.time.LocalTime;
+
 
 /**
  * @author Andrew Taylor
  */
-public class CalendarConverter extends AbstractTypeConverter<Calendar> {
-    
+public class LocalTimeConverter extends AbstractTypeConverter<LocalTime> {
+
     /**
      * Adapter that will perform the conversion
      */
@@ -32,32 +34,35 @@ public class CalendarConverter extends AbstractTypeConverter<Calendar> {
     /**
      * 
      */
-    public CalendarConverter() {
+    public LocalTimeConverter() {
         this(new TemporalAdapter());
     }
     
     /**
      * @param temporalAdapter
      */
-    public CalendarConverter(TemporalAdapter temporalAdapter) {
+    public LocalTimeConverter(TemporalAdapter temporalAdapter) {
         this.temporalAdapter = temporalAdapter;
     }
-
-    public final Class<Calendar> targetType() {
-        return Calendar.class;
+    
+    /**
+     * Target type
+     */
+    public final Class<LocalTime> targetType() {
+        return LocalTime.class;
     }
-    
-    
+
     /* (non-Javadoc)
      * @see org.brekka.stillingar.core.conversion.TypeConverter#convert(java.lang.Object)
      */
     @Override
-    public Calendar convert(Object obj) {
-        Calendar value;
-        if (obj instanceof Calendar) {
-            value = (Calendar) obj;
+    public LocalTime convert(Object obj) {
+        LocalTime value;
+        if (obj instanceof LocalTime) {
+            value = (LocalTime) obj;
         } else {
-            value = temporalAdapter.toCalendar(obj, true, true, targetType());
+            Calendar cal = temporalAdapter.toCalendar(obj, false, true, targetType());
+            value = new LocalTime(cal);
         }
         return value;
     }

@@ -25,6 +25,10 @@ import java.util.Locale;
 import java.util.UUID;
 
 import org.brekka.stillingar.api.annotations.Configured;
+import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
+import org.joda.time.Period;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -61,11 +65,17 @@ public class ConfiguredFieldTypes {
     @Configured("//c:Testing/c:Date")
     private Date dateAsDate;
     
+    @Configured("//c:Testing/c:Date")
+    private LocalDate localDate;
+    
     @Configured("//c:Testing/c:DateTime")
     private Calendar dateTimeAsCalendar;
     
     @Configured("//c:Testing/c:DateTime")
     private Date dateTimeAsDate;
+    
+    @Configured("//c:Testing/c:DateTime")
+    private DateTime dateTime;
     
     @Configured("//c:Testing/c:Decimal")
     private BigDecimal decimal;
@@ -111,6 +121,12 @@ public class ConfiguredFieldTypes {
     
     @Configured("//c:Testing/c:Time")
     private Calendar timeAsCalendar;
+    
+    @Configured("//c:Testing/c:Time")
+    private LocalTime localTime;
+    
+    @Configured("//c:Testing/c:Period")
+    private Period period;
     
     @Configured("//c:Testing/c:Binary")
     private byte[] binary;
@@ -329,5 +345,40 @@ public class ConfiguredFieldTypes {
      */
     public Document getRoot() {
         return root;
+    }
+
+    /**
+     * @return the booleanFeatureFlag
+     */
+    public boolean isBooleanFeatureFlag() {
+        return booleanFeatureFlag;
+    }
+
+    /**
+     * @return the localDate
+     */
+    public LocalDate getLocalDate() {
+        return localDate;
+    }
+
+    /**
+     * @return the dateTime
+     */
+    public DateTime getDateTime() {
+        return dateTime;
+    }
+
+    /**
+     * @return the localTime
+     */
+    public LocalTime getLocalTime() {
+        return localTime;
+    }
+
+    /**
+     * @return the period
+     */
+    public Period getPeriod() {
+        return period;
     }
 }

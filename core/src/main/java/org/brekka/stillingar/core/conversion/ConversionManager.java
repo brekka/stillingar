@@ -68,13 +68,22 @@ public class ConversionManager {
     }
     
     public synchronized void addConverter(TypeConverter<?> converter) {
-        converters.put(converter.targetType(), converter);
+        Class<?> targetType = converter.targetType();
+        if (targetType != null) {
+            // Target type can be null if the converter is not available due to missing libraries
+            converters.put(targetType, converter);
+        }
     }
     
     protected static Map<Class<?>, TypeConverter<?>> prepare(Collection<TypeConverter<?>> converters) {
         Map<Class<?>, TypeConverter<?>> converterMap = new HashMap<Class<?>, TypeConverter<?>>();
         for (TypeConverter<?> converter : converters) {
-            converterMap.put(converter.targetType(), converter);
+            Class<?> targetType = converter.targetType();
+            if (targetType == null) {
+                // Target type can be null if the converter is not available due to missing libraries
+                continue;
+            }
+            converterMap.put(targetType, converter);
             Class<?> primitiveType = converter.primitiveType();
             if (primitiveType != null) {
                 converterMap.put(primitiveType, converter);
