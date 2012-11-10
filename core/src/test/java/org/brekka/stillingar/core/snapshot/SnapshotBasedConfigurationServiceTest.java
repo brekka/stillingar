@@ -16,10 +16,13 @@
 
 package org.brekka.stillingar.core.snapshot;
 
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
+import java.util.Collections;
+
+import org.brekka.stillingar.api.ConfigurationException;
 import org.brekka.stillingar.api.ConfigurationSource;
+import org.brekka.stillingar.core.ChangeConfigurationException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -45,6 +48,9 @@ public class SnapshotBasedConfigurationServiceTest {
     @Mock
     private ConfigurationSource snapshotConfigurationSource;
     
+    @Mock
+    private SnapshotEventHandler snapshotEventHandler;
+    
     
     private SnapshotBasedConfigurationService source;
     
@@ -58,4 +64,15 @@ public class SnapshotBasedConfigurationServiceTest {
         verify(snapshotManager).retrieveInitial();
         verify(initialSnapshot).getSource();
     }
+    
+    @Test
+    public void testInitWithCustomHandler() throws Exception {
+        when(snapshotManager.retrieveInitial()).thenReturn(initialSnapshot);
+        when(initialSnapshot.getSource()).thenReturn(snapshotConfigurationSource);
+        
+        source = new SnapshotBasedConfigurationService(snapshotManager, true, defaultConfigurationSource, snapshotEventHandler);
+        
+        verify(snapshotEventHandler).initialConfigure(eq(initialSnapshot), isNull(ChangeConfigurationException.class));
+    }
+    
 }

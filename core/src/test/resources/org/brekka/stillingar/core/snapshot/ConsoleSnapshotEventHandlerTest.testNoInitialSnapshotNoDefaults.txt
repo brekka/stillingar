@@ -1,0 +1,6 @@
+Application 'test' - No initial configuration snapshot could be found.
+   Looked for files with the names:
+     - name
+   in the following locations:
+     - disp - msg (path)
+There are no defaults available, so this application will fail to start.

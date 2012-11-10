@@ -69,7 +69,9 @@ public class ConsoleSnapshotEventHandler implements SnapshotEventHandler {
     
     /**
      * Include the specified application name in error messages (recommended).
-     * @param applicationName the name of the application being configured
+     * 
+     * @param applicationName
+     *            the name of the application being configured
      */
     public ConsoleSnapshotEventHandler(String applicationName) {
         this(applicationName, !isDisabledBySystemProperty());
@@ -77,14 +79,27 @@ public class ConsoleSnapshotEventHandler implements SnapshotEventHandler {
 
     /**
      * Specify both the application name and determine whether output of messages should be enabled
-     * @param applicationName the name of the application being configured
-     * @param enabled when set to false, this instance effectively becomes a noop.
+     * 
+     * @param applicationName
+     *            the name of the application being configured
+     * @param enabled
+     *            when set to false, this instance effectively becomes a noop.
      */
     public ConsoleSnapshotEventHandler(String applicationName, boolean enabled) {
+        this(applicationName, enabled, new PrintWriter(System.out), new PrintWriter(System.err));
+    }
+    
+    /**
+     * @param applicationName the name of the application being configured
+     * @param enabled when set to false, this instance effectively becomes a noop.
+     * @param out where to write normal messages
+     * @param err where to write error messages
+     */
+    protected ConsoleSnapshotEventHandler(String applicationName, boolean enabled, PrintWriter out, PrintWriter err) {
         this.enabled = enabled;
         this.applicationName = applicationName;
-        this.out = new PrintWriter(System.out);
-        this.err = new PrintWriter(System.err);
+        this.out = out;
+        this.err = err;
     }
 
     /*
@@ -161,6 +176,7 @@ public class ConsoleSnapshotEventHandler implements SnapshotEventHandler {
             return;
         }
         this.err.printf("Failed to update configuration for '%s' from snapshot%n", applicationName);
+        e.printStackTrace(this.err);
     }
     
     /**
