@@ -83,12 +83,8 @@ public class DOMConfigurationSource implements ConfigurationSource {
      */
     @Override
     public boolean isAvailable(String expression) {
-        Object result = doXPath(expression, XPathConstants.NODESET, null);
-        if (result instanceof NodeList) {
-            NodeList nodeList = (NodeList) result;
-            return nodeList.getLength() > 0;
-        }
-        return false;
+        NodeList nodeList = doXPathList(expression, null);
+        return nodeList.getLength() > 0;
     }
 
     /*
@@ -99,7 +95,7 @@ public class DOMConfigurationSource implements ConfigurationSource {
     @Override
     public <T> T retrieve(String expression, Class<T> valueType) {
         T retVal;
-        NodeList results = doXPath(expression, XPathConstants.NODESET, valueType);
+        NodeList results = doXPathList(expression, valueType);
         if (results.getLength() == 1) {
             Node node = results.item(0);
             retVal = toObject(node, valueType, expression);
@@ -121,7 +117,7 @@ public class DOMConfigurationSource implements ConfigurationSource {
      */
     @Override
     public <T> List<T> retrieveList(String expression, Class<T> valueType) {
-        NodeList nodeList = doXPath(expression, XPathConstants.NODESET, valueType);
+        NodeList nodeList = doXPathList(expression, valueType);
         List<T> retVal = new ArrayList<T>(nodeList.getLength());
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node node = nodeList.item(i);
@@ -166,9 +162,21 @@ public class DOMConfigurationSource implements ConfigurationSource {
                 "An expression must be specified when using DOM", null, null);
     }
     
-
-    protected NodeList doXPath(String expression, QName returnQName, Class<?> returnType) {
+    protected NodeList doXPathList(String expression, Class<?> returnType) {
         NodeList retVal;
+        Object result = doXPath(expression, XPathConstants.NODESET, returnType);
+        if (result instanceof NodeList) {
+            retVal = (NodeList) result;
+        } else {
+            throw new ValueConfigurationException(format(
+                    "Result is not a list of nodes, it is instead: '%s'", 
+                    result.getClass().getName()), returnType, expression);
+        }
+        return retVal;
+    }
+
+    protected Object doXPath(String expression, QName returnQName, Class<?> returnType) {
+        Object retVal;
         XPathFactory xFactory = XPathFactory.newInstance();
         XPath xpath = xFactory.newXPath();
         if (xPathNamespaceContext != null) {
@@ -176,14 +184,7 @@ public class DOMConfigurationSource implements ConfigurationSource {
         }
         try {
             XPathExpression expr = xpath.compile(expression);
-            Object result = expr.evaluate(document, returnQName);
-            if (result instanceof NodeList) {
-                retVal = (NodeList) result;
-            } else {
-                throw new ValueConfigurationException(format(
-                        "Result is not a list of nodes, it is instead: '%s'", 
-                        result), returnType, expression);
-            }
+            retVal = expr.evaluate(document, returnQName);
         } catch (XPathExpressionException e) {
             throw new ValueConfigurationException(
                     "Not a vaild XPath expression",  returnType, expression, e);
@@ -218,5 +219,10 @@ public class DOMConfigurationSource implements ConfigurationSource {
         return retVal;
     }
 
-    
+    /**
+     * @return the conversionManager
+     */
+    protected final ConversionManager getConversionManager() {
+        return conversionManager;
+    }
 }

@@ -46,6 +46,9 @@ public class ConfiguredFieldTypes {
     @Configured("//c:Testing/c:Boolean")
     private boolean booleanPrimitive;
     
+    @Configured("//c:FeatureFlag[@key='turbo']")
+    private boolean booleanFeatureFlag;
+    
     @Configured("//c:Testing/c:Byte")
     private Byte byteValue;
     

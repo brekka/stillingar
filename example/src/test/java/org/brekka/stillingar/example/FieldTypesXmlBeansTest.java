@@ -34,6 +34,7 @@ import org.brekka.stillingar.example.support.TestSupport;
 import org.brekka.xml.stillingar.example.v1.ConfigurationDocument;
 import org.brekka.xml.stillingar.example.v1.ConfigurationDocument.Configuration;
 import org.brekka.xml.stillingar.example.v1.ConfigurationDocument.Configuration.Testing;
+import org.brekka.xml.stillingar.example.v1.FeatureFlagType;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
@@ -112,6 +113,9 @@ public class FieldTypesXmlBeansTest extends AbstractJUnit4SpringContextTests {
         Random r = new Random();
         ConfigurationDocument doc = ConfigurationDocument.Factory.newInstance();
         Configuration newConfiguration = doc.addNewConfiguration();
+        FeatureFlagType featureFlag = newConfiguration.addNewFeatureFlag();
+        featureFlag.setKey("turbo");
+        featureFlag.setBooleanValue(true);
         Testing testing = newConfiguration.addNewTesting();
         testing.setAnyURI("http://brekka.org/" + RandomStringUtils.randomAlphanumeric(10));
         testing.setBoolean(r.nextBoolean());

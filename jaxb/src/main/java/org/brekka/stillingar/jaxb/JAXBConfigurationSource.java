@@ -27,16 +27,11 @@ import java.util.Map;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.namespace.NamespaceContext;
-import javax.xml.namespace.QName;
-import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
-import org.brekka.stillingar.api.ConfigurationSource;
 import org.brekka.stillingar.api.ValueConfigurationException;
 import org.brekka.stillingar.core.conversion.ConversionManager;
+import org.brekka.stillingar.core.dom.DOMConfigurationSource;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -49,27 +44,12 @@ import org.w3c.dom.NodeList;
  * 
  * @author Andrew Taylor (andrew@brekka.org)
  */
-public class JAXBConfigurationSource implements ConfigurationSource {
-
-    /**
-     * The DOM representation of the XML. XPath expressions will be applied against this
-     */
-    private final Document document;
+public class JAXBConfigurationSource extends DOMConfigurationSource {
 
     /**
      * JAXB object representation of the XML
      */
     private final Object object;
-
-    /**
-     * Namespace context to use in XPath operations (can be null).
-     */
-    private final NamespaceContext xPathNamespaceContext;
-    
-    /**
-     * Handle some object conversions
-     */
-    private final ConversionManager conversionManager;
 
     /**
      * @param document
@@ -78,44 +58,33 @@ public class JAXBConfigurationSource implements ConfigurationSource {
      * @param conversionManager
      */
     public JAXBConfigurationSource(Document document, Object object, NamespaceContext xPathNamespaceContext, ConversionManager conversionManager) {
-        this.document = document;
+        super(document, xPathNamespaceContext, conversionManager);
         this.object = object;
-        this.xPathNamespaceContext = xPathNamespaceContext;
-        this.conversionManager = conversionManager;
     }
+    
 
     /*
      * (non-Javadoc)
      * 
-     * @see org.brekka.stillingar.core.ConfigurationSource#isAvailable(java.lang.String)
+     * @see org.brekka.stillingar.core.ConfigurationSource#isAvailable(java.lang.Class)
      */
     @Override
-    public boolean isAvailable(String expression) {
-        Object result = doXPath(expression, XPathConstants.NODESET, null);
-        if (result instanceof NodeList) {
-            NodeList nodeList = (NodeList) result;
-            return nodeList.getLength() > 0;
-        }
-        return false;
+    public boolean isAvailable(Class<?> valueType) {
+        return find(valueType);
     }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.brekka.stillingar.core.ConfigurationSource#retrieve(java.lang.String, java.lang.Class)
+    
+    /* (non-Javadoc)
+     * @see org.brekka.stillingar.core.dom.DOMConfigurationSource#retrieve(java.lang.String, java.lang.Class)
      */
     @SuppressWarnings("unchecked")
     @Override
     public <T> T retrieve(String expression, Class<T> valueType) {
         T retVal;
-        Object result = doXPath(expression, XPathConstants.NODE, valueType);
-        if (result instanceof Node) {
-            Node node = (Node) result;
-            if (valueType != Object.class 
-                    && valueType.isAssignableFrom(result.getClass())) {
-                retVal = (T) node;
-            } else {
-                Object resolvedObject = resolveObject(node, valueType);
+        if (isJaxb(valueType)) {
+            Object obj = doXPath(expression, XPathConstants.NODE, valueType);
+            if (obj instanceof Node) {
+                Node node = (Node) obj;
+                Object resolvedObject = toJaxbObject(node, valueType);
                 if (resolvedObject == null) {
                     retVal = null;
                 } else if (valueType.isAssignableFrom(resolvedObject.getClass())) {
@@ -136,48 +105,33 @@ public class JAXBConfigurationSource implements ConfigurationSource {
                             "Unable to handle result type '%s'", resolvedObject.getClass().getName()
                             ), valueType, expression);
                 }
+            } else {
+                throw new ValueConfigurationException(format(
+                        "Result is not a single node, it is instead: '%s'", 
+                        obj.getClass().getName()), valueType, expression);
             }
         } else {
-            String resultType = result != null ? result.getClass().getName() : null;
-            throw new ValueConfigurationException(format(
-                    "Expected a single XML node, found '%s'", resultType), valueType, expression);
+            retVal = super.retrieve(expression, valueType);
         }
         return retVal;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.brekka.stillingar.core.ConfigurationSource#retrieveList(java.lang.String, java.lang.Class)
+    /* (non-Javadoc)
+     * @see org.brekka.stillingar.core.dom.DOMConfigurationSource#retrieveList(java.lang.String, java.lang.Class)
      */
     @SuppressWarnings("unchecked")
     @Override
     public <T> List<T> retrieveList(String expression, Class<T> valueType) {
-        List<T> retVal;
-        if (Node.class.isAssignableFrom(valueType)) {
-            // Regular DOM
-            Object result = doXPath(expression, XPathConstants.NODESET, valueType);
-            if (result instanceof NodeList) {
-                NodeList nodeList = (NodeList) result;
-                retVal = new ArrayList<T>(nodeList.getLength());
-                for (int i = 0; i < nodeList.getLength(); i++) {
-                    retVal.add((T) nodeList.item(i));
-                }
-            } else {
-                throw new ValueConfigurationException(format(
-                        "Result is not a list of nodes, it is instead: '%s'", 
-                        result), valueType, expression);
-            }
-        } else {
-            // Use JAXB
-            Object result = doXPath(expression, XPathConstants.NODE, valueType);
-            if (result instanceof Node) {
-                Node node = (Node) result;
-                Object resolvedObject = resolveObject(node, valueType);
+        List<T> valueList;
+        if (isJaxb(valueType)) {
+            Object obj = doXPath(expression, XPathConstants.NODE, valueType);
+            if (obj instanceof Node) {
+                Node node = (Node) obj;
+                Object resolvedObject = toJaxbObject(node, valueType);
                 if (resolvedObject == null) {
-                    retVal = null;
+                    valueList = null;
                 } else if (List.class.isAssignableFrom(resolvedObject.getClass())) {
-                    retVal = (List<T>) resolvedObject;
+                    valueList = (List<T>) resolvedObject;
                 } else {
                     throw new ValueConfigurationException(format(
                             "Unable to handle non-list based result type '%s'", 
@@ -185,26 +139,15 @@ public class JAXBConfigurationSource implements ConfigurationSource {
                             ), valueType, expression);
                 }
             } else {
-                String resultType = result != null ? result.getClass().getName() : null;
                 throw new ValueConfigurationException(format(
-                        "Expected a list of XML nodes, found '%s'", resultType), 
-                        valueType, expression);
+                        "Result is not a single node, it is instead: '%s'", 
+                        obj.getClass().getName()), valueType, expression);
             }
+        } else {
+            valueList = super.retrieveList(expression, valueType);
         }
-        return retVal;
+        return valueList;
     }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.brekka.stillingar.core.ConfigurationSource#isAvailable(java.lang.Class)
-     */
-    @Override
-    public boolean isAvailable(Class<?> valueType) {
-        return find(valueType);
-    }
-
-
 
     /*
      * (non-Javadoc)
@@ -240,24 +183,6 @@ public class JAXBConfigurationSource implements ConfigurationSource {
         return values;
     }
     
-
-    protected Object doXPath(String expression, QName returnQName, Class<?> returnType) {
-        Object retVal;
-        XPathFactory xFactory = XPathFactory.newInstance();
-        XPath xpath = xFactory.newXPath();
-        if (xPathNamespaceContext != null) {
-            xpath.setNamespaceContext(xPathNamespaceContext);
-        }
-        try {
-            XPathExpression expr = xpath.compile(expression);
-            retVal = expr.evaluate(document, returnQName);
-        } catch (XPathExpressionException e) {
-            throw new ValueConfigurationException(
-                    "Not a vaild XPath expression",  returnType, expression, e);
-        }
-        return retVal;
-    }
-    
     protected boolean find(Class<?> lookingFor) {
         Map<Object, Void> seen = new IdentityHashMap<Object, Void>();
         try {
@@ -270,29 +195,34 @@ public class JAXBConfigurationSource implements ConfigurationSource {
         }
     }
     
-    protected Object resolveObject(Node node, Class<?> expectedType) {
+    protected boolean isJaxb(Class<?> valueType) {
+        return valueType.getAnnotation(XmlType.class) != null;
+    }
+    
+    @SuppressWarnings("unchecked")
+    protected <T> T toJaxbObject(Node node, Class<T> expectedType) {
         // Special handling for document
         if (expectedType == Document.class) {
-            return conversionManager.convert(node, expectedType);
+            return getConversionManager().convert(node, expectedType);
         }
         
         // Resolve the object using JAXB
         Object value = resolveObject(node);
         if (value != null) {
-            if (conversionManager.hasConverter(expectedType)) {
+            if (getConversionManager().hasConverter(expectedType)) {
                 if (value instanceof List) {
                     List<?> valueList = (List<?>) value;
                     List<Object> changed = new ArrayList<Object>();
                     for (Object object : valueList) {
-                        changed.add(conversionManager.convert(object, expectedType));
+                        changed.add(getConversionManager().convert(object, expectedType));
                     }
                     value = changed;
                 } else {
-                    value = conversionManager.convert(value, expectedType);
+                    value = getConversionManager().convert(value, expectedType);
                 }
             }
         }
-        return value;
+        return (T) value;
     }
     
     /**
