@@ -12,15 +12,12 @@
 
     <bean class="org.brekka.stillingar.example.FieldTypesJAXBTest" />
 
-    <context:annotation-config />
-
     <stil:configuration-service id="stillingar-example" engine="jaxb" reload-interval="5000" > 
         <stil:selector>
             <stil:location>
                 <stil:system-property>stillingar.dir</stil:system-property>
             </stil:location>
         </stil:selector>
-        <stil:property-placeholder />
         <stil:jaxb context-path="org.brekka.stillingar.example">
             <stil:schema>file:src/main/xsd/ExampleConfiguration-1.0.xsd</stil:schema>
         </stil:jaxb>

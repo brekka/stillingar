@@ -20,6 +20,7 @@ import static java.lang.String.format;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
@@ -196,7 +197,9 @@ public class JAXBConfigurationSource extends DOMConfigurationSource {
     }
     
     protected boolean isJaxb(Class<?> valueType) {
-        return valueType.getAnnotation(XmlType.class) != null;
+        return valueType == byte[].class      // Force JAXB to handle byte arrays (limited support in DOM)
+                || valueType == Calendar.class // Force JAXB to handle Calendar (limited support in DOM)
+                || valueType.getAnnotation(XmlType.class) != null;
     }
     
     @SuppressWarnings("unchecked")

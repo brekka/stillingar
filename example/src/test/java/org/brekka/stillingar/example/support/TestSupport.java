@@ -32,7 +32,7 @@ public final class TestSupport {
     /**
      * The config file
      */
-    private static File configFile;
+    public static File configFile;
     
     /**
      * Write a configuration document to a temp file at a location that will be picked up by the tests.

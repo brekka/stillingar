@@ -38,6 +38,7 @@ class AnnotationConfigBeanDefinitionParser extends AbstractSingleBeanDefinitionP
     @Override
     protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
         String serviceRef = element.getAttribute("service-ref");
+        builder.addConstructorArgValue(":" + serviceRef);
         builder.addConstructorArgReference(serviceRef);
         String marker = element.getAttribute("marker");
         if (StringUtils.hasLength(marker)) {

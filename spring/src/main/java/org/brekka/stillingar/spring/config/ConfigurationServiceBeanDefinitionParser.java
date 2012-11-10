@@ -111,8 +111,10 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
 
     protected void preparePostProcessor(Element element, ParserContext parserContext) {
         String id = element.getAttribute("id");
+        String name = getName(element);
         BeanDefinitionBuilder postProcessor = BeanDefinitionBuilder
                 .genericBeanDefinition(ConfigurationBeanPostProcessor.class);
+        postProcessor.addConstructorArgValue(name);
         postProcessor.addConstructorArgReference(id);
         Element annotationConfigElement = selectSingleChildElement(element, "annotation-config", true);
         if (annotationConfigElement != null) {

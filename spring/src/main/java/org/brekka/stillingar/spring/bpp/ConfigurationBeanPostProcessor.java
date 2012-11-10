@@ -37,6 +37,7 @@ import org.brekka.stillingar.api.annotations.ConfigurationListener;
 import org.brekka.stillingar.api.annotations.Configured;
 import org.brekka.stillingar.core.ConfigurationService;
 import org.brekka.stillingar.core.GroupChangeListener;
+import org.brekka.stillingar.core.GroupConfigurationException;
 import org.brekka.stillingar.core.SingleValueDefinition;
 import org.brekka.stillingar.core.ValueChangeListener;
 import org.brekka.stillingar.core.ValueDefinition;
@@ -73,6 +74,11 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
      * automatic updates.
      */
     private final ConfigurationSource configurationSource;
+    
+    /**
+     * Name of the configuration source.
+     */
+    private final String name;
 
     /**
      * The list of registered groups
@@ -99,7 +105,8 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
      * @param configurationSource The configuration source from which configuration values will be resolved, and potentially registered to receive
      * automatic updates.
      */
-    public ConfigurationBeanPostProcessor(ConfigurationSource configurationSource) {
+    public ConfigurationBeanPostProcessor(String name, ConfigurationSource configurationSource) {
+        this.name = name;
         this.configurationSource = configurationSource;
     }
 
@@ -110,15 +117,18 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
         Class<?> beanClass = bean.getClass();
         if (hasMarkerAnnotation(beanClass)) {
-
             boolean singleton = beanFactory.isSingleton(beanName);
-
-            if (singleton && configurationSource instanceof ConfigurationService) {
-                processWithUpdates(bean, beanName);
-            } else {
-                processOnceOnly(bean, beanName);
+            try {
+                if (singleton && configurationSource instanceof ConfigurationService) {
+                    processWithUpdates(bean, beanName);
+                } else {
+                    processOnceOnly(bean, beanName);
+                }
+            } catch (GroupConfigurationException e) {
+                throw new ConfigurationException(String.format(
+                        "Post processing bean '%s' using configuration source '%s'", 
+                        beanName, name), e);
             }
-
         }
         return bean;
     }

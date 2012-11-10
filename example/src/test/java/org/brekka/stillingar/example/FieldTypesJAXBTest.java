@@ -32,9 +32,9 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.brekka.stillingar.example.support.ConfiguredFieldTypes;
 import org.brekka.stillingar.example.support.TestSupport;
 import org.brekka.xml.stillingar.example.v1.ConfigurationDocument;
-import org.brekka.xml.stillingar.example.v1.FeatureFlagType;
 import org.brekka.xml.stillingar.example.v1.ConfigurationDocument.Configuration;
 import org.brekka.xml.stillingar.example.v1.ConfigurationDocument.Configuration.Testing;
+import org.brekka.xml.stillingar.example.v1.FeatureFlagType;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
@@ -58,7 +58,6 @@ public class FieldTypesJAXBTest extends AbstractJUnit4SpringContextTests {
     
     static {
         testing = writeConfig();
-        
     }
     
 	@Test

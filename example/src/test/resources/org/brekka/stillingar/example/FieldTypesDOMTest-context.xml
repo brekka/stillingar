@@ -10,9 +10,7 @@
 
     <bean id="fieldTypes" class="org.brekka.stillingar.example.support.ConfiguredFieldTypes" />
 
-    <bean class="org.brekka.stillingar.example.FieldTypesJAXBTest" />
-
-    <context:annotation-config />
+    <bean class="org.brekka.stillingar.example.FieldTypesDOMTest" />
 
     <stil:configuration-service id="stillingar-example" engine="dom" reload-interval="5000" > 
         <stil:selector>
