@@ -267,7 +267,6 @@ public class ConfigurationBeanPostProcessorTest {
         }
     }
     
-    
     @SuppressWarnings({ "rawtypes", "unchecked" })
     private static void verifyValue(String expression, ValueDefinition vd, Object value, Class<?> type, boolean list) {
         assertEquals(expression, vd.getExpression());

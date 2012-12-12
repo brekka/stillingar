@@ -17,6 +17,8 @@
 package org.brekka.stillingar.spring.snapshot;
 
 
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.brekka.stillingar.api.ConfigurationException;
@@ -26,8 +28,8 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.Lifecycle;
 
 /**
- * Delta value interceptor that looks for value beans implementing {@link Lifecycle}, calling start/stop if it
- * encounters such beans.
+ * Delta value interceptor that looks for value beans implementing {@link Lifecycle}, {@link InitializingBean} or
+ * {@link DisposableBean}, calling their corresponding start/stop methods if it encounters such beans.
  * 
  * @author Andrew Taylor (andrew@brekka.org)
  */
@@ -42,6 +44,18 @@ public class SnapshotDeltaValueInterceptor implements DeltaValueInterceptor {
      */
     @Override
     public <T> T created(T value) {
+        if (value instanceof List) {
+            List<?> valueList = (List<?>) value;
+            for (Object subValue : valueList) {
+                initializeBean(subValue);
+            }
+        } else {
+            initializeBean(value);
+        }
+        return value;
+    }
+
+    protected void initializeBean(Object value) {
         if (value instanceof InitializingBean) {
             InitializingBean initializingBean = (InitializingBean) value;
             if (log.isInfoEnabled()) {
@@ -60,7 +74,6 @@ public class SnapshotDeltaValueInterceptor implements DeltaValueInterceptor {
             }
             lifecycle.start();
         } 
-        return value;
     }
 
     /*
@@ -70,6 +83,17 @@ public class SnapshotDeltaValueInterceptor implements DeltaValueInterceptor {
      */
     @Override
     public void released(Object value) {
+        if (value instanceof List) {
+            List<?> valueList = (List<?>) value;
+            for (Object subValue : valueList) {
+                destroyBean(subValue);
+            }
+        } else {
+            destroyBean(value);
+        }
+    }
+
+    protected void destroyBean(Object value) {
         if (value instanceof DisposableBean) {
             DisposableBean disposableBean = (DisposableBean) value;
             try {
