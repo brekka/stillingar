@@ -46,6 +46,7 @@ import org.brekka.stillingar.spring.resource.dir.SystemPropertyDirectory;
 import org.brekka.stillingar.spring.resource.dir.WebappDirectory;
 import org.brekka.stillingar.spring.snapshot.ConfigurationSnapshotRefresher;
 import org.brekka.stillingar.spring.snapshot.LoggingSnapshotEventHandler;
+import org.brekka.stillingar.spring.snapshot.NoopResourceMonitor;
 import org.brekka.stillingar.spring.snapshot.PollingResourceMonitor;
 import org.brekka.stillingar.spring.snapshot.ResourceSnapshotManager;
 import org.brekka.stillingar.spring.snapshot.SnapshotDeltaValueInterceptor;
@@ -290,7 +291,7 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
                      * an interval of 1s.
                      */
                     scheduledExecutorTask.addPropertyValue("period", 1000);
-                    scheduledExecutorTask.addPropertyValue("delay", 0);
+                    scheduledExecutorTask.addPropertyValue("delay", 1000);
                 } else {
                     scheduledExecutorTask.addPropertyValue("period", reloadInterval);
                     scheduledExecutorTask.addPropertyValue("delay", reloadInterval);
@@ -304,6 +305,7 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
                         .genericBeanDefinition(ScheduledExecutorFactoryBean.class);
                 scheduledExecutorFactoryBean.addPropertyValue("scheduledExecutorTasks", taskList);
                 scheduledExecutorFactoryBean.addPropertyValue("threadNamePrefix", id + "-reloader");
+                scheduledExecutorFactoryBean.addPropertyValue("daemon", Boolean.TRUE);
                 parserContext.registerBeanComponent(new BeanComponentDefinition(scheduledExecutorFactoryBean
                         .getBeanDefinition(), id + "-Scheduler"));
             }
@@ -336,15 +338,16 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
     protected AbstractBeanDefinition prepareResourceMonitor(Element element) {
         BeanDefinitionBuilder builder = null;
         String reloadIntervalStr = element.getAttribute("reload-interval");
-        if (watchableAvailable 
-                && StringUtils.hasLength(reloadIntervalStr)) { // Must have a reload-interval to use watched.
-            builder = BeanDefinitionBuilder.genericBeanDefinition("org.brekka.stillingar.spring.snapshot.WatchedResourceMonitor");
-            builder.addConstructorArgValue(Integer.valueOf(reloadIntervalStr));
+        if (StringUtils.hasLength(reloadIntervalStr)) {
+            if (watchableAvailable) { // Must have a reload-interval to use watched.
+                builder = BeanDefinitionBuilder.genericBeanDefinition("org.brekka.stillingar.spring.snapshot.WatchedResourceMonitor");
+                builder.addConstructorArgValue(Integer.valueOf(reloadIntervalStr));
+            } else {
+                builder = BeanDefinitionBuilder.genericBeanDefinition(PollingResourceMonitor.class);
+            }
+        } else {
+            builder = BeanDefinitionBuilder.genericBeanDefinition(NoopResourceMonitor.class);
         }
-        if (builder == null) {
-            builder = BeanDefinitionBuilder.genericBeanDefinition(PollingResourceMonitor.class);
-        }
-        
         return builder.getBeanDefinition();
     }
 

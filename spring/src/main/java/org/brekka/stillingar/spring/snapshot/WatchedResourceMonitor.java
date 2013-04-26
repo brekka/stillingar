@@ -129,7 +129,7 @@ public class WatchedResourceMonitor implements ResourceMonitor, DisposableBean {
                         break;
                     }
                 }
-                poll.reset();
+                
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();

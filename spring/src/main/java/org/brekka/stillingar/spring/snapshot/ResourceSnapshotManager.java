@@ -99,8 +99,8 @@ public class ResourceSnapshotManager implements SnapshotManager {
 	@Override
 	public Snapshot retrieveUpdated() throws InvalidSnapshotException {
 	    if (configurationResource == null) {
-	        throw new ConfigurationException("Cannot call 'retrieveUpdated' until 'retrieveInitial' has been called" +
-	        		" for the first time");
+	        // No initial configuration yet, just return null
+	        return null;
 	    }
         if (resourceMonitor.hasChanged()) {
             Snapshot snapshot = performLoad(configurationResource);
