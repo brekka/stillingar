@@ -19,7 +19,7 @@ package org.brekka.stillingar.spring.snapshot;
 import org.springframework.core.io.Resource;
 
 /**
- * Placeholder used when there is no monitoring.
+ * Placeholder used when there is no monitoring for changes to a resource. Used when reloading has been disabled.
  *
  * @author Andrew Taylor (andrew@brekka.org)
  */
@@ -30,7 +30,7 @@ public class NoopResourceMonitor implements ResourceMonitor {
      */
     @Override
     public void initialise(Resource resource) {
-        
+        // Ignore
     }
 
     /* (non-Javadoc)

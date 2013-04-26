@@ -39,7 +39,9 @@ import org.springframework.core.io.Resource;
  * @author Andrew Taylor (andrew@brekka.org)
  */
 public class WatchedResourceMonitor implements ResourceMonitor, DisposableBean {
-    
+    /**
+     * Logger
+     */
     private static final Log log = LogFactory.getLog(WatchedResourceMonitor.class);
 
     /**
@@ -94,7 +96,8 @@ public class WatchedResourceMonitor implements ResourceMonitor, DisposableBean {
             this.watchKey = parent.register(this.watchService, StandardWatchEventKinds.ENTRY_MODIFY,
                     StandardWatchEventKinds.ENTRY_CREATE);
         } catch (IOException e) {
-            throw new ConfigurationException("", e);
+            throw new ConfigurationException(String.format(
+                    "Failed to initialize watcher for resource '%s'", resource.toString()), e);
         }
     }
 
@@ -110,26 +113,32 @@ public class WatchedResourceMonitor implements ResourceMonitor, DisposableBean {
         }
         boolean changed = false;
         try {
-            WatchKey poll;
+            WatchKey watchKey;
             if (timeout > 0) {
-                poll = watchService.poll(timeout, TimeUnit.MILLISECONDS);
+                watchKey = watchService.poll(timeout, TimeUnit.MILLISECONDS);
             } else {
                 // Indefinite blocking
-                poll = watchService.take();
+                watchKey = watchService.take();
             }
-            if (poll != null) {
-                if (poll != watchKey) {
+            if (watchKey != null) {
+                if (watchKey != this.watchKey) {
                     throw new IllegalStateException("WatchKey does not match that registered with the service");
                 }
-                List<WatchEvent<?>> pollEvents = poll.pollEvents();
+                List<WatchEvent<?>> pollEvents = watchKey.pollEvents();
+                if (log.isDebugEnabled()) {
+                    log.debug(String.format("Found %d events", pollEvents.size()));
+                }
                 for (WatchEvent<?> watchEvent : pollEvents) {
                     Path name = (Path) watchEvent.context();
                     if (resourceFile.getFileName().equals(name)) {
                         changed = true;
+                        if (log.isInfoEnabled()) {
+                            log.info(String.format("Found change to file '%s'", name));
+                        }
                         break;
                     }
                 }
-                
+                watchKey.reset();
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -149,6 +158,5 @@ public class WatchedResourceMonitor implements ResourceMonitor, DisposableBean {
         }
         watchKey.cancel();
         watchService.close();
-        
     }
 }

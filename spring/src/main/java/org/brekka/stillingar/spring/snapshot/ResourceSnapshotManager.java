@@ -104,7 +104,6 @@ public class ResourceSnapshotManager implements SnapshotManager {
 	    }
         if (resourceMonitor.hasChanged()) {
             Snapshot snapshot = performLoad(configurationResource);
-            snapshot = performLoad(configurationResource);
             return snapshot;
         }
         return null;

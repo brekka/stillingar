@@ -6,7 +6,7 @@
     <version>1.0</version>
     <packaging>pom</packaging>
 
-    <name>Stillingar (Configuration)</name>
+    <name>Stillingar - Root</name>
 
     <description>
         Application configuration library
