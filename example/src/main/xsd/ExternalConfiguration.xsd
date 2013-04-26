@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://brekka.org/xml/stillingar/external"
+    xmlns:stx="http://brekka.org/xml/stillingar/external"
+    elementFormDefault="qualified" attributeFormDefault="unqualified">
+
+    <xsd:element name="ThirdPartyConfiguration">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="Host" type="xsd:token" />
+                <xsd:element name="Port" type="xsd:int" />
+                <xsd:element name="Username" type="xsd:token" />
+                <xsd:element name="Password" type="xsd:token" />
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+</xsd:schema>

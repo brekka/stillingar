@@ -16,13 +16,12 @@
 
 package org.brekka.stillingar.xmlbeans;
 
-import static org.junit.Assert.*;
-
-import java.util.Collections;
+import static org.junit.Assert.assertNotNull;
 
 import org.brekka.stillingar.api.ConfigurationException;
 import org.brekka.stillingar.api.ConfigurationSource;
 import org.brekka.stillingar.core.conversion.ConversionManager;
+import org.brekka.stillingar.core.dom.DefaultNamespaceContext;
 import org.brekka.stillingar.xmlbeans.conversion.StringConverter;
 import org.junit.Test;
 
@@ -48,18 +47,15 @@ public class XmlBeansSnapshotLoaderTest {
     
     @Test(expected=IllegalArgumentException.class)
     public void testXmlBeansSnapshotLoaderNullConversionManager() {
-        new XmlBeansConfigurationSourceLoader(null).toString();
+        new XmlBeansConfigurationSourceLoader((ConversionManager) null).toString();
     }
     
     @Test
     public void testSetXPathNamepaces() {
-        new XmlBeansConfigurationSourceLoader().setXpathNamespaces(Collections.<String,String>emptyMap());
+        DefaultNamespaceContext namespaceContext = new DefaultNamespaceContext("bob", "http://brekka.org/xml");
+        new XmlBeansConfigurationSourceLoader(namespaceContext).toString();
     }
-    @Test(expected=IllegalArgumentException.class)
-    public void testSetNullXPathNamepaces() {
-        new XmlBeansConfigurationSourceLoader().setXpathNamespaces(null);
-    }
-
+    
     @Test
     public void testParseValid() throws Exception {
         XmlBeansConfigurationSourceLoader xmlBeansSnapshotLoader = new XmlBeansConfigurationSourceLoader();

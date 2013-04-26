@@ -8,7 +8,6 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.List;
 
-import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -56,28 +55,34 @@ public class DOMConfigurationSourceLoader implements ConfigurationSourceLoader {
     /**
      * Namespace context to use in XPath operations (can be null).
      */
-    private final NamespaceContext xPathNamespaceContext;
+    private final DefaultNamespaceContext xPathNamespaceContext;
     
     /**
      * 
      */
     public DOMConfigurationSourceLoader() {
-        this(null);
+        this(new DefaultNamespaceContext());
     }
     
     /**
      * @param xPathNamespaceContext
      */
-    public DOMConfigurationSourceLoader(NamespaceContext xPathNamespaceContext) {
-        this(xPathNamespaceContext, new ConversionManager(prepareConverters(new TemporalAdapter())));
+    public DOMConfigurationSourceLoader(DefaultNamespaceContext xPathNamespaceContext) {
+        this(new ConversionManager(prepareConverters(new TemporalAdapter())), xPathNamespaceContext);
     }
     
     /**
      * @param conversionManager
      */
-    public DOMConfigurationSourceLoader(NamespaceContext xPathNamespaceContext, ConversionManager conversionManager) {
+    public DOMConfigurationSourceLoader(ConversionManager conversionManager, DefaultNamespaceContext xPathNamespaceContext) {
         this.conversionManager = conversionManager;
+        if (conversionManager == null) {
+            throw new IllegalArgumentException("null passed for conversionManager");
+        }
         this.xPathNamespaceContext = xPathNamespaceContext;
+        if (xPathNamespaceContext == null) {
+            throw new IllegalArgumentException("null passed for xPathNamespaceContext");
+        }
     }
     
 
@@ -87,7 +92,7 @@ public class DOMConfigurationSourceLoader implements ConfigurationSourceLoader {
     public ConfigurationSource parse(InputStream sourceStream, Charset encoding) throws ConfigurationException,
             IOException {
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        if (xPathNamespaceContext != null) {
+        if (xPathNamespaceContext.hasNamespaces()) {
             documentBuilderFactory.setNamespaceAware(true);
         }
         Document document;

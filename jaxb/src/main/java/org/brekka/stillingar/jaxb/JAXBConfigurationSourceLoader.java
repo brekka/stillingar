@@ -27,7 +27,6 @@ import java.util.List;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
-import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -44,6 +43,7 @@ import org.brekka.stillingar.core.conversion.TemporalAdapter;
 import org.brekka.stillingar.core.conversion.TypeConverter;
 import org.brekka.stillingar.core.conversion.TypeConverterListBuilder;
 import org.brekka.stillingar.core.dom.DOMConfigurationSourceLoader;
+import org.brekka.stillingar.core.dom.DefaultNamespaceContext;
 import org.brekka.stillingar.jaxb.conversion.JAXBTemporalAdapter;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -68,23 +68,30 @@ public class JAXBConfigurationSourceLoader implements ConfigurationSourceLoader 
     /**
      * Context used by the XPath logic to resolve namespace prefixes
      */
-    private final NamespaceContext xPathNamespaceContext;
+    private final DefaultNamespaceContext xPathNamespaceContext;
     
     /**
      * Conversion manager
      */
     private final ConversionManager conversionManager;
     
+    public JAXBConfigurationSourceLoader(String contextPath, List<URL> schemas) {
+        this(contextPath, schemas, new DefaultNamespaceContext());
+    }
     
-    public JAXBConfigurationSourceLoader(String contextPath, List<URL> schemas, NamespaceContext xPathNamespaceContext) {
-        this(contextPath, schemas, xPathNamespaceContext, new ConversionManager(prepareConverters()));
+    public JAXBConfigurationSourceLoader(String contextPath, List<URL> schemas, DefaultNamespaceContext namespaceContext) {
+        this(contextPath, schemas, namespaceContext, new ConversionManager(prepareConverters()));
     }
     
     /**
      * @param contextPath
      */
-    public JAXBConfigurationSourceLoader(String contextPath, List<URL> schemas, NamespaceContext xPathNamespaceContext, ConversionManager conversionManager) {
+    public JAXBConfigurationSourceLoader(String contextPath, List<URL> schemas, DefaultNamespaceContext namespaceContext, ConversionManager conversionManager) {
         this.contextPath = contextPath;
+        this.xPathNamespaceContext = namespaceContext;
+        if (namespaceContext == null) {
+            throw new IllegalArgumentException("null passed for namespaceContext");
+        }
         if (schemas.isEmpty()) {
             this.schema = null;
         } else {
@@ -111,8 +118,10 @@ public class JAXBConfigurationSourceLoader implements ConfigurationSourceLoader 
                 }
             }
         }
-        this.xPathNamespaceContext = xPathNamespaceContext;
         this.conversionManager = conversionManager;
+        if (conversionManager == null) {
+            throw new IllegalArgumentException("null passed for conversionManager");
+        }
     }
 
     /* (non-Javadoc)
@@ -142,7 +151,6 @@ public class JAXBConfigurationSourceLoader implements ConfigurationSourceLoader 
                     "Failed to obtain XML parser"), e);
         }
     }
-    
 
     private static void closeQuietly(Closeable closeable) {
         try {

@@ -35,16 +35,13 @@ import java.util.concurrent.TimeUnit;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
-import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import net.iharder.Base64;
 
 import org.brekka.stillingar.core.conversion.ConversionManager;
-import org.brekka.stillingar.core.dom.DOMConfigurationSourceLoader;
 import org.brekka.stillingar.core.dom.DefaultNamespaceContext;
-import org.brekka.stillingar.jaxb.conversion.JAXBTemporalAdapter;
 import org.brekka.stillingar.test.jaxb.Configuration.CompanyX;
 import org.brekka.stillingar.test.jaxb.Configuration.CompanyY;
 import org.brekka.stillingar.test.jaxb.Configuration.FeatureFlag;
@@ -74,7 +71,7 @@ public class JAXBConfigurationSourceTest {
         JAXBContext jc = JAXBContext.newInstance("org.brekka.stillingar.test.jaxb");
         Unmarshaller u = jc.createUnmarshaller();
         Object object = u.unmarshal(document);
-        NamespaceContext namespaceContext = new DefaultNamespaceContext(
+        DefaultNamespaceContext namespaceContext = new DefaultNamespaceContext(
             "c", "http://brekka.org/xml/stillingar/test/v1",
             "b", "http://www.springframework.org/schema/beans"
         );

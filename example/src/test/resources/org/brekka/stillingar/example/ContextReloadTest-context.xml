@@ -18,8 +18,8 @@
                 <stil:system-property>stillingar.dir</stil:system-property>
             </stil:location>
         </stil:selector>
-        <stil:namespace prefix="c"     url="http://brekka.org/xml/stillingar/example/v1" />
-        <stil:namespace prefix="b"     url="http://www.springframework.org/schema/beans" />
+        <stil:namespace prefix="c"     uri="http://brekka.org/xml/stillingar/example/v1" />
+        <stil:namespace prefix="b"     uri="http://www.springframework.org/schema/beans" />
     </stil:configuration-service>
     
 </beans>

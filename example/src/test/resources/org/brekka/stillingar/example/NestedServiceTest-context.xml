@@ -8,17 +8,18 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
         http://brekka.org/schema/stillingar/v1 http://brekka.org/schema/stillingar/brekka-stillingar-1.0.xsd">
 
-    <bean class="org.brekka.stillingar.example.SimpleExampleTest" />
+    <bean class="org.brekka.stillingar.example.PollingReloadTest" />
     
     <bean class="org.brekka.stillingar.example.support.MessageOfTheDay" />
 
-    <stil:configuration-service id="stillingar-example" engine="xmlbeans"> 
+    <stil:configuration-service id="stillingar-example" engine="xmlbeans" reload-interval="500"> 
+        <stil:selector>
+            <stil:location>
+                <stil:system-property>stillingar.dir</stil:system-property>
+            </stil:location>
+        </stil:selector>
         <stil:property-placeholder />
         <stil:namespace prefix="c"     uri="http://brekka.org/xml/stillingar/example/v1" />
     </stil:configuration-service> 
-    
-    <stil:property-placeholder prefix="$test{" suffix="}" service-ref="stillingar-example"/> 
-    
-    
     
 </beans>

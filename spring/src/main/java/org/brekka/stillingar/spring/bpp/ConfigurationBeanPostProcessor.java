@@ -52,19 +52,19 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.core.Ordered;
 
 /**
  * Identifies and enhances Spring managed beans that are marked with the {@link Configured} annotation and contain
  * fields/methods that marked to be configured. Fields and setter methods would be marked with {@link Configured}, with
  * listener methods marked with {@link ConfigurationListener}.
  * 
- * If the {@link ConfigurationSource} passed to this post-processor is also an instance of
- * {@link ConfigurationService} then all configuration will be registered to receive updates from the
- * configuration source.
+ * If the {@link ConfigurationSource} passed to this post-processor is also an instance of {@link ConfigurationService}
+ * then all configuration will be registered to receive updates from the configuration source.
  * 
  * @author Andrew Taylor
  */
-public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFactoryAware, DisposableBean {
+public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFactoryAware, DisposableBean, Ordered {
 
     /**
      * Logger providing helpful output (if enabled).
@@ -99,13 +99,17 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
     private Class<? extends Annotation> markerAnnotation = Configured.class;
 
     /**
-     * A cache of value definition groups, used when a given type
+     * A cache of the {@link ValueDefinitionGroup} assigned to a given type whose instances will not receive updates.
+     * This is the case where a bean definition is non-singleton or the {@link ConfigurationSource} is immutable.
      */
     private Map<Class<?>, ValueDefinitionGroup> onceOnlyDefinitionCache = new HashMap<Class<?>, ValueDefinitionGroup>();
     
     /**
-     * @param configurationSource The configuration source from which configuration values will be resolved, and potentially registered to receive
-     * automatic updates.
+     * @param name
+     *            the name of the configuration source
+     * @param configurationSource
+     *            The configuration source from which configuration values will be resolved, and potentially registered
+     *            to receive automatic updates.
      */
     public ConfigurationBeanPostProcessor(String name, ConfigurationSource configurationSource) {
         this.name = name;
@@ -476,6 +480,14 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
      */
     public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
         this.beanFactory = beanFactory;
+    }
+    
+    /* (non-Javadoc)
+     * @see org.springframework.core.Ordered#getOrder()
+     */
+    @Override
+    public int getOrder() {
+        return 10;
     }
 
     /**

@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://brekka.org/xml/stillingar/example/v1"
     xmlns:log4j="http://jakarta.apache.org/log4j/" xmlns:st="http://brekka.org/xml/stillingar/example/v1"
+    xmlns:stx="http://brekka.org/xml/stillingar/external"
     elementFormDefault="qualified" attributeFormDefault="unqualified">
+
+    <xsd:import namespace="http://brekka.org/xml/stillingar/external" />
 
     <xsd:element name="Configuration">
         <xsd:complexType>
@@ -49,6 +52,8 @@
                         </xsd:sequence>
                     </xsd:complexType>
                 </xsd:element>
+                
+                <xsd:element ref="stx:ThirdPartyConfiguration" minOccurs="0" />
             </xsd:sequence>
         </xsd:complexType>
     </xsd:element>

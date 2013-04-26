@@ -171,7 +171,7 @@ public class DOMConfigurationSource implements ConfigurationSource {
         Object retVal;
         XPathFactory xFactory = XPathFactory.newInstance();
         XPath xpath = xFactory.newXPath();
-        if (xPathNamespaceContext != null) {
+        if (useNamespacesForXPath(xPathNamespaceContext)) {
             xpath.setNamespaceContext(xPathNamespaceContext);
         }
         try {
@@ -182,6 +182,18 @@ public class DOMConfigurationSource implements ConfigurationSource {
                     "Not a vaild XPath expression",  returnType, expression, e);
         }
         return retVal;
+    }
+    
+    /**
+     * Determine whether the xPathNamespaceContext should be assigned to the xpath.
+     * 
+     * @return true if the {@link NamespaceContext} should be included
+     */
+    protected boolean useNamespacesForXPath(NamespaceContext namespaceContext) {
+        if (namespaceContext instanceof DefaultNamespaceContext) {
+            return ((DefaultNamespaceContext) namespaceContext).hasNamespaces();
+        }
+        return namespaceContext != null;
     }
     
 

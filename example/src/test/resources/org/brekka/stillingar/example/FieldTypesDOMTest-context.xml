@@ -18,7 +18,7 @@
                 <stil:system-property>stillingar.dir</stil:system-property>
             </stil:location>
         </stil:selector>
-        <stil:namespace prefix="c"     url="http://brekka.org/xml/stillingar/example/v1" />
+        <stil:namespace prefix="c"     uri="http://brekka.org/xml/stillingar/example/v1" />
     </stil:configuration-service>
     
 </beans>

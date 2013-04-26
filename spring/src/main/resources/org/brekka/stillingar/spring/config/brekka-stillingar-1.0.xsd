@@ -134,12 +134,7 @@
                         <xsd:attribute name="context-path" type="xsd:string" use="required"></xsd:attribute>
                     </xsd:complexType>
                 </xsd:element>
-                <xsd:element name="namespace" minOccurs="0" maxOccurs="unbounded">
-                    <xsd:complexType>
-                        <xsd:attribute name="prefix" type="xsd:string" use="required" />
-                        <xsd:attribute name="url" type="xsd:string" use="required" />
-                    </xsd:complexType>
-                </xsd:element>
+                <xsd:element name="namespace" minOccurs="0" maxOccurs="unbounded" type="stil:namespaceType" />
             </xsd:sequence>
             <xsd:attribute name="id" type="xsd:string" use="required">
                 <xsd:annotation>
@@ -237,8 +232,23 @@
         </xsd:complexType>
     </xsd:element>
     
+    <xsd:element name="namespace">
+        <xsd:complexType>
+            <xsd:complexContent>
+                <xsd:extension base="stil:namespaceType">
+                    <xsd:attribute name="service-ref" type="xsd:string" use="required" />
+                </xsd:extension>
+            </xsd:complexContent>
+        </xsd:complexType>
+    </xsd:element>
+    
     <xsd:complexType name="annotation-configType">
         <xsd:attribute name="marker" type="xsd:string" use="optional" />
+    </xsd:complexType>
+    
+    <xsd:complexType name="namespaceType">
+        <xsd:attribute name="prefix" type="xsd:string" use="required" />
+        <xsd:attribute name="uri" type="xsd:string" use="required" />
     </xsd:complexType>
     
 </xsd:schema>

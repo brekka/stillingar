@@ -19,11 +19,7 @@ package org.brekka.stillingar.xmlbeans;
 import static java.lang.String.format;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
@@ -31,6 +27,7 @@ import org.apache.xmlbeans.XmlObject;
 import org.brekka.stillingar.api.ConfigurationSource;
 import org.brekka.stillingar.api.ValueConfigurationException;
 import org.brekka.stillingar.core.conversion.ConversionManager;
+import org.brekka.stillingar.core.dom.DefaultNamespaceContext;
 
 /**
  * Configuration snapshot based on Apache XmlBeans.
@@ -43,16 +40,12 @@ class XmlBeansConfigurationSource implements ConfigurationSource {
 
     private final ConversionManager conversionManager;
 
-    private final Map<String, String> xpathNamespaces;
+    private final DefaultNamespaceContext xpathNamespaces;
 
-    public XmlBeansConfigurationSource(XmlObject bean, Map<String, String> xpathNamespaces,
+    public XmlBeansConfigurationSource(XmlObject bean, DefaultNamespaceContext xpathNamespaces,
             ConversionManager conversionManager) {
         this.bean = bean;
-        if (xpathNamespaces != null) {
-            this.xpathNamespaces = xpathNamespaces;
-        } else {
-            this.xpathNamespaces = Collections.emptyMap();
-        }
+        this.xpathNamespaces = xpathNamespaces;
         this.conversionManager = conversionManager;
     }
 
@@ -179,12 +172,11 @@ class XmlBeansConfigurationSource implements ConfigurationSource {
 
     private XmlObject[] evaluate(String expression) {
         StringBuilder sb = new StringBuilder();
-        Set<Entry<String, String>> entrySet = xpathNamespaces.entrySet();
-        for (Entry<String, String> entry : entrySet) {
+        for (String prefix : xpathNamespaces.getPrefixes()) {
             sb.append("declare namespace ");
-            sb.append(entry.getKey());
+            sb.append(prefix);
             sb.append("='");
-            sb.append(entry.getValue());
+            sb.append(xpathNamespaces.getNamespaceURI(prefix));
             sb.append("';");
         }
         sb.append('.');

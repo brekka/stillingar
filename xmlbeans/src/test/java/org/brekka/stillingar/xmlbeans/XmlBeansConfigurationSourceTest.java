@@ -29,9 +29,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -39,6 +37,7 @@ import net.iharder.Base64;
 
 import org.brekka.stillingar.api.ValueConfigurationException;
 import org.brekka.stillingar.core.conversion.ConversionManager;
+import org.brekka.stillingar.core.dom.DefaultNamespaceContext;
 import org.brekka.xml.stillingar.test.v1.ConfigurationDocument;
 import org.brekka.xml.stillingar.test.v1.ConfigurationDocument.Configuration.CompanyX;
 import org.brekka.xml.stillingar.test.v1.ConfigurationDocument.Configuration.CompanyY;
@@ -61,10 +60,11 @@ public class XmlBeansConfigurationSourceTest {
     @Before
     public void setup() throws Exception {
         ConfigurationDocument document = ConfigurationDocument.Factory.parse(getClass().getResourceAsStream("TestConfiguration.xml"));
-        Map<String, String> nsMap = new HashMap<String, String>();
-        nsMap.put("c", "http://brekka.org/xml/stillingar/test/v1");
-        nsMap.put("b", "http://www.springframework.org/schema/beans");
-        configurationSource = new XmlBeansConfigurationSource(document, nsMap, new ConversionManager(XmlBeansConfigurationSourceLoader.prepareConverters()));
+        DefaultNamespaceContext namespaceContext = new DefaultNamespaceContext(
+            "c", "http://brekka.org/xml/stillingar/test/v1",
+            "b", "http://www.springframework.org/schema/beans"
+        );
+        configurationSource = new XmlBeansConfigurationSource(document, namespaceContext, new ConversionManager(XmlBeansConfigurationSourceLoader.prepareConverters()));
     }
 
     /**

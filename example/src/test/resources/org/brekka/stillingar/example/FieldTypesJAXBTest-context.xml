@@ -19,9 +19,10 @@
             </stil:location>
         </stil:selector>
         <stil:jaxb context-path="org.brekka.stillingar.example">
+            <stil:schema>file:src/main/xsd/ExternalConfiguration.xsd</stil:schema>
             <stil:schema>file:src/main/xsd/ExampleConfiguration-1.0.xsd</stil:schema>
         </stil:jaxb>
-        <stil:namespace prefix="c"     url="http://brekka.org/xml/stillingar/example/v1" />
+        <stil:namespace prefix="c"     uri="http://brekka.org/xml/stillingar/example/v1" />
     </stil:configuration-service>
     
 </beans>

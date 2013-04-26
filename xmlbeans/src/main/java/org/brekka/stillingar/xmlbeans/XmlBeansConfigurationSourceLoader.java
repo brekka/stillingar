@@ -23,7 +23,6 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlException;
@@ -38,6 +37,7 @@ import org.brekka.stillingar.core.conversion.DateConverter;
 import org.brekka.stillingar.core.conversion.TemporalAdapter;
 import org.brekka.stillingar.core.conversion.TypeConverter;
 import org.brekka.stillingar.core.conversion.TypeConverterListBuilder;
+import org.brekka.stillingar.core.dom.DefaultNamespaceContext;
 import org.brekka.stillingar.xmlbeans.conversion.BigDecimalConverter;
 import org.brekka.stillingar.xmlbeans.conversion.BigIntegerConverter;
 import org.brekka.stillingar.xmlbeans.conversion.BooleanConverter;
@@ -67,19 +67,31 @@ public class XmlBeansConfigurationSourceLoader implements ConfigurationSourceLoa
 
     private final ConversionManager conversionManager;
 
-    private Map<String, String> xpathNamespaces;
+    private final DefaultNamespaceContext xpathNamespaces;
 
     private boolean validate = true;
 
     public XmlBeansConfigurationSourceLoader() {
         this(new ConversionManager(prepareConverters()));
     }
-
+    
     public XmlBeansConfigurationSourceLoader(ConversionManager conversionManager) {
+        this(conversionManager, new DefaultNamespaceContext());
+    }
+    
+    public XmlBeansConfigurationSourceLoader(DefaultNamespaceContext xpathNamespaces) {
+        this(new ConversionManager(prepareConverters()), xpathNamespaces);
+    }
+    
+    public XmlBeansConfigurationSourceLoader(ConversionManager conversionManager, DefaultNamespaceContext xpathNamespaces) {
         if (conversionManager == null) {
             throw new IllegalArgumentException("null passed for conversion manager");
         }
         this.conversionManager = conversionManager;
+        if (xpathNamespaces == null) {
+            throw new IllegalArgumentException("null passed for xpathNamespaces");
+        }
+        this.xpathNamespaces = xpathNamespaces;
     }
 
     /*
@@ -111,14 +123,6 @@ public class XmlBeansConfigurationSourceLoader implements ConfigurationSourceLoa
             throw new ConfigurationException(format(
                     "Configuration XML does not validate. Errors: %s", errors));
         }
-    }
-
-    public void setXpathNamespaces(Map<String, String> xpathNamespaces) {
-        if (xpathNamespaces == null) {
-            throw new IllegalArgumentException(
-                    "Must be set to a map of namespaces (not null)");
-        }
-        this.xpathNamespaces = xpathNamespaces;
     }
 
     public void setValidate(boolean validate) {

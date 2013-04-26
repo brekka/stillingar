@@ -29,6 +29,7 @@ import org.brekka.stillingar.core.conversion.ConversionManager;
 import org.brekka.stillingar.core.conversion.TemporalAdapter;
 import org.brekka.stillingar.core.conversion.xml.DocumentConverter;
 import org.brekka.stillingar.core.dom.DOMConfigurationSourceLoader;
+import org.brekka.stillingar.core.dom.DefaultNamespaceContext;
 import org.brekka.stillingar.core.properties.PropertiesConfigurationSourceLoader;
 import org.brekka.stillingar.core.snapshot.SnapshotBasedConfigurationService;
 import org.brekka.stillingar.spring.bpp.ConfigurationBeanPostProcessor;
@@ -54,8 +55,8 @@ import org.brekka.stillingar.spring.version.ApplicationVersionFromMaven;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.support.ManagedArray;
 import org.springframework.beans.factory.support.ManagedList;
-import org.springframework.beans.factory.support.ManagedMap;
 import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.core.io.ClassPathResource;
@@ -65,7 +66,6 @@ import org.springframework.scheduling.concurrent.ScheduledExecutorFactoryBean;
 import org.springframework.scheduling.concurrent.ScheduledExecutorTask;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
-import org.springframework.util.xml.SimpleNamespaceContext;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -91,6 +91,8 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
     protected Class<SnapshotBasedConfigurationService> getBeanClass(Element element) {
         return SnapshotBasedConfigurationService.class;
     }
+    
+    private String namespacesId;
 
     @Override
     protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
@@ -105,6 +107,7 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
         builder.getRawBeanDefinition().setDestroyMethodName("shutdown");
 
         // Other identifiable context beans
+        prepareNamespaces(element, parserContext);
         prepareLoader(element, parserContext, engine);
         preparePlaceholderConfigurer(element, parserContext);
         preparePostProcessor(element, parserContext);
@@ -179,8 +182,7 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
 
         switch (engine) {
             case XMLBEANS:
-                builder.addConstructorArgValue(prepareXmlBeansConversionManager());
-                prepareXMLBeanNamespaces(element, builder);
+                prepareXmlBeans(element, parserContext, builder);
                 break;
             case DOM:
                 prepareDOM(element, parserContext, builder);
@@ -199,16 +201,29 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
         parserContext.registerBeanComponent(new BeanComponentDefinition(beanDefinition, loaderReference));
     }
     
+    
+    /**
+     * @param element
+     * @param builder
+     */
+    protected void prepareXmlBeans(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
+        // ConversionManager
+        builder.addConstructorArgValue(prepareXmlBeansConversionManager());
+        
+        // Namespaces
+        builder.addConstructorArgReference(this.namespacesId);
+    }
+    
     /**
      * @param element
      * @param builder
      */
     protected void prepareDOM(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
-        // Namespaces
-        builder.addConstructorArgValue(prepareDOMNamespaces(element));
-        
         // ConversionManager
         builder.addConstructorArgValue(prepareDOMConversionManager());
+        
+        // Namespaces
+        builder.addConstructorArgReference(this.namespacesId);
     }
 
     /**
@@ -238,7 +253,7 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
         builder.addConstructorArgValue(schemaUrlList);
 
         // Namespaces
-        builder.addConstructorArgValue(prepareDOMNamespaces(element));
+        builder.addConstructorArgReference(this.namespacesId);
         
         // ConversionManager
         builder.addConstructorArgValue(prepareJAXBConversionManager());
@@ -248,21 +263,19 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
      * @param element
      * @return
      */
-    protected AbstractBeanDefinition prepareDOMNamespaces(Element element) {
-        ManagedMap<String, String> namespaceMap = toNamespaceMap(element);
-        if (namespaceMap.isEmpty()) {
-            return null;
+    protected void prepareNamespaces(Element element, ParserContext parserContext) {
+        String id = element.getAttribute("id");
+        this.namespacesId = id + "-Namespaces";
+        List<Element> namespaceElements = selectChildElements(element, "namespace");
+        ManagedArray array = new ManagedArray(String.class.getName(), namespaceElements.size() * 2);
+        for (Element namespaceElement : namespaceElements) {
+            array.add(namespaceElement.getAttribute("prefix"));
+            array.add(namespaceElement.getAttribute("uri"));
         }
-        BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(SimpleNamespaceContext.class);
-        builder.addPropertyValue("bindings", namespaceMap);
-        return builder.getBeanDefinition();
-    }
-
-    protected void prepareXMLBeanNamespaces(Element element, BeanDefinitionBuilder builder) {
-        ManagedMap<String, String> namespaceMap = toNamespaceMap(element);
-        if (!namespaceMap.isEmpty()) {
-            builder.addPropertyValue("xpathNamespaces", namespaceMap);
-        }
+        BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(DefaultNamespaceContext.class);
+        builder.addConstructorArgValue(array);
+        parserContext.registerBeanComponent(new BeanComponentDefinition(
+                builder.getBeanDefinition(), this.namespacesId));
     }
 
     protected void prepareReloadMechanism(Element element, ParserContext parserContext) {
@@ -690,20 +703,6 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
         return converters;
     }
 
-    /**
-     * @param element
-     * @return
-     */
-    private static ManagedMap<String, String> toNamespaceMap(Element element) {
-        ManagedMap<String, String> namespaceMap = new ManagedMap<String, String>();
-        List<Element> namespaceElements = selectChildElements(element, "namespace");
-        for (Element namespaceElement : namespaceElements) {
-            String prefix = namespaceElement.getAttribute("prefix");
-            String url = namespaceElement.getAttribute("url");
-            namespaceMap.put(prefix, url);
-        }
-        return namespaceMap;
-    }
 
     /**
      * @param element

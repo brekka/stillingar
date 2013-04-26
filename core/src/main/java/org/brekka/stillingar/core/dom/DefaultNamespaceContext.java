@@ -29,7 +29,7 @@ import javax.xml.namespace.NamespaceContext;
  *
  * @author Andrew Taylor (andrew@brekka.org)
  */
-public class DefaultNamespaceContext implements NamespaceContext {
+public class DefaultNamespaceContext implements NamespaceContext, NamespaceAware {
 
     private final Map<String, String> prefixToNamespace;
     
@@ -69,6 +69,34 @@ public class DefaultNamespaceContext implements NamespaceContext {
         }
         return list.get(0);
     }
+    
+    /* (non-Javadoc)
+     * @see org.brekka.stillingar.core.dom.NamespaceAware#registerNamespace(java.lang.String, java.lang.String)
+     */
+    @Override
+    public synchronized void registerNamespace(String prefix, String uri) {
+        if (prefix == null) {
+            throw new IllegalArgumentException("A prefix must be provided");
+        }
+        if (uri == null) {
+            throw new IllegalArgumentException("A uri must be set");
+        }
+        String existingNamespaceForPrefix = this.prefixToNamespace.get(prefix);
+        if (existingNamespaceForPrefix != null) {
+            if (existingNamespaceForPrefix.equals(uri)) {
+                // Already registered
+                return;
+            }
+            throw new IllegalArgumentException(String.format("Cannot assign namespace URI '%s' to prefix '%s', " +
+            		"that prefix is already assigned to '%s'", uri, prefix, existingNamespaceForPrefix));
+        }
+        // Not yet assigned
+        this.prefixToNamespace.put(prefix, uri);
+        if (!this.namespaceToPrefix.containsKey(uri)) {
+            this.namespaceToPrefix.put(uri, new ArrayList<String>());
+        }
+        this.namespaceToPrefix.get(uri).add(prefix);
+    }
 
     /* (non-Javadoc)
      * @see javax.xml.namespace.NamespaceContext#getPrefixes(java.lang.String)
@@ -82,5 +110,21 @@ public class DefaultNamespaceContext implements NamespaceContext {
             return null;
         }
         return list.iterator();
+    }
+    
+    /**
+     * Retrieve the available prefixes
+     * @return
+     */
+    public Iterable<String> getPrefixes() {
+        return prefixToNamespace.keySet();
+    }
+    
+    /**
+     * Does this context currently contain any namespaces.
+     * @return true if there are more than one namespaces registered.
+     */
+    public boolean hasNamespaces() {
+        return !prefixToNamespace.isEmpty();
     }
 }
