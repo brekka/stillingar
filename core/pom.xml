@@ -1,21 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
+    <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.brekka.stillingar</groupId>
         <artifactId>stillingar</artifactId>
         <version>1.0</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-
-    <modelVersion>4.0.0</modelVersion>
-
     <artifactId>stillingar-core</artifactId>
     <version>1.0.0-SNAPSHOT</version>
-
     <packaging>jar</packaging>
 
     <name>Stillingar - Core</name>
+
+    <description>
+        Stillingar is a configuration framework for Java applications. It supports runtime reloading of configuration files,
+        which can consist of XML or properties files. When used in a Spring environment, configuration values can be autowired by
+        expression or if XMLBeans/JAXB are used, by type.
+        
+        The core project is key 'generic' logic of the Stillingar framework. By itself it is not particularly useful. It can provide immutable
+        loading of Properties files and DOM based XML, but that is about it. It really needs to be combined with the Spring module to be useful,
+        but of course the idea is that other frameworks could be supported, not just Spring. Like the API module, the number of external
+        dependencies has deliberately been kept to a minimum (ie zero). The base64 and joda-time libraries are entirely optional and included 
+        until such point as the JVM provides native support.
+    </description>
 
     <inceptionYear>2011</inceptionYear>
 
@@ -41,87 +50,42 @@
             <timezone>GMT</timezone>
         </developer>
     </developers>
+    
 
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.5.1</version>
-                <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
-                    <encoding>utf-8</encoding>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>2.2.1</version>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>jar-no-fork</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.8.1</version>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>cobertura-maven-plugin</artifactId>
-                <version>2.5.1</version>
-            </plugin>
-        </plugins>
-    </build>
     <dependencies>
         <dependency>
             <groupId>org.brekka.stillingar</groupId>
             <artifactId>stillingar-api</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
+
         <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
-            <version>1.6.2</version>
             <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>net.iharder</groupId>
             <artifactId>base64</artifactId>
-            <version>2.3.8</version>
             <optional>true</optional>
         </dependency>
+        
+        <!-- Test -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.8.2</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
-            <version>2.6</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-all</artifactId>
-            <version>1.9.0</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.4</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

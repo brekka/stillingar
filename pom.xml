@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
@@ -9,7 +10,11 @@
     <name>Stillingar - Root</name>
 
     <description>
-        Application configuration library
+        Stillingar is a configuration framework for Java applications. It supports runtime reloading of configuration files,
+        which can consist of XML or properties files. When used in a Spring environment, configuration values can be autowired by
+        expression or if XMLBeans/JAXB are used, by type.
+        
+        This project is the root of the Stillingar framework, defining the environment and dependency versions for the given release.
     </description>
 
     <inceptionYear>2011</inceptionYear>
@@ -46,8 +51,127 @@
         <module>jaxb</module>
         <module>example</module>
     </modules>
+    
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                    <encoding>utf-8</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.2.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.9</version>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>cobertura-maven-plugin</artifactId>
+                <version>2.5.2</version>
+            </plugin>
+        </plugins>
+    </build>
+    
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <!-- 
+                    Only used in XMLBeans based configuration loader.
+                 -->
+                <groupId>org.apache.xmlbeans</groupId>
+                <artifactId>xmlbeans</artifactId>
+                <version>${xmlbeans-version}</version>
+            </dependency>
+            <dependency>
+                <!-- 
+                    Provide support for Joda-Time in type conversions.
+                 -->
+                <groupId>joda-time</groupId>
+                <artifactId>joda-time</artifactId>
+                <version>${joda-time-version}</version>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <!-- 
+                    Needed to support type conversion of xsd:base64binary in DOM based operations.
+                    XMLBeans/JAXB take care of this themselves.
+                 -->
+                <groupId>net.iharder</groupId>
+                <artifactId>base64</artifactId>
+                <version>${base64-version}</version>
+                <optional>true</optional>
+            </dependency>
+            
+            <!-- Test -->
+            <dependency>
+                <groupId>commons-lang</groupId>
+                <artifactId>commons-lang</artifactId>
+                <version>${commons-lang-version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit-version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-test</artifactId>
+                <version>${spring-release-version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-all</artifactId>
+                <version>${mockito-version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${commons-io-version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>log4j</groupId>
+                <artifactId>log4j</artifactId>
+                <version>${log4j-version}</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        
+        <base64-version>2.3.7</base64-version>
+        <commons-lang-version>2.6</commons-lang-version>
+        <commons-io-version>2.4</commons-io-version>
+        <joda-time-version>1.6.2</joda-time-version>
+        <junit-version>4.10</junit-version>
+        <log4j-version>1.2.17</log4j-version>
+        <mockito-version>1.9.5</mockito-version>
+        <spring-release-version>3.0.7.RELEASE</spring-release-version>
+        <xmlbeans-version>2.4.0</xmlbeans-version>
     </properties>
 </project>
