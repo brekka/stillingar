@@ -74,7 +74,7 @@ public class JavaxBasedXPath implements PathDelegate.SelectPathInterface {
     public JavaxBasedXPath(String path, String contextVar, Map<String, String> namespaceMap, String defaultNS) {
         this.path = path;
         this.contextVar = contextVar;
-        this.namespaceMap = new MapNamespaceContext(namespaceMap, defaultNS);
+        this.namespaceMap = namespaceMap != null ? new MapNamespaceContext(namespaceMap, defaultNS) : null;
     }
 
     /*
