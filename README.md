@@ -1,3 +1,6 @@
 # Stillingar
 
-A Java based library for supporting 'nice' XML based configuration files for your Spring based application.
+Stillingar is a configuration framework for Java applications. It supports runtime reloading of 
+configuration files, which can consist of XML or properties files. When used in a Spring 
+environment, configuration values can be autowired by expression or if XMLBeans/JAXB are used, by type.
+
