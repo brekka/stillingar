@@ -12,7 +12,7 @@
     
     <bean class="org.brekka.stillingar.example.support.MessageOfTheDay" />
 
-    <stil:configuration-service id="stillingar-example" engine="xmlbeans" reload-interval="2000"> 
+    <stil:configuration-service id="stillingar-example" engine="xmlbeans" reload-interval="1000"> 
         <stil:selector>
             <stil:location>
                 <stil:system-property>stillingar.dir</stil:system-property>
