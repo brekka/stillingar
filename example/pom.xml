@@ -10,7 +10,7 @@
     <artifactId>stillingar-example</artifactId>
 
     <name>Stillingar - Example web application</name>
-    
+
     <description>
         Stillingar is a configuration framework for Java applications. It supports runtime reloading of configuration files,
         which can consist of XML or properties files. When used in a Spring environment, configuration values can be autowired by
@@ -19,10 +19,10 @@
         This examples project provides a worked example of Stillingar in action in the form of a web application, and also provides
         a container for integration tests.
     </description>
-    
+
     <packaging>war</packaging>
 
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
 
     <inceptionYear>2011</inceptionYear>
 
@@ -70,7 +70,7 @@
             <artifactId>stillingar-jaxb</artifactId>
             <version>${project.version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
@@ -81,7 +81,7 @@
             <artifactId>httpclient</artifactId>
             <version>4.2.2</version>
         </dependency>
-        
+
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
@@ -105,7 +105,7 @@
             <groupId>net.iharder</groupId>
             <artifactId>base64</artifactId>
         </dependency>
-        
+
         <!-- Test -->
         <dependency>
             <groupId>junit</groupId>
