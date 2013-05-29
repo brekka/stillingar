@@ -26,6 +26,7 @@ import org.brekka.stillingar.example.support.TestSupport;
 import org.brekka.xml.stillingar.example.v1.ConfigurationDocument;
 import org.brekka.xml.stillingar.example.v1.ConfigurationDocument.Configuration;
 import org.brekka.xml.stillingar.example.v1.ConfigurationDocument.Configuration.Testing;
+import org.brekka.xml.stillingar.external.ThirdPartyConfigurationDocument.ThirdPartyConfiguration;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -101,7 +102,11 @@ public class PropertyPlaceholdersTest extends AbstractJUnit4SpringContextTests {
         configuration.setMOTD("Value_" + RandomStringUtils.randomAlphabetic(6));
         testing.setInt(r.nextInt());
         testing.setString("${//c:MOTD}-${//c:Testing/c:Int}");
-        
+        ThirdPartyConfiguration thirdPartyConfiguration = configuration.addNewThirdPartyConfiguration();
+        thirdPartyConfiguration.setHost("localhost");
+        thirdPartyConfiguration.setPort(1234);
+        thirdPartyConfiguration.setUsername("username");
+        thirdPartyConfiguration.setPassword("password");
         TestSupport.write(doc);
         return configuration;
     }

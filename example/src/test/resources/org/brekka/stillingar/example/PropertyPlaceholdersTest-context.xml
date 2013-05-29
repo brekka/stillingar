@@ -21,6 +21,12 @@
     <bean id="bean" class="org.brekka.stillingar.example.StandardBean">
         <property name="value" value="$config{//c:MOTD}" />
     </bean>
+    
+    <bean id="host" class="org.brekka.stillingar.example.StandardBean">
+        <property name="value" value="$config{//x:Host}" />
+    </bean>
+    
+    
 
     <stil:configuration-service id="stillingar-example" engine="xmlbeans" reload-interval="5000"> 
         <stil:selector>
@@ -31,4 +37,7 @@
         <stil:property-placeholder prefix="$config{" />
         <stil:namespace prefix="c"     uri="http://brekka.org/xml/stillingar/example/v1" />
     </stil:configuration-service> 
+    
+    
+    <stil:namespace prefix="x" uri="http://brekka.org/xml/stillingar/external" service-ref="stillingar-example" />
 </beans>
