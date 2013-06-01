@@ -41,6 +41,7 @@ import org.brekka.stillingar.core.dom.DefaultNamespaceContext;
 import org.brekka.xml.stillingar.test.v1.ConfigurationDocument;
 import org.brekka.xml.stillingar.test.v1.ConfigurationDocument.Configuration.CompanyX;
 import org.brekka.xml.stillingar.test.v1.ConfigurationDocument.Configuration.CompanyY;
+import org.brekka.xml.stillingar.test.v1.ConfigurationDocument.Configuration.FeatureFlag;
 import org.brekka.xml.stillingar.test.v1.ConfigurationDocument.Configuration.Services.Rules.Fraud;
 import org.joda.time.Period;
 import org.junit.Before;
@@ -130,9 +131,9 @@ public class XmlBeansConfigurationSourceTest {
      */
     @Test
     public void testRetrieveListClass() {
-        List<Fraud> list = configurationSource.retrieveList(Fraud.class);
+        List<FeatureFlag> list = configurationSource.retrieveList(FeatureFlag.class);
         assertNotNull(list);
-        assertTrue(list.size() == 1);
+        assertTrue(list.size() == 2);
     }
 
     /**
