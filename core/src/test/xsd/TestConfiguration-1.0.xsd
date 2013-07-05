@@ -15,7 +15,7 @@
                             <xsd:element name="Language" type="xsd:language" maxOccurs="1" minOccurs="0"></xsd:element>
                             <xsd:element name="References" type="st:UUIDType" maxOccurs="unbounded" minOccurs="0"></xsd:element>
                         </xsd:sequence>
-                        <xsd:attribute type="xsd:token" name="id" />
+                        <xsd:attribute type="xsd:int" name="number" />
                     </xsd:complexType>
                 </xsd:element>
                 <xsd:element name="FeatureFlag" maxOccurs="unbounded" minOccurs="0">

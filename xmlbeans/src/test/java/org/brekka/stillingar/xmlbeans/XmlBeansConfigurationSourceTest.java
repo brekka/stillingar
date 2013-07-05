@@ -130,9 +130,9 @@ public class XmlBeansConfigurationSourceTest {
     
     @Test
     public void testRetrieveXPathAttrSelectorElem() {
-        String message = configurationSource.retrieve("//c:MOTD[@id='1']//c:Message", String.class);
+        String message = configurationSource.retrieve("//c:MOTD[@number=1]//c:Message", String.class);
         //call twice sometime it behaves differently on the second call
-        message = configurationSource.retrieve("//c:MOTD[@id='1']//c:Message", String.class);
+        message = configurationSource.retrieve("//c:MOTD[@number=1]//c:Message", String.class);
         assertEquals("Test message", message);
     }
 

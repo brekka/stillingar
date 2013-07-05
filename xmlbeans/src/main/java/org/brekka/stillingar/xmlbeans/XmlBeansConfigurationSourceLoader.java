@@ -16,8 +16,6 @@
 
 package org.brekka.stillingar.xmlbeans;
 
-import static java.lang.String.format;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
@@ -70,20 +68,26 @@ public class XmlBeansConfigurationSourceLoader implements ConfigurationSourceLoa
     private final DefaultNamespaceContext xpathNamespaces;
 
     private boolean validate = true;
+    
+    /**
+     * Options passed to the XmlObject.parse(...) operation. Defaults are to strip comments
+     * (not used for configuration) but can be overridden via the corresponding setter.
+     */
+    private XmlOptions loadXmlOptions;
 
     public XmlBeansConfigurationSourceLoader() {
         this(new ConversionManager(prepareConverters()));
     }
     
-    public XmlBeansConfigurationSourceLoader(final ConversionManager conversionManager) {
+    public XmlBeansConfigurationSourceLoader(ConversionManager conversionManager) {
         this(conversionManager, new DefaultNamespaceContext());
     }
     
-    public XmlBeansConfigurationSourceLoader(final DefaultNamespaceContext xpathNamespaces) {
+    public XmlBeansConfigurationSourceLoader(DefaultNamespaceContext xpathNamespaces) {
         this(new ConversionManager(prepareConverters()), xpathNamespaces);
     }
     
-    public XmlBeansConfigurationSourceLoader(final ConversionManager conversionManager, final DefaultNamespaceContext xpathNamespaces) {
+    public XmlBeansConfigurationSourceLoader(ConversionManager conversionManager, DefaultNamespaceContext xpathNamespaces) {
         if (conversionManager == null) {
             throw new IllegalArgumentException("null passed for conversion manager");
         }
@@ -92,6 +96,10 @@ public class XmlBeansConfigurationSourceLoader implements ConfigurationSourceLoa
             throw new IllegalArgumentException("null passed for xpathNamespaces");
         }
         this.xpathNamespaces = xpathNamespaces;
+        
+        XmlOptions loadXmlOptions = new XmlOptions();
+        loadXmlOptions.setLoadStripComments();
+        this.loadXmlOptions = loadXmlOptions;
     }
     
     /*
@@ -100,35 +108,34 @@ public class XmlBeansConfigurationSourceLoader implements ConfigurationSourceLoa
      * @see org.brekka.stillingar.core.ConfigurationSourceLoader#parse(java.io.InputStream, java.nio.charset.Charset)
      */
     @Override
-    public ConfigurationSource parse(final InputStream sourceStream, final Charset encoding) throws IOException {
+    public ConfigurationSource parse(InputStream sourceStream, Charset encoding) throws IOException {
         if (sourceStream == null) {
             throw new IllegalArgumentException("A source stream is required");
         }
         try {
-            XmlOptions opts = new XmlOptions();
-            opts.setLoadStripComments();
-            XmlObject xmlBean = XmlObject.Factory.parse(sourceStream, opts);
+            
+            XmlObject xmlBean = XmlObject.Factory.parse(sourceStream, loadXmlOptions);
             if (this.validate) {
                 validate(xmlBean);
             }
             return new XmlBeansConfigurationSource(xmlBean, this.xpathNamespaces, conversionManager);
         } catch (XmlException e) {
-            throw new ConfigurationException(format(
+            throw new ConfigurationException(String.format(
                     "This does not appear to be an XML document"), e);
         }
     }
 
-    protected void validate(final XmlObject bean) {
+    protected void validate(XmlObject bean) {
         List<XmlError> errors = new ArrayList<XmlError>();
         XmlOptions validateOptions = new XmlOptions();
         validateOptions.setErrorListener(errors);
         if (!bean.validate(validateOptions)) {
-            throw new ConfigurationException(format(
+            throw new ConfigurationException(String.format(
                     "Configuration XML does not validate. Errors: %s", errors));
         }
     }
 
-    public void setValidate(final boolean validate) {
+    public void setValidate(boolean validate) {
         this.validate = validate;
     }
     
@@ -150,5 +157,12 @@ public class XmlBeansConfigurationSourceLoader implements ConfigurationSourceLoa
             .addOptionalClass("org.brekka.stillingar.xmlbeans.conversion.PeriodConverter")
             .toList();
         
+    }
+    
+    /**
+     * @param loadXmlOptions the loadXmlOptions to set
+     */
+    public void setLoadXmlOptions(XmlOptions loadXmlOptions) {
+        this.loadXmlOptions = loadXmlOptions;
     }
 }

@@ -244,8 +244,10 @@ public class JAXBConfigurationSource extends DOMConfigurationSource {
         Field[] fieldArr = parentObj.getClass().getDeclaredFields();
         for (Field field : fieldArr) {
             XmlElement xmlElement = field.getAnnotation(XmlElement.class);
-            if (node.getLocalName().equals(xmlElement.name())) {
-                value = extractFieldValue(parentObj, field);
+            if (xmlElement != null) {
+                if (node.getLocalName().equals(xmlElement.name())) {
+                    value = extractFieldValue(parentObj, field);
+                }
             }
         }
         return value;
