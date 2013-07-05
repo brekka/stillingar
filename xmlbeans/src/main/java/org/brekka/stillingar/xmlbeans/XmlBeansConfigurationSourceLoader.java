@@ -16,7 +16,7 @@
 
 package org.brekka.stillingar.xmlbeans;
 
-import static java.lang.String.*;
+import static java.lang.String.format;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -93,7 +93,7 @@ public class XmlBeansConfigurationSourceLoader implements ConfigurationSourceLoa
         }
         this.xpathNamespaces = xpathNamespaces;
     }
-
+    
     /*
      * (non-Javadoc)
      * 
