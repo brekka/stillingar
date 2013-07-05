@@ -35,13 +35,14 @@ import java.util.concurrent.TimeUnit;
 
 import net.iharder.Base64;
 
+import org.apache.xmlbeans.XmlOptions;
 import org.brekka.stillingar.api.ValueConfigurationException;
 import org.brekka.stillingar.core.conversion.ConversionManager;
 import org.brekka.stillingar.core.dom.DefaultNamespaceContext;
 import org.brekka.xml.stillingar.test.v1.ConfigurationDocument;
 import org.brekka.xml.stillingar.test.v1.ConfigurationDocument.Configuration.CompanyX;
 import org.brekka.xml.stillingar.test.v1.ConfigurationDocument.Configuration.CompanyY;
-import org.brekka.xml.stillingar.test.v1.ConfigurationDocument.Configuration.Services.Rules.Fraud;
+import org.brekka.xml.stillingar.test.v1.ConfigurationDocument.Configuration.FeatureFlag;
 import org.joda.time.Period;
 import org.junit.Before;
 import org.junit.Test;
@@ -59,7 +60,9 @@ public class XmlBeansConfigurationSourceTest {
     
     @Before
     public void setup() throws Exception {
-        ConfigurationDocument document = ConfigurationDocument.Factory.parse(getClass().getResourceAsStream("TestConfiguration.xml"));
+        XmlOptions opts = new XmlOptions();
+        opts.setLoadStripComments();
+        ConfigurationDocument document = ConfigurationDocument.Factory.parse(getClass().getResourceAsStream("TestConfiguration.xml"), opts);
         DefaultNamespaceContext namespaceContext = new DefaultNamespaceContext(
             "c", "http://brekka.org/xml/stillingar/test/v1",
             "b", "http://www.springframework.org/schema/beans"
@@ -124,15 +127,23 @@ public class XmlBeansConfigurationSourceTest {
         Boolean flag = configurationSource.retrieve("//c:FeatureFlag[@key='TURBO']", Boolean.class);
         assertEquals(Boolean.TRUE, flag);
     }
+    
+    @Test
+    public void testRetrieveXPathAttrSelectorElem() {
+        String message = configurationSource.retrieve("//c:MOTD[@id='1']//c:Message", String.class);
+        //call twice sometime it behaves differently on the second call
+        message = configurationSource.retrieve("//c:MOTD[@id='1']//c:Message", String.class);
+        assertEquals("Test message", message);
+    }
 
     /**
      * Test method for {@link org.brekka.stillingar.xmlbeans.XmlBeansConfigurationSource#retrieveList(java.lang.Class)}.
      */
     @Test
     public void testRetrieveListClass() {
-        List<Fraud> list = configurationSource.retrieveList(Fraud.class);
+        List<FeatureFlag> list = configurationSource.retrieveList(FeatureFlag.class);
         assertNotNull(list);
-        assertTrue(list.size() == 1);
+        assertTrue(list.size() == 2);
     }
 
     /**

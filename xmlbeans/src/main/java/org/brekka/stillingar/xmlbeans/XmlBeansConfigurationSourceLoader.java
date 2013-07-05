@@ -75,15 +75,15 @@ public class XmlBeansConfigurationSourceLoader implements ConfigurationSourceLoa
         this(new ConversionManager(prepareConverters()));
     }
     
-    public XmlBeansConfigurationSourceLoader(ConversionManager conversionManager) {
+    public XmlBeansConfigurationSourceLoader(final ConversionManager conversionManager) {
         this(conversionManager, new DefaultNamespaceContext());
     }
     
-    public XmlBeansConfigurationSourceLoader(DefaultNamespaceContext xpathNamespaces) {
+    public XmlBeansConfigurationSourceLoader(final DefaultNamespaceContext xpathNamespaces) {
         this(new ConversionManager(prepareConverters()), xpathNamespaces);
     }
     
-    public XmlBeansConfigurationSourceLoader(ConversionManager conversionManager, DefaultNamespaceContext xpathNamespaces) {
+    public XmlBeansConfigurationSourceLoader(final ConversionManager conversionManager, final DefaultNamespaceContext xpathNamespaces) {
         if (conversionManager == null) {
             throw new IllegalArgumentException("null passed for conversion manager");
         }
@@ -93,18 +93,21 @@ public class XmlBeansConfigurationSourceLoader implements ConfigurationSourceLoa
         }
         this.xpathNamespaces = xpathNamespaces;
     }
-
+    
     /*
      * (non-Javadoc)
      * 
      * @see org.brekka.stillingar.core.ConfigurationSourceLoader#parse(java.io.InputStream, java.nio.charset.Charset)
      */
-    public ConfigurationSource parse(InputStream sourceStream, Charset encoding) throws IOException {
+    @Override
+    public ConfigurationSource parse(final InputStream sourceStream, final Charset encoding) throws IOException {
         if (sourceStream == null) {
             throw new IllegalArgumentException("A source stream is required");
         }
         try {
-            XmlObject xmlBean = XmlObject.Factory.parse(sourceStream);
+            XmlOptions opts = new XmlOptions();
+            opts.setLoadStripComments();
+            XmlObject xmlBean = XmlObject.Factory.parse(sourceStream, opts);
             if (this.validate) {
                 validate(xmlBean);
             }
@@ -115,7 +118,7 @@ public class XmlBeansConfigurationSourceLoader implements ConfigurationSourceLoa
         }
     }
 
-    protected void validate(XmlObject bean) {
+    protected void validate(final XmlObject bean) {
         List<XmlError> errors = new ArrayList<XmlError>();
         XmlOptions validateOptions = new XmlOptions();
         validateOptions.setErrorListener(errors);
@@ -125,7 +128,7 @@ public class XmlBeansConfigurationSourceLoader implements ConfigurationSourceLoa
         }
     }
 
-    public void setValidate(boolean validate) {
+    public void setValidate(final boolean validate) {
         this.validate = validate;
     }
     

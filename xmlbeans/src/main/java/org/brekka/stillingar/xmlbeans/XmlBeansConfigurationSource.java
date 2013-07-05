@@ -125,7 +125,7 @@ class XmlBeansConfigurationSource implements ConfigurationSource {
      */
     public <T> List<T> retrieveList(Class<T> valueType) {
         List<T> results = new ArrayList<T>();
-        XmlObject[] found = find(valueType, true);
+        XmlObject[] found = find(valueType, false);
         for (XmlObject xmlObject : found) {
             T value = convert(valueType, xmlObject, null);
             results.add(value);
