@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.brekka.stillingar</groupId>
     <artifactId>stillingar</artifactId>
-    <version>1.0</version>
+    <version>1.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Stillingar - Root</name>
@@ -24,8 +24,10 @@
     <scm>
         <url>https://github.com/brekka/stillingar.git</url>
         <connection>https://github.com/brekka/stillingar.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com:brekka/stillingar.git</developerConnection>
+        <tag>HEAD</tag>
     </scm>
-    
+
     <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
@@ -42,6 +44,18 @@
         </developer>
     </developers>
 
+    <distributionManagement>
+        <repository>
+            <id>brekka.org</id>
+            <name>VÍS Maven Repository-releases</name>
+            <url>https://brekka.org/maven/content/repositories/releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>brekka.org</id>
+            <url>https://brekka.org/maven/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+
     <modules>
         <module>api</module>
         <module>core</module>
@@ -51,7 +65,7 @@
         <module>jaxb</module>
         <module>example</module>
     </modules>
-    
+
     <build>
         <plugins>
             <plugin>
@@ -90,37 +104,31 @@
             </plugin>
         </plugins>
     </build>
-    
+
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <!-- 
-                    Only used in XMLBeans based configuration loader.
-                 -->
+                <!-- Only used in XMLBeans based configuration loader. -->
                 <groupId>org.apache.xmlbeans</groupId>
                 <artifactId>xmlbeans</artifactId>
                 <version>${xmlbeans-version}</version>
             </dependency>
             <dependency>
-                <!-- 
-                    Provide support for Joda-Time in type conversions.
-                 -->
+                <!-- Provide support for Joda-Time in type conversions. -->
                 <groupId>joda-time</groupId>
                 <artifactId>joda-time</artifactId>
                 <version>${joda-time-version}</version>
                 <optional>true</optional>
             </dependency>
             <dependency>
-                <!-- 
-                    Needed to support type conversion of xsd:base64binary in DOM based operations.
-                    XMLBeans/JAXB take care of this themselves.
-                 -->
+                <!-- Needed to support type conversion of xsd:base64binary in DOM based operations. XMLBeans/JAXB take care 
+                    of this themselves. -->
                 <groupId>net.iharder</groupId>
                 <artifactId>base64</artifactId>
                 <version>${base64-version}</version>
                 <optional>true</optional>
             </dependency>
-            
+
             <!-- Test -->
             <dependency>
                 <groupId>commons-lang</groupId>
@@ -163,15 +171,16 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        
-        <base64-version>2.3.7</base64-version>
+        <base64-version>2.3.8</base64-version>
         <commons-lang-version>2.6</commons-lang-version>
         <commons-io-version>2.4</commons-io-version>
         <joda-time-version>1.6.2</joda-time-version>
-        <junit-version>4.10</junit-version>
         <log4j-version>1.2.17</log4j-version>
-        <mockito-version>1.9.5</mockito-version>
         <spring-release-version>3.0.7.RELEASE</spring-release-version>
         <xmlbeans-version>2.4.0</xmlbeans-version>
+        <!-- Test only dependencies -->
+        <junit-version>4.11</junit-version>
+        <mockito-version>1.9.5</mockito-version>
     </properties>
+
 </project>
