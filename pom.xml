@@ -174,4 +174,16 @@
         <spring-release-version>3.0.7.RELEASE</spring-release-version>
         <xmlbeans-version>2.4.0</xmlbeans-version>
     </properties>
+
+    <distributionManagement>
+        <repository>
+            <id>brekka.org</id>
+            <name>VÍS Maven Repository-releases</name>
+            <url>https://brekka.org/maven/content/repositories/releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>brekka.org</id>
+            <url>https://brekka.org/maven/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
 </project>
