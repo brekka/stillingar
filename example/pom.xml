@@ -21,7 +21,7 @@
 
     <packaging>war</packaging>
 
-    <version>1.0.3-SNAPSHOT</version>
+    <version>1.0.3</version>
 
     <inceptionYear>2011</inceptionYear>
 
@@ -52,22 +52,22 @@
         <dependency>
             <groupId>org.brekka.stillingar</groupId>
             <artifactId>stillingar-spring</artifactId>
-            <version>1.0.3-SNAPSHOT</version>
+            <version>1.0.3</version>
         </dependency>
         <dependency>
             <groupId>org.brekka.stillingar</groupId>
             <artifactId>stillingar-xmlbeans</artifactId>
-            <version>1.0.3-SNAPSHOT</version>
+            <version>1.0.2</version>
         </dependency>
         <dependency>
             <groupId>org.brekka.stillingar</groupId>
             <artifactId>stillingar-xmlbeans-xpath</artifactId>
-            <version>1.0.3-SNAPSHOT</version>
+            <version>1.0.2</version>
         </dependency>
         <dependency>
             <groupId>org.brekka.stillingar</groupId>
             <artifactId>stillingar-jaxb</artifactId>
-            <version>1.0.3-SNAPSHOT</version>
+            <version>1.0.2</version>
         </dependency>
 
         <dependency>
