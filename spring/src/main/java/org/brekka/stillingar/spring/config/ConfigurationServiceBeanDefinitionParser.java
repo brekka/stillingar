@@ -440,7 +440,7 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(ApplicationVersionFromMaven.class);
         builder.addConstructorArgValue(versionMavenElement.getAttribute("groupId"));
         builder.addConstructorArgValue(versionMavenElement.getAttribute("artifactId"));
-        builder.addConstructorArgValue(getClass().getClassLoader());
+        builder.addConstructorArgValue(Thread.currentThread().getContextClassLoader());
         return builder.getBeanDefinition();
     }
 
@@ -580,7 +580,7 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
         }
         if (defaultsPath == null) {
             String guessPath = String.format("stillingar/%s.%s", getName(element), engine.getDefaultExtension());
-            URL resource = getClass().getClassLoader().getResource(guessPath);
+            URL resource = Thread.currentThread().getContextClassLoader().getResource(guessPath);
             if (resource != null) {
                 defaultsPath = guessPath;
             }
