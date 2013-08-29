@@ -178,7 +178,6 @@
     <distributionManagement>
         <repository>
             <id>brekka.org</id>
-            <name>VÍS Maven Repository-releases</name>
             <url>https://brekka.org/maven/content/repositories/releases</url>
         </repository>
         <snapshotRepository>
