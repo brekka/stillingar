@@ -42,6 +42,7 @@ import org.brekka.stillingar.spring.resource.ScanningResourceSelector;
 import org.brekka.stillingar.spring.resource.VersionedResourceNameResolver;
 import org.brekka.stillingar.spring.resource.dir.EnvironmentVariableDirectory;
 import org.brekka.stillingar.spring.resource.dir.HomeDirectory;
+import org.brekka.stillingar.spring.resource.dir.ResourceDirectory;
 import org.brekka.stillingar.spring.resource.dir.PlatformDirectory;
 import org.brekka.stillingar.spring.resource.dir.SystemPropertyDirectory;
 import org.brekka.stillingar.spring.resource.dir.WebappDirectory;
@@ -204,6 +205,7 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
     
     /**
      * @param element
+     * @param parserContext
      * @param builder
      */
     protected void prepareXmlBeans(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
@@ -216,6 +218,7 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
     
     /**
      * @param element
+     * @param parserContext
      * @param builder
      */
     protected void prepareDOM(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
@@ -440,7 +443,7 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(ApplicationVersionFromMaven.class);
         builder.addConstructorArgValue(versionMavenElement.getAttribute("groupId"));
         builder.addConstructorArgValue(versionMavenElement.getAttribute("artifactId"));
-        builder.addConstructorArgValue(getClass().getClassLoader());
+        builder.addConstructorArgValue(Thread.currentThread().getContextClassLoader());
         return builder.getBeanDefinition();
     }
 
@@ -477,6 +480,8 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
                     list.add(preparePlatformLocation(location.getTextContent()));
                 } else if ("webapp".equals(tag)) {
                     list.add(prepareWebappLocation(element, location.getAttribute("path")));
+                } else if ("resource".equals(tag)) {
+                    list.add(prepareResourceLocation(element, location.getAttribute("location")));
                 } else {
                     throw new IllegalArgumentException(String.format("Unknown location type '%s'", tag));
                 }
@@ -518,8 +523,8 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
     }
     
     /**
-     * @param attribute
-     * @param class1
+     * @param element
+     * @param path
      * @return
      */
     protected AbstractBeanDefinition prepareWebappLocation(Element element, String path) {
@@ -527,10 +532,21 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
         builder.addConstructorArgValue(path);
         return builder.getBeanDefinition();
     }
+    
+    /**
+     * @param element
+     * @param location
+     * @return
+     */
+    protected AbstractBeanDefinition prepareResourceLocation(Element element, String location) {
+        BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(ResourceDirectory.class);
+        builder.addConstructorArgValue(location);
+        return builder.getBeanDefinition();
+    }
 
     /**
-     * @param textContent
-     * @param class1
+     * @param value
+     * @param baseDirectoryClass
      * @return
      */
     protected AbstractBeanDefinition prepareLocation(String value, Class<?> baseDirectoryClass) {
@@ -580,7 +596,7 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
         }
         if (defaultsPath == null) {
             String guessPath = String.format("stillingar/%s.%s", getName(element), engine.getDefaultExtension());
-            URL resource = getClass().getClassLoader().getResource(guessPath);
+            URL resource = Thread.currentThread().getContextClassLoader().getResource(guessPath);
             if (resource != null) {
                 defaultsPath = guessPath;
             }

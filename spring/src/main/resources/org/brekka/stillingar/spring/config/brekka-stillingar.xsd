@@ -100,6 +100,18 @@
                                                     </xsd:restriction>
                                                 </xsd:simpleType>
                                             </xsd:element>
+                                            <xsd:element name="resource" maxOccurs="unbounded" minOccurs="0">
+                                                <xsd:complexType>
+                                                    <xsd:attribute name="location" type="xsd:string" use="required">
+                                                        <xsd:annotation>
+                                                            <xsd:documentation>
+                                                                A location that will be resolved using the Spring 
+                                                                application context's own resource resolver mechanism.
+                                                            </xsd:documentation>
+                                                        </xsd:annotation>
+                                                    </xsd:attribute>
+                                                </xsd:complexType>
+                                            </xsd:element>
                                         </xsd:sequence>
                                     </xsd:complexType>
                                 </xsd:element>
