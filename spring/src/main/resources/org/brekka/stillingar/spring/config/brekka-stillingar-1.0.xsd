@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+ Copyright 2012 the original author or authors.
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ -->
+<xsd:schema xmlns:stil="http://brekka.org/schema/stillingar/v1" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="http://brekka.org/schema/stillingar/v1" elementFormDefault="qualified" attributeFormDefault="unqualified">
+
+    <xsd:element name="configuration-service">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:choice minOccurs="0" maxOccurs="1">
+                    <xsd:element name="selector">
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:element name="name" minOccurs="0" maxOccurs="1">
+                                    <xsd:complexType>
+                                        <xsd:sequence>
+                                            <xsd:element name="version" minOccurs="0" maxOccurs="1">
+                                                <xsd:complexType>
+                                                    <xsd:choice minOccurs="1" maxOccurs="1">
+                                                        <xsd:element name="maven">
+                                                            <xsd:complexType>
+                                                                <xsd:attribute name="groupId" type="xsd:string"
+                                                                    use="required"></xsd:attribute>
+                                                                <xsd:attribute name="artifactId" type="xsd:string"
+                                                                    use="required"></xsd:attribute>
+                                                            </xsd:complexType>
+                                                        </xsd:element>
+                                                    </xsd:choice>
+                                                    <xsd:attribute name="pattern" type="xsd:string" use="optional">
+                                                        <xsd:annotation>
+                                                            <xsd:documentation>
+                                                                The pattern used to extract sub-version
+                                                                numbers. This enables
+                                                                searching by major/feature version
+                                                                numbers. If not specified, the
+                                                                version string extracted
+                                                                will be used as-is.
+                                                            </xsd:documentation>
+                                                        </xsd:annotation>
+                                                    </xsd:attribute>
+                                                </xsd:complexType>
+                                            </xsd:element>
+                                        </xsd:sequence>
+                                        <xsd:attribute name="prefix" type="xsd:string" use="optional">
+                                            <xsd:annotation>
+                                                <xsd:documentation>
+                                                    If not specified, the overall 'id' will be used as
+                                                    the configuration
+                                                    file name
+                                                </xsd:documentation>
+                                            </xsd:annotation>
+                                        </xsd:attribute>
+                                        <xsd:attribute name="extension" type="xsd:string" default="xml"
+                                            use="optional">
+                                        </xsd:attribute>
+                                    </xsd:complexType>
+                                </xsd:element>
+                                <xsd:element name="location" maxOccurs="1" minOccurs="0">
+                                    <xsd:complexType>
+                                        <xsd:sequence>
+                                            <xsd:element name="environment-variable" type="xsd:string"
+                                                maxOccurs="unbounded" minOccurs="0">
+                                            </xsd:element>
+                                            <xsd:element name="system-property" type="xsd:string" maxOccurs="unbounded"
+                                                minOccurs="0">
+                                            </xsd:element>
+                                            <xsd:element name="home" maxOccurs="unbounded" minOccurs="0">
+                                                <xsd:complexType>
+                                                    <xsd:attribute name="path" type="xsd:string" use="optional">
+                                                        <xsd:annotation>
+                                                            <xsd:documentation>
+                                                                Sub-path under the home directory to search for the
+                                                                configuration. By default the folder ".config/[id]" will
+                                                                be used.
+                                                            </xsd:documentation>
+                                                        </xsd:annotation>
+                                                    </xsd:attribute>
+                                                </xsd:complexType>
+                                            </xsd:element>
+                                            <xsd:element name="platform" maxOccurs="1" minOccurs="0">
+                                                <xsd:simpleType>
+                                                    <xsd:restriction base="xsd:string">
+                                                        <xsd:enumeration value="Tomcat"></xsd:enumeration>
+                                                        <xsd:enumeration value="Glassfish"></xsd:enumeration>
+                                                        <xsd:enumeration value="JBoss"></xsd:enumeration>
+                                                        <xsd:enumeration value="Weblogic"></xsd:enumeration>
+                                                    </xsd:restriction>
+                                                </xsd:simpleType>
+                                            </xsd:element>
+                                            <xsd:element name="path" maxOccurs="unbounded" minOccurs="0">
+                                                <xsd:complexType>
+                                                    <xsd:attribute name="path" type="xsd:string" use="required">
+                                                        <xsd:annotation>
+                                                            <xsd:documentation>
+                                                                Path to search for the configuration.
+                                                            </xsd:documentation>
+                                                        </xsd:annotation>
+                                                    </xsd:attribute>
+                                                </xsd:complexType>
+                                            </xsd:element>
+                                        </xsd:sequence>
+                                    </xsd:complexType>
+                                </xsd:element>
+                            </xsd:sequence>
+                        </xsd:complexType>
+                    </xsd:element>
+                </xsd:choice>
+                <xsd:element name="property-placeholder" minOccurs="0" maxOccurs="1">
+                    <xsd:complexType>
+                        <xsd:attribute name="prefix" type="xsd:string" use="optional" />
+                        <xsd:attribute name="suffix" type="xsd:string" use="optional" />
+                    </xsd:complexType>
+                </xsd:element>
+                <xsd:element name="annotation-config" type="stil:annotation-configType" minOccurs="0" maxOccurs="1" />
+                <xsd:element name="defaults" maxOccurs="1" minOccurs="0">
+                    <xsd:complexType>
+                        <xsd:attribute name="path" type="xsd:string" use="required"></xsd:attribute>
+                        <xsd:attribute name="encoding" type="xsd:string" use="optional"></xsd:attribute>
+                    </xsd:complexType>
+                </xsd:element>
+                <xsd:element name="handlers" maxOccurs="1" minOccurs="0">
+                    <xsd:complexType>
+                        <xsd:attribute name="event-ref" type="xsd:string" use="optional" />
+                        <xsd:attribute name="rejected-ref" type="xsd:string" use="optional" />
+                    </xsd:complexType>
+                </xsd:element>
+                <xsd:element name="jaxb" maxOccurs="1" minOccurs="0">
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element name="schema" type="xsd:anyURI" maxOccurs="unbounded" minOccurs="0"></xsd:element>
+                        </xsd:sequence>
+                        <xsd:attribute name="context-path" type="xsd:string" use="required"></xsd:attribute>
+                    </xsd:complexType>
+                </xsd:element>
+                <xsd:element name="namespace" minOccurs="0" maxOccurs="unbounded" type="stil:namespaceType" />
+            </xsd:sequence>
+            <xsd:attribute name="id" type="xsd:string" use="required">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        The identifier for this configuration source, enabling it to be referenced by other beans in the
+                        spring configuration.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute name="name" type="xsd:string" use="optional">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        A name for the application configuration that will be used as a default for various prefixes. If
+                        not set, the value of the 'id' attribute will be used instead.
+
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute name="path" type="xsd:string" use="optional">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        Path to the resource from which to load the configuration. If not specified, then a search
+                        algorithm will be used to locate the configuration. This search mechanism can be controlled
+                        under the "selector" element.
+
+                        If the "remote" or "selector" element are specified, then this attribute will be ignored.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute name="reload-interval">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        The interval (in milliseconds) to check for updates to the configuration. The mimimum value is
+                        500 ms. If no value is set, then the configuration will be static.
+                    </xsd:documentation>
+                </xsd:annotation>
+                <xsd:simpleType>
+                    <xsd:restriction base="xsd:int">
+                        <xsd:minInclusive value="500"></xsd:minInclusive>
+                    </xsd:restriction>
+                </xsd:simpleType>
+            </xsd:attribute>
+            <xsd:attribute name="engine" use="required">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        The type of configuration subsystem being used. Possible values currently include 'xmlbeans', or
+                        'props'
+                    </xsd:documentation>
+                </xsd:annotation>
+                <xsd:simpleType>
+                    <xsd:restriction base="xsd:string">
+                        <xsd:enumeration value="xmlbeans"></xsd:enumeration>
+                        <xsd:enumeration value="dom"></xsd:enumeration>
+                        <xsd:enumeration value="props"></xsd:enumeration>
+                        <xsd:enumeration value="jaxb"></xsd:enumeration>
+                    </xsd:restriction>
+                </xsd:simpleType>
+            </xsd:attribute>
+            <xsd:attribute name="scheduler-ref" type="xsd:string" use="optional">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        For when reloading is enabled (via reload-interval) this attribute allows a scheduler to be set
+                        to provide the periodic reloading. If not specified then a new scheduler will be created.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute name="snapshot-required" type="xsd:boolean" use="optional" default="false">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        Setting to true will require that the application find an external configuration
+                        snapshot to load from. For situations where loading exclusively from defaults is 
+                        not possible. For instance, if the system requires a database to be configured, then
+                        a custom file containing that part must be specified.
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+        </xsd:complexType>
+    </xsd:element>
+    
+    <xsd:element name="property-placeholder">
+        <xsd:complexType>
+            <xsd:attribute name="service-ref" type="xsd:string" use="required" />
+            <xsd:attribute name="prefix" type="xsd:string" use="required" />
+            <xsd:attribute name="suffix" type="xsd:string" use="required" />
+        </xsd:complexType>
+    </xsd:element>
+    
+    <xsd:element name="annotation-config">
+        <xsd:complexType>
+            <xsd:complexContent>
+                <xsd:extension base="stil:annotation-configType">
+                    <xsd:attribute name="service-ref" type="xsd:string" use="required" />
+                </xsd:extension>
+            </xsd:complexContent>
+        </xsd:complexType>
+    </xsd:element>
+    
+    <xsd:element name="namespace">
+        <xsd:complexType>
+            <xsd:complexContent>
+                <xsd:extension base="stil:namespaceType">
+                    <xsd:attribute name="service-ref" type="xsd:string" use="required" />
+                </xsd:extension>
+            </xsd:complexContent>
+        </xsd:complexType>
+    </xsd:element>
+    
+    <xsd:complexType name="annotation-configType">
+        <xsd:attribute name="marker" type="xsd:string" use="optional" />
+    </xsd:complexType>
+    
+    <xsd:complexType name="namespaceType">
+        <xsd:attribute name="prefix" type="xsd:string" use="required" />
+        <xsd:attribute name="uri" type="xsd:string" use="required" />
+    </xsd:complexType>
+    
+</xsd:schema>
