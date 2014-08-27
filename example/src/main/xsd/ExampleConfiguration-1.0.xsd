@@ -4,7 +4,7 @@
     xmlns:stx="http://brekka.org/xml/stillingar/external"
     elementFormDefault="qualified" attributeFormDefault="unqualified">
 
-    <xsd:import namespace="http://brekka.org/xml/stillingar/external" />
+    <xsd:import namespace="http://brekka.org/xml/stillingar/external" schemaLocation="ExternalConfiguration.xsd" />
 
     <xsd:element name="Configuration">
         <xsd:complexType>

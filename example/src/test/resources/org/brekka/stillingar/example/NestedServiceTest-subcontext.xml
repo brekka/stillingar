@@ -6,7 +6,7 @@
     xmlns:stil="http://brekka.org/schema/stillingar/v1"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
-        http://brekka.org/schema/stillingar/v1 http://brekka.org/schema/stillingar/brekka-stillingar-1.0.xsd">
+        http://brekka.org/schema/stillingar/v1 http://brekka.org/schema/stillingar/brekka-stillingar-1.1.xsd">
 
     <stil:namespace prefix="x" uri="http://brekka.org/xml/stillingar/external" service-ref="stillingar-example" />
     <stil:annotation-config service-ref="stillingar-example"/>
