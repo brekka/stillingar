@@ -48,9 +48,6 @@ public class ResourceDirectory implements BaseDirectory, ApplicationContextAware
      *            The location
      */
     public ResourceDirectory(String location) {
-        if (!location.endsWith("/")) {
-            location += "/";
-        }
         this.location = location;
     }
 
