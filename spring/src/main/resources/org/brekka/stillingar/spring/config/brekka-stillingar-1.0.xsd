@@ -100,17 +100,6 @@
                                                     </xsd:restriction>
                                                 </xsd:simpleType>
                                             </xsd:element>
-                                            <xsd:element name="path" maxOccurs="unbounded" minOccurs="0">
-                                                <xsd:complexType>
-                                                    <xsd:attribute name="path" type="xsd:string" use="required">
-                                                        <xsd:annotation>
-                                                            <xsd:documentation>
-                                                                Path to search for the configuration.
-                                                            </xsd:documentation>
-                                                        </xsd:annotation>
-                                                    </xsd:attribute>
-                                                </xsd:complexType>
-                                            </xsd:element>
                                         </xsd:sequence>
                                     </xsd:complexType>
                                 </xsd:element>
