@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,16 +24,17 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.io.Resource;
 
 /**
- * Load resource from a provided path
+ * Identify a base directory based on a resource lookup via {@link ApplicationContext#getResource(String)}. This supports
+ * the use of Spring property based variable replacement which is more flexible than system properties.
  *
  * @author Ben.Gilbert
  */
-public class PathDirectory implements BaseDirectory, ApplicationContextAware {
+public class ResourceDirectory implements BaseDirectory, ApplicationContextAware {
 
     /**
-     * The path.
+     * The location to resolve.
      */
-    private final String path;
+    private final String location;
     
     /**
      * Application context, if available
@@ -41,23 +42,16 @@ public class PathDirectory implements BaseDirectory, ApplicationContextAware {
     private ApplicationContext applicationContext;
 
     /**
-     * The directory itself
-     */
-    public PathDirectory() {
-        this(null);
-    }
-
-    /**
-     * A path (either relative to the application or an absolute path)
+     * The location which can be anything handled by {@link ApplicationContext#getResource(String)}.
      * 
-     * @param path
-     *            The path
+     * @param location
+     *            The location
      */
-    public PathDirectory(String path) {
-        if (!path.endsWith("/")) {
-            path += "/";
+    public ResourceDirectory(String location) {
+        if (!location.endsWith("/")) {
+            location += "/";
         }
-        this.path = path;
+        this.location = location;
     }
 
     /*
@@ -67,9 +61,9 @@ public class PathDirectory implements BaseDirectory, ApplicationContextAware {
      */
     @Override
     public Resource getDirResource() {
-        Resource resource = applicationContext.getResource(path);
+        Resource resource = applicationContext.getResource(location);
         if (!resource.exists()) {
-            resource = new UnresolvableResource("Path '%s' not found", path);
+            resource = new UnresolvableResource("Resource location '%s' not found", location);
         }
         return resource;
     }
@@ -81,16 +75,16 @@ public class PathDirectory implements BaseDirectory, ApplicationContextAware {
      */
     @Override
     public String getDisposition() {
-        return "Path directory";
+        return "Resource based directory";
     }
 
     /**
-     * Retrieve the sub-path within the WEB-INF directory.
+     * The location from which to resolve the base directory.
      * 
-     * @return the path
+     * @return the location
      */
-    public String getPath() {
-        return path;
+    public String getLocation() {
+        return location;
     }
 
     /* (non-Javadoc)
@@ -100,6 +94,4 @@ public class PathDirectory implements BaseDirectory, ApplicationContextAware {
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
     }
-    
-    
 }

@@ -42,7 +42,7 @@ import org.brekka.stillingar.spring.resource.ScanningResourceSelector;
 import org.brekka.stillingar.spring.resource.VersionedResourceNameResolver;
 import org.brekka.stillingar.spring.resource.dir.EnvironmentVariableDirectory;
 import org.brekka.stillingar.spring.resource.dir.HomeDirectory;
-import org.brekka.stillingar.spring.resource.dir.PathDirectory;
+import org.brekka.stillingar.spring.resource.dir.ResourceDirectory;
 import org.brekka.stillingar.spring.resource.dir.PlatformDirectory;
 import org.brekka.stillingar.spring.resource.dir.SystemPropertyDirectory;
 import org.brekka.stillingar.spring.resource.dir.WebappDirectory;
@@ -205,6 +205,7 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
     
     /**
      * @param element
+     * @param parserContext
      * @param builder
      */
     protected void prepareXmlBeans(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
@@ -217,6 +218,7 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
     
     /**
      * @param element
+     * @param parserContext
      * @param builder
      */
     protected void prepareDOM(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
@@ -478,8 +480,8 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
                     list.add(preparePlatformLocation(location.getTextContent()));
                 } else if ("webapp".equals(tag)) {
                     list.add(prepareWebappLocation(element, location.getAttribute("path")));
-                } else if ("path".equals(tag)) {
-                    list.add(preparePathLocation(element, location.getAttribute("path")));
+                } else if ("resource".equals(tag)) {
+                    list.add(prepareResourceLocation(element, location.getAttribute("location")));
                 } else {
                     throw new IllegalArgumentException(String.format("Unknown location type '%s'", tag));
                 }
@@ -521,8 +523,8 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
     }
     
     /**
-     * @param attribute
-     * @param class1
+     * @param element
+     * @param path
      * @return
      */
     protected AbstractBeanDefinition prepareWebappLocation(Element element, String path) {
@@ -532,19 +534,19 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
     }
     
     /**
-     * @param attribute
-     * @param class1
+     * @param element
+     * @param location
      * @return
      */
-    protected AbstractBeanDefinition preparePathLocation(Element element, String path) {
-        BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(PathDirectory.class);
-        builder.addConstructorArgValue(path);
+    protected AbstractBeanDefinition prepareResourceLocation(Element element, String location) {
+        BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(ResourceDirectory.class);
+        builder.addConstructorArgValue(location);
         return builder.getBeanDefinition();
     }
 
     /**
-     * @param textContent
-     * @param class1
+     * @param value
+     * @param baseDirectoryClass
      * @return
      */
     protected AbstractBeanDefinition prepareLocation(String value, Class<?> baseDirectoryClass) {

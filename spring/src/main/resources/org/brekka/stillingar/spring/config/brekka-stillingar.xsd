@@ -100,12 +100,13 @@
                                                     </xsd:restriction>
                                                 </xsd:simpleType>
                                             </xsd:element>
-                                            <xsd:element name="path" maxOccurs="unbounded" minOccurs="0">
+                                            <xsd:element name="resource" maxOccurs="unbounded" minOccurs="0">
                                                 <xsd:complexType>
-                                                    <xsd:attribute name="path" type="xsd:string" use="required">
+                                                    <xsd:attribute name="location" type="xsd:string" use="required">
                                                         <xsd:annotation>
                                                             <xsd:documentation>
-                                                                Path to search for the configuration.
+                                                                A location that will be resolved using the Spring 
+                                                                application context's own resource resolver mechanism.
                                                             </xsd:documentation>
                                                         </xsd:annotation>
                                                     </xsd:attribute>
