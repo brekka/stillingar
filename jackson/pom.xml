@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.brekka.stillingar</groupId>
+    <artifactId>stillingar</artifactId>
+    <version>1.1.0-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+  <artifactId>stillingar-jackson</artifactId>
+  <packaging>jar</packaging>
+
+  <name>Stillingar - Jackson</name>
+
+  <description>
+    </description>
+
+  <inceptionYear>2014</inceptionYear>
+
+  <url>https://github.com/brekka/stillingar/wiki</url>
+
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <scm>
+    <url>https://github.com/brekka/stillingar.git</url>
+    <connection>https://github.com/brekka/stillingar.git</connection>
+  </scm>
+
+  <developers>
+    <developer>
+      <name>Andrew Taylor</name>
+      <email>andrew@brekka.org</email>
+      <timezone>GMT</timezone>
+    </developer>
+  </developers>
+  
+  <properties>
+    <jackson-version>2.4.2</jackson-version>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.brekka.stillingar</groupId>
+      <artifactId>stillingar-core</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>${jackson-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.datatype</groupId>
+      <artifactId>jackson-datatype-joda</artifactId>
+      <version>${jackson-version}</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>com.jayway.jsonpath</groupId>
+      <artifactId>json-path</artifactId>
+      <version>0.9.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>joda-time</groupId>
+      <artifactId>joda-time</artifactId>
+      <optional>true</optional>
+    </dependency>
+
+    <!-- Test -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>net.iharder</groupId>
+      <artifactId>base64</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+</project>

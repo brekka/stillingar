@@ -21,9 +21,7 @@ import static java.lang.String.format;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.IdentityHashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
@@ -33,6 +31,7 @@ import javax.xml.xpath.XPathConstants;
 import org.brekka.stillingar.api.ValueConfigurationException;
 import org.brekka.stillingar.core.conversion.ConversionManager;
 import org.brekka.stillingar.core.dom.DOMConfigurationSource;
+import org.brekka.stillingar.core.support.BeanReflectionHelper;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -51,6 +50,7 @@ public class JAXBConfigurationSource extends DOMConfigurationSource {
      * JAXB object representation of the XML
      */
     private final Object object;
+    private final BeanReflectionHelper reflectionHelper;
 
     /**
      * @param document
@@ -61,6 +61,7 @@ public class JAXBConfigurationSource extends DOMConfigurationSource {
     public JAXBConfigurationSource(Document document, Object object, NamespaceContext xPathNamespaceContext, ConversionManager conversionManager) {
         super(document, xPathNamespaceContext, conversionManager);
         this.object = object;
+        this.reflectionHelper = new JAXBBeanReflectionHelper(object);
     }
     
 
@@ -71,7 +72,7 @@ public class JAXBConfigurationSource extends DOMConfigurationSource {
      */
     @Override
     public boolean isAvailable(Class<?> valueType) {
-        return find(valueType);
+        return reflectionHelper.isAvailable(valueType);
     }
     
     /* (non-Javadoc)
@@ -157,19 +158,7 @@ public class JAXBConfigurationSource extends DOMConfigurationSource {
      */
     @Override
     public <T> T retrieve(Class<T> valueType) {
-        T retVal;
-        List<T> values = new ArrayList<T>();
-        collect(object, valueType, values);
-        if (values.size() == 0) {
-            retVal = null;
-        } else if (values.size() == 1) {
-            retVal = values.get(0);
-        } else {
-            throw new ValueConfigurationException(format(
-                    "Expected a single value, found %d", values.size()), 
-                    valueType, null);
-        }
-        return retVal;
+        return reflectionHelper.findValueOf(valueType);
     }
 
     /*
@@ -179,21 +168,7 @@ public class JAXBConfigurationSource extends DOMConfigurationSource {
      */
     @Override
     public <T> List<T> retrieveList(Class<T> valueType) {
-        List<T> values = new ArrayList<T>();
-        collect(object, valueType, values);
-        return values;
-    }
-    
-    protected boolean find(Class<?> lookingFor) {
-        Map<Object, Void> seen = new IdentityHashMap<Object, Void>();
-        try {
-            return collect(object, lookingFor, seen, null);
-        } catch (IllegalStateException e) {
-            throw new ValueConfigurationException(format(
-                    "Finding all values of the requested type under fields of the JAXB model class '%s'",
-                    object.getClass().getName()), 
-                    lookingFor, null, e);
-        }
+        return reflectionHelper.findListOf(valueType);
     }
     
     protected boolean isJaxb(Class<?> valueType) {
@@ -216,8 +191,8 @@ public class JAXBConfigurationSource extends DOMConfigurationSource {
                 if (value instanceof List) {
                     List<?> valueList = (List<?>) value;
                     List<Object> changed = new ArrayList<Object>();
-                    for (Object object : valueList) {
-                        changed.add(getConversionManager().convert(object, expectedType));
+                    for (Object obj : valueList) {
+                        changed.add(getConversionManager().convert(obj, expectedType));
                     }
                     value = changed;
                 } else {
@@ -246,7 +221,7 @@ public class JAXBConfigurationSource extends DOMConfigurationSource {
             XmlElement xmlElement = field.getAnnotation(XmlElement.class);
             if (xmlElement != null) {
                 if (node.getLocalName().equals(xmlElement.name())) {
-                    value = extractFieldValue(parentObj, field);
+                    value = BeanReflectionHelper.extractFieldValue(parentObj, field);
                 }
             }
         }
@@ -286,76 +261,5 @@ public class JAXBConfigurationSource extends DOMConfigurationSource {
         
         throw new IllegalStateException(String.format("Failed to find the correct indexed node " +
         		"(DOM had %d children, JAXB had %d candidates)", childNodes.getLength(), list.size()));
-    }
-
-
-    protected static <T> boolean collect(Object current, Class<T> lookingFor, List<T> values) {
-        Map<Object, Void> seen = new IdentityHashMap<Object, Void>();
-        try {
-            return collect(current, lookingFor, seen, values);
-        } catch (IllegalStateException e) {
-            throw new ValueConfigurationException(format(
-                    "Looking for requested value type field on the JAXB model class '%s'",
-                    current.getClass().getName()), 
-                    lookingFor, null, e);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    protected static <T> boolean collect(Object current, Class<T> lookingFor, Map<Object, Void> seen, List<T> values) {
-        if (current == null) {
-            return false;
-        }
-        if (seen.containsKey(current)) {
-            return false;
-        }
-        Class<? extends Object> currentClass = current.getClass();
-        if (currentClass == lookingFor) {
-            if (values != null) {
-                values.add((T) current);
-            }
-            return true;
-        }
-        seen.put(current, null);
-
-        if (currentClass.getAnnotation(XmlType.class) == null) {
-            return false;
-        }
-
-        Field[] declaredFields = current.getClass().getDeclaredFields();
-        boolean found = false;
-        for (Field field : declaredFields) {
-            if (field.getAnnotation(XmlElement.class) == null) {
-                continue;
-            }
-            Object fieldValue = extractFieldValue(current, field);
-            boolean result = collect(fieldValue, lookingFor, seen, values);
-            if (result 
-                    && values == null) {
-                return true;
-            }
-            found |= result;
-        }
-        return found;
-    }
-
-    /**
-     * @param current
-     * @param field
-     * @return
-     */
-    protected static Object extractFieldValue(Object current, Field field) {
-        if (!field.isAccessible()) {
-            field.setAccessible(true);
-        }
-        Object next;
-        try {
-            next = field.get(current);
-        } catch (IllegalAccessException e) {
-            throw new IllegalStateException(format(
-                    "Unable to access the value of field '%s' of object with type '%s'", 
-                    field.getName(), current.getClass().getName()), e);
-        }
-        return next;
     }
 }

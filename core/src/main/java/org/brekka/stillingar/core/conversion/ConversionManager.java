@@ -52,6 +52,11 @@ public class ConversionManager {
     
     @SuppressWarnings("unchecked")
     public <T> T convert(Object value, Class<T> valueType) {
+        if (value == null) {
+            return null;
+        } else if (valueType.isAssignableFrom(value.getClass())) {
+            return valueType.cast(value);
+        }
         if (valueType.isEnum()) {
             Object converterForTarget = getConverterForTarget(Enum.class);
             if (converterForTarget instanceof EnumConverter) {

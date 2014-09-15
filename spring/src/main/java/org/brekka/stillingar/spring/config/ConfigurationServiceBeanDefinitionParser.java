@@ -17,6 +17,7 @@
 package org.brekka.stillingar.spring.config;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -191,6 +192,9 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
             case JAXB:
                 prepareJAXB(element, parserContext, builder);
                 break;
+            case JSON:
+                prepareJson(element, builder);
+                break;
             case PROPS:
                 // No extra handling for properties
                 break;
@@ -261,6 +265,27 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
         // ConversionManager
         builder.addConstructorArgValue(prepareJAXBConversionManager());
     }
+    
+    protected void prepareJson(Element element, BeanDefinitionBuilder builder) {
+        Element jsonElement = selectSingleChildElement(element, "json", false);
+        
+        // Object mapper
+        if (jsonElement.hasAttribute("object-mapper-ref")) {
+            String objectMapperRef = jsonElement.getAttribute("object-mapper-ref");
+            builder.addConstructorArgReference(objectMapperRef);
+        } else {
+            builder.addConstructorArgValue(prepareObjectMapper());
+        }
+
+        // RootNode class
+        String rootNodeClass = jsonElement.getAttribute("root-node-class");
+        builder.addConstructorArgValue(rootNodeClass);
+
+        
+        // ConversionManager
+        builder.addConstructorArgValue(prepareJsonConversionManager());
+    }
+
 
     /**
      * @param element
@@ -677,6 +702,34 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
         builder.addConstructorArgValue(converters);
         return builder.getBeanDefinition();
     }
+
+    /**
+     * @return
+     */
+    protected AbstractBeanDefinition prepareJsonConversionManager() {
+        // TODO for now just reuse the DOM manager.
+        return prepareDOMConversionManager();
+    }
+
+    /**
+     * @return
+     */
+    protected Object prepareObjectMapper() {
+        Object objectMapper;
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        if (ClassUtils.isPresent("com.fasterxml.jackson.databind.ObjectMapper", cl)) {
+            try {
+                objectMapper = ClassUtils.forName("org.brekka.stillingar.jackson.support.ObjectMapperFactory", cl)
+                        .getMethod("getInstance").invoke(null);
+            } catch (Exception e) {
+                throw new IllegalStateException("Failed to instantiate ObjectMapper for JSON support", e);
+            }
+        } else {
+            throw new IllegalStateException("Unable to prepare ObjectMapper for JSON handling. "
+                    + "Please ensure that the Jackson2 libraries are on the classpath.");
+        }
+        return objectMapper;
+    }
     
     protected ManagedList<AbstractBeanDefinition> prepareCoreConverters() {
         List<String> coreConverterShortNames = Arrays.asList("BigDecimalConverter", "BigIntegerConverter",
@@ -833,7 +886,9 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
 
         XMLBEANS("org.brekka.stillingar.xmlbeans.XmlBeansConfigurationSourceLoader", "xml"),
 
-        JAXB("org.brekka.stillingar.jaxb.JAXBConfigurationSourceLoader", "xml")
+        JAXB("org.brekka.stillingar.jaxb.JAXBConfigurationSourceLoader", "xml"),
+        
+        JSON("org.brekka.stillingar.jackson.JacksonConfigurationSourceLoader", "json"),
 
         ;
 

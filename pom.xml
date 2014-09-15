@@ -62,6 +62,7 @@
         <module>xmlbeans</module>
         <module>xmlbeans-xpath</module>
         <module>jaxb</module>
+        <module>jackson</module>
         <module>example</module>
     </modules>
 

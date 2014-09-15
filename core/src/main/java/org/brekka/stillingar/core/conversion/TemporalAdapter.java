@@ -37,13 +37,13 @@ public class TemporalAdapter {
      * Determines whether JodaTime is available, caching the fact
      */
     public TemporalAdapter() {
-        boolean jodaTimeAvailable = false;
+        boolean jodaTimeAvailableLocal = false;
         try {
             Thread.currentThread().getContextClassLoader().loadClass("org.joda.time.format.ISODateTimeFormat");
-            jodaTimeAvailable = true;
+            jodaTimeAvailableLocal = true;
         } catch (ClassNotFoundException e) {
         }
-        this.jodaTimeAvailable = jodaTimeAvailable;
+        this.jodaTimeAvailable = jodaTimeAvailableLocal;
     }
     
     public Calendar toCalendar(Object obj, boolean supportsDate, boolean supportsTime, Class<?> expectedType) {

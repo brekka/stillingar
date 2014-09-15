@@ -146,6 +146,12 @@
                         <xsd:attribute name="context-path" type="xsd:string" use="required"></xsd:attribute>
                     </xsd:complexType>
                 </xsd:element>
+                <xsd:element name="json" maxOccurs="1" minOccurs="0">
+                    <xsd:complexType>
+                        <xsd:attribute name="root-node-class" type="xsd:token" use="required" />
+                        <xsd:attribute name="object-mapper-ref" type="xsd:token" use="optional" />
+                    </xsd:complexType>
+                </xsd:element>
                 <xsd:element name="namespace" minOccurs="0" maxOccurs="unbounded" type="stil:namespaceType" />
             </xsd:sequence>
             <xsd:attribute name="id" type="xsd:string" use="required">
@@ -202,6 +208,7 @@
                         <xsd:enumeration value="dom"></xsd:enumeration>
                         <xsd:enumeration value="props"></xsd:enumeration>
                         <xsd:enumeration value="jaxb"></xsd:enumeration>
+                        <xsd:enumeration value="json"></xsd:enumeration>
                     </xsd:restriction>
                 </xsd:simpleType>
             </xsd:attribute>
