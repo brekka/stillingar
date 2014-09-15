@@ -19,6 +19,7 @@ package org.brekka.stillingar.core.conversion;
 import java.util.Calendar;
 
 import org.joda.time.LocalTime;
+import org.joda.time.chrono.ISOChronology;
 
 
 /**
@@ -62,7 +63,7 @@ public class LocalTimeConverter extends AbstractTypeConverter<LocalTime> {
             value = (LocalTime) obj;
         } else {
             Calendar cal = temporalAdapter.toCalendar(obj, false, true, targetType());
-            value = new LocalTime(cal);
+            value = new LocalTime(cal, ISOChronology.getInstance());
         }
         return value;
     }

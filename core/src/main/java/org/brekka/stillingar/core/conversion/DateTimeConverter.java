@@ -18,7 +18,9 @@ package org.brekka.stillingar.core.conversion;
 
 import java.util.Calendar;
 
+import org.joda.time.Chronology;
 import org.joda.time.DateTime;
+import org.joda.time.chrono.ISOChronology;
 
 
 /**
@@ -63,7 +65,7 @@ public class DateTimeConverter extends AbstractTypeConverter<DateTime> {
             value = (DateTime) obj;
         } else {
             Calendar cal = temporalAdapter.toCalendar(obj, true, true, targetType());
-            value = new DateTime(cal);
+            value = new DateTime(cal, ISOChronology.getInstance());
         }
         return value;
     }
