@@ -39,6 +39,7 @@ import org.brekka.xml.stillingar.example.v1.FeatureFlagType;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
+import org.joda.time.chrono.ISOChronology;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
@@ -106,9 +107,9 @@ public class FieldTypesXmlBeansTest extends AbstractJUnit4SpringContextTests {
         assertEquals(testing.getTime(), t.getTimeAsCalendar());
         
         assertEquals(testing.getPeriod().toString(), t.getPeriod().toString());
-        assertEquals(new DateTime(testing.getDateTime()), t.getDateTime());
-        assertEquals(new LocalDate(testing.getDate()), t.getLocalDate());
-        assertEquals(new LocalTime(testing.getTime()), t.getLocalTime());
+        assertEquals(new DateTime(testing.getDateTime(), ISOChronology.getInstance()), t.getDateTime());
+        assertEquals(new LocalDate(testing.getDate(), ISOChronology.getInstance()), t.getLocalDate());
+        assertEquals(new LocalTime(testing.getTime(), ISOChronology.getInstance()), t.getLocalTime());
         
         assertTrue(Arrays.equals(t.getBinary(), testing.getBinary()));
         assertEquals(UUID.fromString(testing.getUUID()), t.getUuid());
