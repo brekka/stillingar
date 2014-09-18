@@ -159,4 +159,15 @@ public class WatchedResourceMonitor implements ResourceMonitor, DisposableBean {
         watchKey.cancel();
         watchService.close();
     }
+
+    @Override
+    public boolean canMonitor(Resource resource) {
+        try {
+            return resource.getURI().getScheme().startsWith("file");
+        } catch (IOException e) {
+            throw new ConfigurationException(String.format(
+                "Failed to test watcher for ability to monitor resource '%s'", resource.toString()), e);
+        }
+    }
+    
 }

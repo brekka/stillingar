@@ -37,4 +37,10 @@ public interface ResourceMonitor {
      */
     boolean hasChanged();
     
+    /**
+     * Determine whether the resource can be monitored by this instance
+     * @param resource
+     * @return true if the resource can be monitored.
+     */
+    boolean canMonitor(Resource resource);
 }

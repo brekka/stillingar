@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.brekka.stillingar.api.ConfigurationException;
 import org.brekka.stillingar.api.ConfigurationSource;
 import org.brekka.stillingar.api.ConfigurationSourceLoader;
@@ -40,6 +42,11 @@ import org.springframework.core.io.Resource;
  * @author Andrew Taylor
  */
 public class ResourceSnapshotManager implements SnapshotManager {
+    
+    /**
+     * Logger
+     */
+    private static final Log log = LogFactory.getLog(WatchedResourceMonitor.class);
 
 	/**
 	 * Will actually load the configuration sources
@@ -76,8 +83,33 @@ public class ResourceSnapshotManager implements SnapshotManager {
 			ResourceMonitor resourceMonitor) {
 		this.resourceSelector = resourceSelector;
 		this.configurationSourceLoader = configurationSourceLoader;
-		this.resourceMonitor = resourceMonitor;
+		ResourceMonitor selectedMonitor = checkSelectedMonitor(resourceSelector, resourceMonitor);
+		this.resourceMonitor = selectedMonitor;
 	}
+
+
+    /**
+     * @param resourceSelector
+     * @param resourceMonitor
+     * @return
+     * @throws NoSnapshotAvailableException
+     */
+    private ResourceMonitor checkSelectedMonitor(ResourceSelector resourceSelector, ResourceMonitor resourceMonitor) {
+        ResourceMonitor selectedMonitor;
+        try {
+            Resource resource = resourceSelector.getResource();
+            if (resourceMonitor.canMonitor(resource)) {
+                selectedMonitor = resourceMonitor;
+            } else {
+                log.warn(String.format("Requested ResourceMonitor %s is not compatable with Resource %s",resourceMonitor,resource));
+                selectedMonitor = new NoopResourceMonitor();
+            }
+        } catch (NoSnapshotAvailableException e) {
+            log.warn("Could not load resource to check for monitor compatability. Assuming requested resource monitor is correct");
+            selectedMonitor = resourceMonitor;
+        }
+        return selectedMonitor;
+    }
 	
 	
 	/* (non-Javadoc)
