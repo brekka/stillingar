@@ -41,4 +41,9 @@ public class NoopResourceMonitor implements ResourceMonitor {
         return false;
     }
 
+    @Override
+    public boolean canMonitor(Resource resource) {
+        return true;
+    }
+
 }

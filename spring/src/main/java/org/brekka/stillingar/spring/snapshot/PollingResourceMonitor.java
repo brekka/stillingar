@@ -75,4 +75,9 @@ public class PollingResourceMonitor implements ResourceMonitor {
         }
     }
 
+    @Override
+    public boolean canMonitor(Resource resource) {
+        return true;
+    }
+
 }
