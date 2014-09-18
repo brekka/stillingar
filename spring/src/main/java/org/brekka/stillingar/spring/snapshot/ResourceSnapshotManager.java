@@ -46,7 +46,7 @@ public class ResourceSnapshotManager implements SnapshotManager {
     /**
      * Logger
      */
-    private static final Log log = LogFactory.getLog(WatchedResourceMonitor.class);
+    private static final Log log = LogFactory.getLog(ResourceSnapshotManager.class);
 
 	/**
 	 * Will actually load the configuration sources
@@ -89,24 +89,26 @@ public class ResourceSnapshotManager implements SnapshotManager {
 
 
     /**
-     * @param resourceSelector
-     * @param resourceMonitor
+     * @param selector
+     * @param monitor
      * @return
      * @throws NoSnapshotAvailableException
      */
-    private ResourceMonitor checkSelectedMonitor(ResourceSelector resourceSelector, ResourceMonitor resourceMonitor) {
+    protected ResourceMonitor checkSelectedMonitor(ResourceSelector selector, ResourceMonitor monitor) {
         ResourceMonitor selectedMonitor;
         try {
-            Resource resource = resourceSelector.getResource();
-            if (resourceMonitor.canMonitor(resource)) {
-                selectedMonitor = resourceMonitor;
+            Resource resource = selector.getResource();
+            if (monitor.canMonitor(resource)) {
+                selectedMonitor = monitor;
             } else {
-                log.warn(String.format("Requested ResourceMonitor %s is not compatable with Resource %s",resourceMonitor,resource));
+                if (log.isWarnEnabled()) {
+                    log.warn(String.format("Requested ResourceMonitor %s is not compatable with Resource %s", monitor, resource));
+                }
                 selectedMonitor = new NoopResourceMonitor();
             }
         } catch (NoSnapshotAvailableException e) {
             log.warn("Could not load resource to check for monitor compatability. Assuming requested resource monitor is correct");
-            selectedMonitor = resourceMonitor;
+            selectedMonitor = monitor;
         }
         return selectedMonitor;
     }
@@ -117,10 +119,10 @@ public class ResourceSnapshotManager implements SnapshotManager {
 	 */
 	@Override
 	public Snapshot retrieveInitial() throws NoSnapshotAvailableException {
-	    Resource configurationResource = resourceSelector.getResource();
-	    this.configurationResource = configurationResource;
-	    Snapshot snapshot = performLoad(configurationResource);
-	    this.resourceMonitor.initialise(configurationResource);
+	    Resource resource = resourceSelector.getResource();
+	    this.configurationResource = resource;
+	    Snapshot snapshot = performLoad(resource);
+	    this.resourceMonitor.initialise(resource);
 	    return snapshot;
 	}
 
