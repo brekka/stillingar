@@ -23,6 +23,7 @@ import org.brekka.stillingar.example.support.TestSupport;
 import org.brekka.xml.stillingar.example.v1.ConfigurationDocument;
 import org.brekka.xml.stillingar.example.v1.ConfigurationDocument.Configuration;
 import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
@@ -41,7 +42,8 @@ public class PollingReloadTest extends AbstractJUnit4SpringContextTests {
     @Autowired
     private MessageOfTheDay messageOfTheDay;
     
-    static {
+    @BeforeClass
+    public static void setOverrideProperty() {
         // Simulate JDK < 7
         System.setProperty("stillingar.reload-watcher.disabled", "true");
         writeConfig("Reload check");
