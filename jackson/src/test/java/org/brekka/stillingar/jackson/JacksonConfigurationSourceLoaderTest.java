@@ -26,6 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
 
 /**
  * Tests for JacksonConfigurationSourceLoader
@@ -39,6 +40,7 @@ public class JacksonConfigurationSourceLoaderTest {
     @Before
     public void setup() {
         om = new ObjectMapper();
+        om.registerModule(new JodaModule());
     }
 
     @Test(expected=NullPointerException.class)
