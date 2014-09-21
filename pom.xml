@@ -179,7 +179,7 @@
         <base64-version>2.3.8</base64-version>
         <commons-lang-version>2.6</commons-lang-version>
         <commons-io-version>2.4</commons-io-version>
-        <joda-time-version>1.6.2</joda-time-version>
+        <joda-time-version>2.4</joda-time-version>
         <log4j-version>1.2.17</log4j-version>
         <spring-release-version>3.0.7.RELEASE</spring-release-version>
         <xmlbeans-version>2.4.0</xmlbeans-version>

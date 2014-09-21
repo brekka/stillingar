@@ -19,7 +19,11 @@ package org.brekka.stillingar.core.support;
 import static java.lang.String.format;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
@@ -122,9 +126,16 @@ public class BeanReflectionHelper {
         if (current == null) {
             return false;
         }
+        if (current.getClass().isPrimitive() 
+                || current.getClass().isArray()
+                || current.getClass().getPackage().getName().startsWith("java")) {
+            // Ignore primitives or any class in the Java namespace.
+            return false;
+        }
         if (seen.containsKey(current)) {
             return false;
         }
+        
         Class<? extends Object> currentClass = current.getClass();
         if (currentClass == lookingFor) {
             if (values != null) {
@@ -141,10 +152,29 @@ public class BeanReflectionHelper {
         Field[] declaredFields = current.getClass().getDeclaredFields();
         boolean found = false;
         for (Field field : declaredFields) {
+            if (Modifier.isStatic(field.getModifiers())) {
+                continue;
+            }
             if (!acceptField(field)) {
                 continue;
             }
             Object fieldValue = extractFieldValue(current, field);
+            if (fieldValue == null) {
+                continue;
+            }
+            
+            if (Collection.class.isAssignableFrom(field.getType())) {
+                Collection<?> collection = (Collection<?>) fieldValue;
+                for (Object entry : collection) {
+                    collect(entry, lookingFor, seen, values);
+                }
+            } else if (field.getType().isArray() 
+                    && !field.getType().getComponentType().isPrimitive()) {
+                Object[] arr = (Object[]) fieldValue;
+                for (Object entry : arr) {
+                    collect(entry, lookingFor, seen, values);
+                }
+            }
             boolean result = collect(fieldValue, lookingFor, seen, values);
             if (result && values == null) {
                 return true;

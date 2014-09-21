@@ -111,7 +111,7 @@ public class JacksonConfigurationSource implements ConfigurationSource {
             retVal = result;
         }
         retVal = toObject(retVal, valueType);
-        return conversionManager.convert(retVal, valueType);
+        return convert(valueType, retVal, expression);
     }
 
     /* (non-Javadoc)
@@ -141,7 +141,7 @@ public class JacksonConfigurationSource implements ConfigurationSource {
         List<T> results = new ArrayList<T>(vals.size());
         for (Object object : vals) {
             object = toObject(object, valueType);
-            T value = conversionManager.convert(object, valueType);
+            T value = convert(valueType, object, expression);
             if (value != null) {
                 results.add(value);
             }
@@ -167,7 +167,10 @@ public class JacksonConfigurationSource implements ConfigurationSource {
      * @return
      */
     protected Object toObject(Object retVal, Class<?> expectedClass) {
-        if (retVal instanceof Map == false) {
+        if (expectedClass == byte[].class
+                && retVal instanceof String) {
+            // Let Jackson convert the string to a byte array
+        } else if (retVal instanceof Map == false) {
             // Not an object
             return retVal;
         }
@@ -178,5 +181,28 @@ public class JacksonConfigurationSource implements ConfigurationSource {
             throw new ValueConfigurationException(
                     "Failed to convert JSON model into expected type.", expectedClass, null);
         }
+    }
+    
+    @SuppressWarnings("unchecked")
+    protected <T> T convert(Class<T> expectedType, Object object, String expression) {
+        T value;
+        if (object == null) {
+            // Leave as null
+            value = null;
+        } else if (expectedType.isAssignableFrom(object.getClass())) {
+            value = (T) object;
+        } else if (conversionManager.hasConverter(expectedType)) {
+            try {
+                value = conversionManager.convert(object, expectedType);
+            } catch (IllegalArgumentException e) {
+                throw new ValueConfigurationException(format(
+                        "Conversion failure"), expectedType, expression, e);
+            }
+        } else {
+            throw new ValueConfigurationException(format(
+                    "No conversion available from type '%s'", object.getClass()
+                    .getName()), expectedType, expression);
+        }
+        return value;
     }
 }

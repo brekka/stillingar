@@ -14,7 +14,9 @@
   <name>Stillingar - Jackson</name>
 
   <description>
-    </description>
+    Provide support for JSON based configuration using the Jackson2 library for deserialization and json-path for
+    the expression support.
+  </description>
 
   <inceptionYear>2014</inceptionYear>
 
@@ -43,6 +45,7 @@
   
   <properties>
     <jackson-version>2.4.2</jackson-version>
+    <jsonpath-version>0.9.1</jsonpath-version>
   </properties>
 
   <dependencies>
@@ -65,7 +68,7 @@
     <dependency>
       <groupId>com.jayway.jsonpath</groupId>
       <artifactId>json-path</artifactId>
-      <version>0.9.1</version>
+      <version>${jsonpath-version}</version>
     </dependency>
 
     <dependency>

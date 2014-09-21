@@ -23,6 +23,7 @@ package org.brekka.stillingar.core.conversion;
 public class ByteConverter extends AbstractTypeConverter<Byte> {
 
     
+    @Override
     public final Class<Byte> targetType() {
         return Byte.class;
     }
@@ -32,6 +33,7 @@ public class ByteConverter extends AbstractTypeConverter<Byte> {
         return Byte.TYPE;
     }
     
+    @Override
     public Byte convert(Object obj) {
         Byte value;
         if (obj instanceof Byte) {
@@ -39,6 +41,9 @@ public class ByteConverter extends AbstractTypeConverter<Byte> {
         } else if (obj instanceof String) {
             String strValue = (String) obj;
             value = Byte.valueOf(strValue);
+        } else if (obj instanceof Number) {
+            Number numValue = (Number) obj;
+            value = numValue.byteValue();
         } else {
             value = super.convert(obj);
         }

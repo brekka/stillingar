@@ -1,0 +1,48 @@
+{
+  "motd": {
+    "number": 1,
+    "id": "64829ee9-d265-47bb-8fb4-4ab4ada0cdfc",
+    "message": "Test message",
+    "expires": "2012-12-31T12:00:00"
+  },
+  "featureFlag": [
+    { "key": "TURBO", "enabled": true },
+    { "key": "DEBUG", "enabled": false }
+  ],
+  "database": {
+    "dataSource": "jdbc/test"
+  },
+  "companyY": {
+    "warehouseWebService": {
+      "url": "http://example.org/CompanyY",
+      "username": "Username",
+      "password": "Password"
+    }
+  },
+  "services": {
+    "rules": {
+      "transaction": {
+        "maxQuantity": 42,
+        "maxAmount": 50000.73
+      },
+      "fraud": {
+        "enabled": true,
+        "triggerFactor": 0.89,
+        "scale": 169,
+        "length": 85697458963323,
+        "keyword": [
+          "KeywordA",
+          "KeywordB",
+          "KeywordC"
+        ]
+      }
+    }
+  },
+  "security": {
+    "publicKey": "U3RpbGxpbmdhcg==",
+    "factor": 33543,
+    "flag": 126,
+    "timeUnit": "DAYS",
+    "lockDuration": "P5Y2M10D"
+  }
+}

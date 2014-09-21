@@ -31,6 +31,7 @@ import org.brekka.stillingar.core.conversion.TypeConverter;
 import org.brekka.stillingar.core.conversion.TypeConverterListBuilder;
 import org.brekka.stillingar.core.dom.DOMConfigurationSourceLoader;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -70,7 +71,15 @@ public class JacksonConfigurationSourceLoader implements ConfigurationSourceLoad
     @Override
     public ConfigurationSource parse(InputStream sourceStream, Charset encoding) throws ConfigurationException,
             IOException {
-        ObjectNode objectNode = objectMapper.readValue(sourceStream, ObjectNode.class);
+        Objects.requireNonNull(sourceStream, "source stream is null");
+        ObjectNode objectNode;
+        try {
+            // Encoding is ignored, should always be UTF-8
+            objectNode = objectMapper.readValue(sourceStream, ObjectNode.class);
+        } catch (JsonProcessingException e) {
+            throw new ConfigurationException(String.format(
+                    "This does not appear to be a valid JSON document"), e);
+        }
         JacksonConfigurationSource source = new JacksonConfigurationSource(objectNode, rootNodeClass, conversionManager, objectMapper);
         return source;
     }
