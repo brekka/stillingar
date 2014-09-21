@@ -24,10 +24,10 @@
     <scm>
         <url>https://github.com/brekka/stillingar.git</url>
         <connection>https://github.com/brekka/stillingar.git</connection>
-        <developerConnection>scm:git:ssh://git@github.com:brekka/stillingar.git</developerConnection>
+        <developerConnection>scm:git:ssh://git@github.com/brekka/stillingar.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
-
+    
     <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
