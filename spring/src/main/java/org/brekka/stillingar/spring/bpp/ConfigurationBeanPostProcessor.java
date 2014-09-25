@@ -323,6 +323,7 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
                 FieldValueChangeListener<Object> listener = new FieldValueChangeListener<Object>(field, bean, type, list);
                 value = new SingleValueDefinition<Object>(type, annotation.value(), listener);
             }
+            value.setRequired(annotation.required());
             valueList.add(value);
         }
     }
@@ -359,6 +360,7 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
             MethodValueChangeListener<Object> listener = new MethodValueChangeListener<Object>(method, bean, type, list);
             value = new SingleValueDefinition<Object>(type, configured.value(), listener);
         }
+        value.setRequired(configured.required());
         valueList.add(value);
     }
 
@@ -401,6 +403,7 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
                     } else {
                         value = new SingleValueDefinition<Object>(type, paramConfigured.value(), mpl);
                     }
+                    value.setRequired(paramConfigured.required());
                     valueList.add(value);
                     arg = mpl;
                     break;

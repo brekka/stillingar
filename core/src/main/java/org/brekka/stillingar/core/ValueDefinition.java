@@ -42,6 +42,12 @@ public class ValueDefinition<T, Listener extends ValueChangeListener<?>> {
      * The listener that will be called in response to this value being changed.
      */
     private final Listener listener;
+    
+    /**
+     * Determines whether this value definition must configured. Can be set to false to indicate that this value
+     * is optional, ie if no configuration is found, it will not be considered an error.
+     */
+    private boolean required = true;
 
     /**
      * @param type
@@ -99,5 +105,19 @@ public class ValueDefinition<T, Listener extends ValueChangeListener<?>> {
      */
     public Listener getChangeListener() {
         return listener;
+    }
+    
+    /**
+     * @param required the required to set
+     */
+    public void setRequired(boolean required) {
+        this.required = required;
+    }
+    
+    /**
+     * @return the required
+     */
+    public boolean isRequired() {
+        return required;
     }
 }

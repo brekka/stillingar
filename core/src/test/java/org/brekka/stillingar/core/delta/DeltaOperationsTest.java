@@ -69,6 +69,8 @@ public class DeltaOperationsTest {
         ValueChangeListener<String> valueChangeListener = mock(ValueChangeListener.class);
         SingleValueDefinition<String> vd = new SingleValueDefinition<String>(String.class, expression, valueChangeListener);
         
+        when(configurationSource.isAvailable(eq(expression))).thenReturn(Boolean.TRUE);
+        
         when(configurationSource.retrieve(eq(expression), eq(String.class))).thenReturn(value);
         
         ValueChangeAction valueChangeAction = deltaOperations.prepareValueChange(vd, configurationSource);
@@ -88,6 +90,7 @@ public class DeltaOperationsTest {
         ValueChangeListener<String> valueChangeListener = mock(ValueChangeListener.class);
         SingleValueDefinition<String> vd = new SingleValueDefinition<String>(String.class, valueChangeListener);
         
+        when(configurationSource.isAvailable(eq(String.class))).thenReturn(Boolean.TRUE);
         when(configurationSource.retrieve(eq(String.class))).thenReturn(value);
         
         ValueChangeAction valueChangeAction = deltaOperations.prepareValueChange(vd, configurationSource);
@@ -108,6 +111,7 @@ public class DeltaOperationsTest {
         ValueChangeListener<List<String>> valueChangeListener = mock(ValueChangeListener.class);
         ValueListDefinition<String> vd = new ValueListDefinition<String>(String.class, expression, valueChangeListener);
         
+        when(configurationSource.isAvailable(eq(expression))).thenReturn(Boolean.TRUE);
         when(configurationSource.retrieveList(eq(expression), eq(String.class))).thenReturn(valueList);
         
         ValueChangeAction valueChangeAction = deltaOperations.prepareValueChange(vd, configurationSource);
@@ -127,6 +131,7 @@ public class DeltaOperationsTest {
         ValueChangeListener<List<String>> valueChangeListener = mock(ValueChangeListener.class);
         ValueListDefinition<String> vd = new ValueListDefinition<String>(String.class, valueChangeListener);
         
+        when(configurationSource.isAvailable(eq(String.class))).thenReturn(Boolean.TRUE);
         when(configurationSource.retrieveList(eq(String.class))).thenReturn(valueList);
         
         ValueChangeAction valueChangeAction = deltaOperations.prepareValueChange(vd, configurationSource);
@@ -146,6 +151,7 @@ public class DeltaOperationsTest {
         ValueListDefinition<String> vd = new ValueListDefinition<String>(String.class, valueChangeListener);
         
         ConfigurationException error = new ConfigurationException("Error");
+        when(configurationSource.isAvailable(eq(String.class))).thenReturn(Boolean.TRUE);
         when(configurationSource.retrieveList(eq(String.class))).thenThrow(error);
         
         try {
@@ -173,9 +179,13 @@ public class DeltaOperationsTest {
         List<ValueDefinition<?,?>> values = Arrays.<ValueDefinition<?,?>>asList(vdSingleType, vdSingleExpression, vdListType, vdListExpression);
         ValueDefinitionGroup valueDefinitionGroup = new ValueDefinitionGroup("Test", values, groupChangeListener);
         
+        when(configurationSource.isAvailable(eq(expression))).thenReturn(Boolean.TRUE);
         when(configurationSource.retrieve(eq(expression), eq(String.class))).thenReturn(value);
+        when(configurationSource.isAvailable(eq(String.class))).thenReturn(Boolean.TRUE);
         when(configurationSource.retrieve(eq(String.class))).thenReturn(value);
+        when(configurationSource.isAvailable(eq(expression))).thenReturn(Boolean.TRUE);
         when(configurationSource.retrieveList(eq(expression), eq(String.class))).thenReturn(valueList);
+        when(configurationSource.isAvailable(eq(String.class))).thenReturn(Boolean.TRUE);
         when(configurationSource.retrieveList(eq(String.class))).thenReturn(valueList);
         
         GroupChangeAction groupChangeAction = deltaOperations.prepareGroupChange(valueDefinitionGroup, configurationSource);
@@ -210,7 +220,7 @@ public class DeltaOperationsTest {
         GroupChangeListener groupChangeListener = mock(GroupChangeListener.class);
         ValueDefinitionGroup valueDefinitionGroup = new ValueDefinitionGroup("Test", Arrays.<ValueDefinition<?,?>>asList(vdSingleType), groupChangeListener);
         ConfigurationException configurationException = new ConfigurationException("Message");
-        when(configurationSource.retrieve(eq(String.class))).thenThrow(configurationException);
+        when(configurationSource.isAvailable(eq(String.class))).thenThrow(configurationException);
         
         try {
             deltaOperations.prepareGroupChange(valueDefinitionGroup, configurationSource);

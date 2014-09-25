@@ -55,18 +55,32 @@ public class DeltaOperations {
         String expression = valueDefinition.getExpression();
         Class<?> type = valueDefinition.getType();
         Object result;
-        if (valueDefinition instanceof ValueListDefinition) {
-            if (expression != null) {
-                result = configurationSource.retrieveList(expression, type);
-            } else {
-                result = configurationSource.retrieveList(type);
-            }
+        boolean available;
+        if (expression != null) {
+            available = configurationSource.isAvailable(expression);
         } else {
-            if (expression != null) {
-                result = configurationSource.retrieve(expression, type);
+            available = configurationSource.isAvailable(type);
+        }
+        if (available) {
+            if (valueDefinition instanceof ValueListDefinition) {
+                if (expression != null) {
+                    result = configurationSource.retrieveList(expression, type);
+                } else {
+                    result = configurationSource.retrieveList(type);
+                }
             } else {
-                result = configurationSource.retrieve(type);
+                if (expression != null) {
+                    result = configurationSource.retrieve(expression, type);
+                } else {
+                    result = configurationSource.retrieve(type);
+                }
             }
+        } else if (valueDefinition.isRequired()) {
+            throw new ValueConfigurationException("Value is required", type, expression);
+        } else {
+            // Not required, not available, set to null
+            // TODO perhaps set to a special object
+            result = null;
         }
         return new ValueChangeAction(valueDefinition, result);
     }
