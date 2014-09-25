@@ -57,6 +57,7 @@ class BeanReferenceResolver implements ParameterValueResolver {
     /**
      * Perform the lookup of the bean via {@link BeanFactory#getBean(...)}
      */
+    @Override
     public Object getValue() {
         BeanFactory beanFactory = beanFactoryRef.get();
         if (beanFactory == null) {

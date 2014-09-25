@@ -28,6 +28,7 @@ public abstract class AbstractTypeConverter<To> implements TypeConverter<To> {
     /**
      * Default, return null
      */
+    @Override
     public Class<?> primitiveType() {
         return null;
     }

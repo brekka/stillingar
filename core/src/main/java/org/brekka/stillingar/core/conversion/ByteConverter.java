@@ -22,7 +22,6 @@ package org.brekka.stillingar.core.conversion;
  */
 public class ByteConverter extends AbstractTypeConverter<Byte> {
 
-    
     @Override
     public final Class<Byte> targetType() {
         return Byte.class;

@@ -89,6 +89,7 @@ public class DOMConfigurationSourceLoader implements ConfigurationSourceLoader {
     /* (non-Javadoc)
      * @see org.brekka.stillingar.core.ConfigurationSourceLoader#parse(java.io.InputStream, java.nio.charset.Charset)
      */
+    @Override
     public ConfigurationSource parse(InputStream sourceStream, Charset encoding) throws ConfigurationException,
             IOException {
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();

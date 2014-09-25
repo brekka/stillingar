@@ -76,6 +76,7 @@ class BeanPropertyChangeListener extends AbstractExpressionGroupListener impleme
     /**
      * Handle the change by using reflection to change the bean property.
      */
+    @Override
     public void onChange(String newValue) {
         BeanFactory beanFactory = beanFactoryRef.get();
         if (beanFactory == null) {

@@ -43,6 +43,7 @@ public class Log4JConfigurationBean implements InitializingBean, BeanFactoryAwar
     /* (non-Javadoc)
      * @see org.springframework.beans.factory.InitializingBean#afterPropertiesSet()
      */
+    @Override
     public void afterPropertiesSet() throws Exception {
         if (expression == null) {
             throw new IllegalStateException("An expression must be specified");
@@ -54,12 +55,12 @@ public class Log4JConfigurationBean implements InitializingBean, BeanFactoryAwar
             return;
         }
         
-        ConfigurationService source = this.source;
-        if (source == null) {
+        ConfigurationService configSource = this.source;
+        if (configSource == null) {
             // See if there is only one bean available
             
             try {
-                source = beanFactory.getBean(ConfigurationService.class);
+                configSource = beanFactory.getBean(ConfigurationService.class);
             } catch (NoSuchBeanDefinitionException e) {
                 throw new IllegalStateException(format(
                         "Unable to resolve a configuration source for expression '%s'. " +
@@ -76,12 +77,13 @@ public class Log4JConfigurationBean implements InitializingBean, BeanFactoryAwar
             Element.class, 
             expression, 
             new ValueChangeListener<Element>() {
+                @Override
                 public void onChange(Element configuration, Element previous) {
                     org.apache.log4j.xml.DOMConfigurator.configure(configuration);
                 }
             }
         );
-        source.register(valueDef, true);
+        configSource.register(valueDef, true);
     }
     
     /**
@@ -101,6 +103,7 @@ public class Log4JConfigurationBean implements InitializingBean, BeanFactoryAwar
     /* (non-Javadoc)
      * @see org.springframework.beans.factory.BeanFactoryAware#setBeanFactory(org.springframework.beans.factory.BeanFactory)
      */
+    @Override
     public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
         this.beanFactory = beanFactory;
     }

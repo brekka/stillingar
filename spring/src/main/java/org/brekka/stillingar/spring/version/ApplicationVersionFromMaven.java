@@ -91,6 +91,7 @@ public class ApplicationVersionFromMaven implements ApplicationVersionResolver, 
      * 
      * @return the version or null if it cannot be identified
      */
+    @Override
     public String identifyVersion() {
         String version = null;
         String path = format(POM_CLASSPATH_FORMAT, groupId, artifactId);

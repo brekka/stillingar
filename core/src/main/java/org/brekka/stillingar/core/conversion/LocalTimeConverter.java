@@ -49,6 +49,7 @@ public class LocalTimeConverter extends AbstractTypeConverter<LocalTime> {
     /**
      * Target type
      */
+    @Override
     public final Class<LocalTime> targetType() {
         return LocalTime.class;
     }

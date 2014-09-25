@@ -43,6 +43,7 @@ public class CalendarConverter extends AbstractTypeConverter<Calendar> {
         this.temporalAdapter = temporalAdapter;
     }
 
+    @Override
     public final Class<Calendar> targetType() {
         return Calendar.class;
     }

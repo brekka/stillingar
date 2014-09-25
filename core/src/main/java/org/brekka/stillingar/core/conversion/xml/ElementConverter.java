@@ -24,10 +24,12 @@ import org.w3c.dom.Element;
  */
 public class ElementConverter extends AbstractTypeConverter<Element> {
 
+    @Override
     public final Class<Element> targetType() {
         return Element.class;
     }
 
+    @Override
     public Element convert(Object obj) {
         Element element;
         if (obj instanceof Element) {

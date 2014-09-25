@@ -22,6 +22,7 @@ package org.brekka.stillingar.core.conversion;
  */
 public class LongConverter extends AbstractTypeConverter<Long> {
 
+    @Override
     public final Class<Long> targetType() {
         return Long.class;
     }
@@ -31,6 +32,7 @@ public class LongConverter extends AbstractTypeConverter<Long> {
         return Long.TYPE;
     }
     
+    @Override
     public Long convert(Object obj) {
         Long value;
         if (obj instanceof Long) {

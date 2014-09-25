@@ -49,6 +49,7 @@ class MethodValueChangeListener<T extends Object> extends InvocationChangeListen
     /**
      * Use reflection to invoke the setter with the new value on the target object.
      */
+    @Override
     public void onChange(T newValue, T oldValue, Object target) {
         try {
             method.invoke(target, newValue);

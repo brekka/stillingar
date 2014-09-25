@@ -72,6 +72,7 @@ class PropertyDefChangeListener extends AbstractExpressionGroupListener implemen
     /**
      * Update the property with the new value
      */
+    @Override
     public void onChange(String newValue) {
         ConfigurableListableBeanFactory beanFactory = beanFactoryRef.get();
         if (beanFactory == null) {

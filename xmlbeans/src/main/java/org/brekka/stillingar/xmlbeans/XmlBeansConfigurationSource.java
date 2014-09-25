@@ -54,6 +54,7 @@ class XmlBeansConfigurationSource implements ConfigurationSource {
      * 
      * @see org.brekka.stillingar.core.ConfigurationSource#isAvailable(java.lang.Class)
      */
+    @Override
     public boolean isAvailable(Class<?> type) {
         XmlCursor cursor = bean.newCursor();
         try {
@@ -78,6 +79,7 @@ class XmlBeansConfigurationSource implements ConfigurationSource {
      * 
      * @see org.brekka.stillingar.core.ConfigurationSource#isAvailable(java.lang.String)
      */
+    @Override
     public boolean isAvailable(String expression) {
         return evaluate(expression).length > 0;
     }
@@ -87,6 +89,7 @@ class XmlBeansConfigurationSource implements ConfigurationSource {
      * 
      * @see org.brekka.configuration.xmlbeans.Instance#retrieve(java.lang.Class)
      */
+    @Override
     public <T> T retrieve(Class<T> valueType) {
         T result = null;
         XmlObject[] found = find(valueType, true);
@@ -101,6 +104,7 @@ class XmlBeansConfigurationSource implements ConfigurationSource {
      * 
      * @see org.brekka.configuration.xmlbeans.Instance#retrieve(java.lang.Class, java.lang.String)
      */
+    @Override
     public <T> T retrieve(String expression, Class<T> valueType) {
         T value;
         XmlObject[] found = evaluate(expression);
@@ -123,6 +127,7 @@ class XmlBeansConfigurationSource implements ConfigurationSource {
      * 
      * @see org.brekka.configuration.xmlbeans.Instance#retrieveList(java.lang.Class)
      */
+    @Override
     public <T> List<T> retrieveList(Class<T> valueType) {
         List<T> results = new ArrayList<T>();
         XmlObject[] found = find(valueType, false);
@@ -138,6 +143,7 @@ class XmlBeansConfigurationSource implements ConfigurationSource {
      * 
      * @see org.brekka.configuration.xmlbeans.Instance#retrieveList(java.lang.Class, java.lang.String)
      */
+    @Override
     public <T> List<T> retrieveList(String expression, Class<T> valueType) {
         List<T> results = new ArrayList<T>();
         XmlObject[] found = evaluate(expression);

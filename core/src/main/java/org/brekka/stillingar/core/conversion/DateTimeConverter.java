@@ -18,7 +18,6 @@ package org.brekka.stillingar.core.conversion;
 
 import java.util.Calendar;
 
-import org.joda.time.Chronology;
 import org.joda.time.DateTime;
 import org.joda.time.chrono.ISOChronology;
 
@@ -51,6 +50,7 @@ public class DateTimeConverter extends AbstractTypeConverter<DateTime> {
     /**
      * Target type
      */
+    @Override   
     public final Class<DateTime> targetType() {
         return DateTime.class;
     }

@@ -23,10 +23,12 @@ import java.util.Locale;
  */
 public class LocaleConverter extends AbstractTypeConverter<Locale> {
 
+    @Override
     public final Class<Locale> targetType() {
         return Locale.class;
     }    
     
+    @Override
     public Locale convert(Object obj) {
         Locale value;
         if (obj instanceof Locale) {

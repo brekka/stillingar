@@ -120,6 +120,7 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
      * Checks whether the bean is annotated with {@link Configured} (or other) and determines whether the bean needs to
      * be registered for updates or just configured one-time with the current configuration state.
      */
+    @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
         Class<?> beanClass = bean.getClass();
         if (hasMarkerAnnotation(beanClass)) {
@@ -461,6 +462,7 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
     /**
      * Simply returns the bean parameter.
      */
+    @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
         return bean;
     }
@@ -478,6 +480,7 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
     /**
      * Set the bean factory
      */
+    @Override
     public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
         this.beanFactory = beanFactory;
     }

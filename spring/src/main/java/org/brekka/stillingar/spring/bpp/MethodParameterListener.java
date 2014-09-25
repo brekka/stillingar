@@ -39,6 +39,7 @@ class MethodParameterListener<T> implements ValueChangeListener<T>, ParameterVal
     /**
      * When the value changes
      */
+    @Override
     public void onChange(T newValue, T oldValue) {
         this.value = new WeakReference<T>(newValue);
     }
@@ -54,6 +55,7 @@ class MethodParameterListener<T> implements ValueChangeListener<T>, ParameterVal
     /**
      * Retrieve the value
      */
+    @Override
     public T getValue() {
         return value.get();
     }

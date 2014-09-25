@@ -65,6 +65,7 @@ public final class ResourceSnapshot implements Snapshot {
      * 
      * @see org.brekka.stillingar.core.snapshot.Snapshot#getSource()
      */
+    @Override
     public ConfigurationSource getSource() {
         return configurationSource;
     }
@@ -74,6 +75,7 @@ public final class ResourceSnapshot implements Snapshot {
      * 
      * @see org.brekka.stillingar.core.snapshot.Snapshot#getTimestamp()
      */
+    @Override
     public Date getTimestamp() {
         return timestamp;
     }

@@ -22,7 +22,7 @@ package org.brekka.stillingar.core.conversion;
  */
 public class DoubleConverter extends AbstractTypeConverter<Double> {
 
-    
+    @Override
     public final Class<Double> targetType() {
         return Double.class;
     }
@@ -32,6 +32,7 @@ public class DoubleConverter extends AbstractTypeConverter<Double> {
         return Double.TYPE;
     }
     
+    @Override
     public Double convert(Object obj) {
         Double value;
         if (obj instanceof Double) {

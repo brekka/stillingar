@@ -70,6 +70,7 @@ abstract class InvocationChangeListenerSupport<T extends Object> implements Valu
     /**
      * Capture the change event, calling {@link #onChange(Object, Object)} with the target object.
      */
+    @Override
     public final void onChange(T newValue, T oldValue) {
         Object target = targetRef.get();
         if (target == null) {

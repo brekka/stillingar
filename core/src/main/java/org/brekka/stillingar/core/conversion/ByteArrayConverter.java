@@ -36,17 +36,18 @@ public class ByteArrayConverter extends AbstractTypeConverter<byte[]> {
      * Determines whether JodaTime is available, caching the fact
      */
     public ByteArrayConverter() {
-        boolean base64Available = false;
+        boolean iharderAvailable = false;
         try {
             Thread.currentThread().getContextClassLoader().loadClass("net.iharder.Base64");
-            base64Available = true;
+            iharderAvailable = true;
         } catch (ClassNotFoundException e) {
         }
-        this.base64Available = base64Available;
+        this.base64Available = iharderAvailable;
     }
     
     
     @SuppressWarnings("unchecked")
+    @Override
     public final Class<byte[]> targetType() {
         return (Class<byte[]>) EMPTY.getClass();
     }

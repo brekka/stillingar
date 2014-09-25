@@ -109,6 +109,7 @@ public class ConsoleSnapshotEventHandler implements SnapshotEventHandler {
      * org.brekka.stillingar.core.snapshot.SnapshotEventHandler#noInitialSnapshot(org.brekka.stillingar.core.snapshot
      * .NoSnapshotAvailableException, boolean)
      */
+    @Override
     public void noInitialSnapshot(NoSnapshotAvailableException e, boolean defaultsAvailable) {
         if (!enabled) {
             return;
@@ -123,6 +124,7 @@ public class ConsoleSnapshotEventHandler implements SnapshotEventHandler {
      * org.brekka.stillingar.core.snapshot.SnapshotEventHandler#initialConfigure(org.brekka.stillingar.core.snapshot
      * .Snapshot, java.util.List)
      */
+    @Override
     public void initialConfigure(Snapshot snapshot, ChangeConfigurationException e) {
         if (!enabled) {
             return;
@@ -148,6 +150,7 @@ public class ConsoleSnapshotEventHandler implements SnapshotEventHandler {
      * org.brekka.stillingar.core.snapshot.SnapshotEventHandler#refreshConfigure(org.brekka.stillingar.core.snapshot
      * .Snapshot, org.brekka.stillingar.core.RefreshConfigurationException)
      */
+    @Override
     public void refreshConfigure(Snapshot snapshot, ChangeConfigurationException e) {
         if (!enabled) {
             return;
@@ -171,6 +174,7 @@ public class ConsoleSnapshotEventHandler implements SnapshotEventHandler {
      * org.brekka.stillingar.core.snapshot.SnapshotEventHandler#invalidSnapshotUpdate(org.brekka.stillingar.core.snapshot
      * .InvalidSnapshotException)
      */
+    @Override
     public void invalidSnapshotUpdate(InvalidSnapshotException e) {
         if (!enabled) {
             return;

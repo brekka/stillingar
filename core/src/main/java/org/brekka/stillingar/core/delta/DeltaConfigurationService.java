@@ -84,6 +84,7 @@ public class DeltaConfigurationService
     /**
      * Register a value definition
      */
+    @Override
     public synchronized void register(ValueDefinition<?, ?> valueDefinition, boolean fireImmediately) {
         ValueChangeAction valueChangeAction = deltaOperations.prepareValueChange(valueDefinition, this);
         Object newValue = interceptCreatedValue(valueChangeAction.getNewValue());
@@ -97,6 +98,7 @@ public class DeltaConfigurationService
     /**
      * Register a value group definition
      */
+    @Override
     public synchronized void register(ValueDefinitionGroup valueDefinitionGroup, boolean fireImmediately) {
         GroupChangeAction groupUpdateAction = deltaOperations.prepareGroupChange(valueDefinitionGroup, this);
         groupUpdateAction = interceptGroupRefresh(groupUpdateAction, lastValueMap);

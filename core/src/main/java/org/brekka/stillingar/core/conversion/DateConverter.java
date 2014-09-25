@@ -43,6 +43,7 @@ public class DateConverter extends AbstractTypeConverter<Date> {
         this.temporalAdapter = temporalAdapter;
     }
 
+    @Override
     public final Class<Date> targetType() {
         return Date.class;
     }

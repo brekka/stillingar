@@ -28,11 +28,12 @@ import java.net.URL;
  */
 public class URIConverter extends AbstractTypeConverter<URI> {
 
-    
+    @Override
     public final Class<URI> targetType() {
         return URI.class;
     }
     
+    @Override
     public URI convert(Object obj) {
         URI value;
         if (obj instanceof URI) {

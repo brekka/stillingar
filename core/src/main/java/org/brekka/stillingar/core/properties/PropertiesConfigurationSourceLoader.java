@@ -70,6 +70,7 @@ public class PropertiesConfigurationSourceLoader implements ConfigurationSourceL
     /* (non-Javadoc)
      * @see org.brekka.stillingar.core.ConfigurationSourceLoader#parse(java.io.InputStream, java.nio.charset.Charset)
      */
+    @Override
     public ConfigurationSource parse(InputStream sourceStream, Charset encoding) throws ConfigurationException,
             IOException {
         Properties props = new Properties();

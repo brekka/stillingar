@@ -80,11 +80,11 @@ public class TwoPhasedGroupsUpdater {
      */
     public List<GroupChangeAction> phaseOneUpdate() throws ChangeConfigurationException {
         // Take a copy of the valueGroups. Only update the values that existed at this moment in time.
-        Collection<ValueDefinitionGroup> valueGroups = new ArrayList<ValueDefinitionGroup>(this.valueGroups);
-        List<GroupChangeAction> updateActionList = new ArrayList<GroupChangeAction>(valueGroups.size());
+        Collection<ValueDefinitionGroup> valueDefGroups = new ArrayList<ValueDefinitionGroup>(this.valueGroups);
+        List<GroupChangeAction> updateActionList = new ArrayList<GroupChangeAction>(valueDefGroups.size());
         List<GroupConfigurationException> groupErrors = new ArrayList<GroupConfigurationException>();
 
-        for (ValueDefinitionGroup valueDefinitionGroup : valueGroups) {
+        for (ValueDefinitionGroup valueDefinitionGroup : valueDefGroups) {
             try {
                 GroupChangeAction groupUpdateAction = deltaOperations.prepareGroupChange(valueDefinitionGroup,
                         configurationSource);

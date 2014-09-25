@@ -31,19 +31,21 @@ public class DocumentConverter extends AbstractTypeConverter<Document> {
         this.factory = factory;
     }
     
+    @Override
     public final Class<Document> targetType() {
         return Document.class;
     }
     
+    @Override
     public Document convert(Object obj) {
         Element element = elementConverter.convert(obj);
         Document value = elementToDocument(element, factory);
         return value;
     }
 
-    protected Document elementToDocument(Element element, TransformerFactory factory) {
+    protected Document elementToDocument(Element element, TransformerFactory transformerFactory) {
         try {
-            Transformer transformer = factory.newTransformer();
+            Transformer transformer = transformerFactory.newTransformer();
             DOMSource source = new DOMSource(element);
             DOMResult result = new DOMResult();
             transformer.transform(source, result);

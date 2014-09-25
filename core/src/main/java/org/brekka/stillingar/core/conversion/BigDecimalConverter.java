@@ -23,12 +23,12 @@ import java.math.BigDecimal;
  */
 public class BigDecimalConverter extends AbstractTypeConverter<BigDecimal> {
 
-    
+    @Override
     public final Class<BigDecimal> targetType() {
         return BigDecimal.class;
     }
     
-    
+    @Override
     public BigDecimal convert(Object obj) {
         BigDecimal value;
         if (obj instanceof BigDecimal) {

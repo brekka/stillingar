@@ -55,9 +55,8 @@ public final class SingleValueDefinition<T> extends ValueDefinition<T, ValueChan
     /* (non-Javadoc)
      * @see org.brekka.stillingar.core.ValueDefinition#getListener()
      */
-    @SuppressWarnings("unchecked")
     @Override
     public ValueChangeListener<T> getChangeListener() {
-        return (ValueChangeListener<T>) super.getChangeListener();
+        return super.getChangeListener();
     }
 }

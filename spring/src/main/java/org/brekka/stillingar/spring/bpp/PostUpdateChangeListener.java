@@ -67,6 +67,7 @@ class PostUpdateChangeListener implements GroupChangeListener, PrototypeGroupCha
     /**
      * Delegates to {@link #onChange(ConfigurationSource, Object)} along with <code>target</code>
      */
+    @Override
     public final void onChange(ConfigurationSource configurationSource) {
         Object target = targetRef.get();
         if (target == null) {
@@ -81,6 +82,7 @@ class PostUpdateChangeListener implements GroupChangeListener, PrototypeGroupCha
      * @param target
      *            the target object on which the specified method will be invoked.
      */
+    @Override
     public void onChange(ConfigurationSource configurationSource, Object target) {
         Object[] args = new Object[parameterValues.size()];
         for (int i = 0; i < parameterValues.size(); i++) {
@@ -117,10 +119,12 @@ class PostUpdateChangeListener implements GroupChangeListener, PrototypeGroupCha
      *            the values being passed to the method.
      * @param cause
      *            the underlying cause of the problem.
+     * @param invokedMethod 
+     *            the method that was invoked           
      */
-    protected void throwError(Object[] args, Throwable cause, Method method) {
+    protected void throwError(Object[] args, Throwable cause, Method invokedMethod) {
         throw new ConfigurationException(format("Listener method '%s' of type '%s' with arguments %s",
-                method.getName(), method.getDeclaringClass().getName(), Arrays.toString(args)), cause);
+                invokedMethod.getName(), invokedMethod.getDeclaringClass().getName(), Arrays.toString(args)), cause);
     }
 
     /**

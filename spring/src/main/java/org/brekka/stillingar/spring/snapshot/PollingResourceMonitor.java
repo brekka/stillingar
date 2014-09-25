@@ -42,8 +42,8 @@ public class PollingResourceMonitor implements ResourceMonitor {
      * @see org.brekka.stillingar.spring.snapshot.ResourceMonitor#initialize(org.springframework.core.io.Resource)
      */
     @Override
-    public void initialise(Resource resource) {
-        this.resource = resource;
+    public void initialise(Resource res) {
+        this.resource = res;
         this.previousPoolLastModfied = lastModified();
     }
 
@@ -76,8 +76,7 @@ public class PollingResourceMonitor implements ResourceMonitor {
     }
 
     @Override
-    public boolean canMonitor(Resource resource) {
+    public boolean canMonitor(Resource res) {
         return true;
     }
-
 }

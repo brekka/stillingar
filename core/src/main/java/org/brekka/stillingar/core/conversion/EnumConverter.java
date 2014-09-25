@@ -44,10 +44,12 @@ public class EnumConverter extends AbstractTypeConverter<Enum<?>> {
         this.targetType = targetType;
     }
 
+    @Override
     public final Class<Enum<?>> targetType() {
         return targetType;
     }
     
+    @Override
     public Enum<?> convert(Object obj) {
         return convert(obj, targetType);
     }

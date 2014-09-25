@@ -71,6 +71,7 @@ public class PropertiesConfigurationSource implements ConfigurationSource {
     /**
      * Does the specified properties contain this key?
      */
+    @Override
     public boolean isAvailable(String key) {
         return properties.containsKey(key);
     }
@@ -78,6 +79,7 @@ public class PropertiesConfigurationSource implements ConfigurationSource {
     /* (non-Javadoc)
      * @see org.brekka.stillingar.core.ConfigurationSource#isAvailable(java.lang.Class)
      */
+    @Override
     public boolean isAvailable(Class<?> valueType) {
         throw new ValueConfigurationException(
                 "A Properties configuration source does not support lookup by type.", null, null);
@@ -86,6 +88,7 @@ public class PropertiesConfigurationSource implements ConfigurationSource {
     /**
      * NOT supported. Always throws {@link ConfigurationException}.
      */
+    @Override
     public <T> T retrieve(Class<T> valueType) {
         throw new ValueConfigurationException(
                 "A property key must be specified when using Properties", null, null);
@@ -100,6 +103,7 @@ public class PropertiesConfigurationSource implements ConfigurationSource {
      * @param valueType
      *            can be any type supported by the {@link PropertyEditorManager}.
      */
+    @Override
     public <T> T retrieve(String key, Class<T> valueType) {
         String value = properties.getProperty(key);
         return resolve(valueType, value, key);
@@ -108,6 +112,7 @@ public class PropertiesConfigurationSource implements ConfigurationSource {
     /**
      * NOT supported. Always throws {@link ConfigurationException}.
      */
+    @Override
     public <T> List<T> retrieveList(Class<T> valueType) {
         throw new ValueConfigurationException(
                 "A property key must be specified when using Properties", null, null);
@@ -122,6 +127,7 @@ public class PropertiesConfigurationSource implements ConfigurationSource {
      * @param valueType
      *            can be any type supported by the {@link PropertyEditorManager}.
      */
+    @Override
     public <T> List<T> retrieveList(String expression, Class<T> valueType) {
         List<T> valueList = new ArrayList<T>();
         String value = properties.getProperty(expression);

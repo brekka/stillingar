@@ -56,6 +56,7 @@ public class DelegatingConfigurationSource<CS extends ConfigurationSource> imple
      * @return
      * @see org.brekka.stillingar.api.ConfigurationSource#isAvailable(java.lang.String)
      */
+    @Override
     public boolean isAvailable(String expression) {
         return delegate.isAvailable(expression);
     }
@@ -65,6 +66,7 @@ public class DelegatingConfigurationSource<CS extends ConfigurationSource> imple
      * @return
      * @see org.brekka.stillingar.api.ConfigurationSource#isAvailable(java.lang.Class)
      */
+    @Override
     public boolean isAvailable(Class<?> valueType) {
         return delegate.isAvailable(valueType);
     }
@@ -75,6 +77,7 @@ public class DelegatingConfigurationSource<CS extends ConfigurationSource> imple
      * @return
      * @see org.brekka.stillingar.api.ConfigurationSource#retrieve(java.lang.String, java.lang.Class)
      */
+    @Override
     public <T> T retrieve(String expression, Class<T> valueType) {
         return delegate.retrieve(expression, valueType);
     }
@@ -84,6 +87,7 @@ public class DelegatingConfigurationSource<CS extends ConfigurationSource> imple
      * @return
      * @see org.brekka.stillingar.api.ConfigurationSource#retrieve(java.lang.Class)
      */
+    @Override
     public <T> T retrieve(Class<T> valueType) {
         return delegate.retrieve(valueType);
     }
@@ -94,6 +98,7 @@ public class DelegatingConfigurationSource<CS extends ConfigurationSource> imple
      * @return
      * @see org.brekka.stillingar.api.ConfigurationSource#retrieveList(java.lang.String, java.lang.Class)
      */
+    @Override
     public <T> List<T> retrieveList(String expression, Class<T> valueType) {
         return delegate.retrieveList(expression, valueType);
     }
@@ -103,6 +108,7 @@ public class DelegatingConfigurationSource<CS extends ConfigurationSource> imple
      * @return
      * @see org.brekka.stillingar.api.ConfigurationSource#retrieveList(java.lang.Class)
      */
+    @Override
     public <T> List<T> retrieveList(Class<T> valueType) {
         return delegate.retrieveList(valueType);
     }

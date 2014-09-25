@@ -23,12 +23,12 @@ import java.math.BigInteger;
  */
 public class BigIntegerConverter extends AbstractTypeConverter<BigInteger> {
 
-    
+    @Override
     public final Class<BigInteger> targetType() {
         return BigInteger.class;
     }
     
-    
+    @Override
     public BigInteger convert(Object obj) {
         BigInteger value;
         if (obj instanceof BigInteger) {

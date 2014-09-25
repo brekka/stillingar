@@ -49,6 +49,7 @@ public class LocalDateConverter extends AbstractTypeConverter<LocalDate> {
     /**
      * Target type
      */
+    @Override
     public final Class<LocalDate> targetType() {
         return LocalDate.class;
     }

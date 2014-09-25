@@ -22,7 +22,7 @@ package org.brekka.stillingar.core.conversion;
  */
 public class BooleanConverter extends AbstractTypeConverter<Boolean> {
 
-    
+    @Override
     public final Class<Boolean> targetType() {
         return Boolean.class;
     }
@@ -32,6 +32,7 @@ public class BooleanConverter extends AbstractTypeConverter<Boolean> {
         return Boolean.TYPE;
     }
     
+    @Override
     public Boolean convert(Object obj) {
         Boolean value;
         if (obj instanceof Boolean) {

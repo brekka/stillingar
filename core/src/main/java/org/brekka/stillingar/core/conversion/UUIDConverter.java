@@ -23,10 +23,12 @@ import java.util.UUID;
  */
 public class UUIDConverter extends AbstractTypeConverter<UUID> {
 
+    @Override
     public final Class<UUID> targetType() {
         return UUID.class;
     }    
     
+    @Override
     public UUID convert(Object obj) {
         UUID value;
         if (obj instanceof UUID) {

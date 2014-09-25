@@ -22,7 +22,7 @@ package org.brekka.stillingar.core.conversion;
  */
 public class IntegerConverter extends AbstractTypeConverter<Integer> {
 
-    
+    @Override
     public final Class<Integer> targetType() {
         return Integer.class;
     }
@@ -32,6 +32,7 @@ public class IntegerConverter extends AbstractTypeConverter<Integer> {
         return Integer.TYPE;
     }
     
+    @Override
     public Integer convert(Object obj) {
         Integer value;
         if (obj instanceof Integer) {

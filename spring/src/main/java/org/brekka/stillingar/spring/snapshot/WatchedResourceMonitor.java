@@ -113,18 +113,18 @@ public class WatchedResourceMonitor implements ResourceMonitor, DisposableBean {
         }
         boolean changed = false;
         try {
-            WatchKey watchKey;
+            WatchKey wKey;
             if (timeout > 0) {
-                watchKey = watchService.poll(timeout, TimeUnit.MILLISECONDS);
+                wKey = watchService.poll(timeout, TimeUnit.MILLISECONDS);
             } else {
                 // Indefinite blocking
-                watchKey = watchService.take();
+                wKey = watchService.take();
             }
-            if (watchKey != null) {
-                if (watchKey != this.watchKey) {
+            if (wKey != null) {
+                if (wKey != this.watchKey) {
                     throw new IllegalStateException("WatchKey does not match that registered with the service");
                 }
-                List<WatchEvent<?>> pollEvents = watchKey.pollEvents();
+                List<WatchEvent<?>> pollEvents = wKey.pollEvents();
                 if (log.isDebugEnabled()) {
                     log.debug(String.format("Found %d events", pollEvents.size()));
                 }
@@ -138,7 +138,7 @@ public class WatchedResourceMonitor implements ResourceMonitor, DisposableBean {
                         break;
                     }
                 }
-                watchKey.reset();
+                wKey.reset();
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();

@@ -59,9 +59,8 @@ public class ValueListDefinition<T> extends ValueDefinition<T, ValueChangeListen
     /* (non-Javadoc)
      * @see org.brekka.stillingar.core.ValueDefinition#getListener()
      */
-    @SuppressWarnings("unchecked")
     @Override
     public ValueChangeListener<List<T>> getChangeListener() {
-        return (ValueChangeListener<List<T>>) super.getChangeListener();
+        return super.getChangeListener();
     }
 }

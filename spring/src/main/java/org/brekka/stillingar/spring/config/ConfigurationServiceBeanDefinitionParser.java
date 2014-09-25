@@ -17,7 +17,6 @@
 package org.brekka.stillingar.spring.config;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;

@@ -22,10 +22,12 @@ package org.brekka.stillingar.core.conversion;
  */
 public class StringConverter extends AbstractTypeConverter<String> {
 
+    @Override
     public final Class<String> targetType() {
         return String.class;
     }    
     
+    @Override
     public String convert(Object obj) {
         String value;
         if (obj instanceof String) {

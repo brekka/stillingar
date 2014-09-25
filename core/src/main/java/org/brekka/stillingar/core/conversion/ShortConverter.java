@@ -22,7 +22,7 @@ package org.brekka.stillingar.core.conversion;
  */
 public class ShortConverter extends AbstractTypeConverter<Short> {
 
-    
+    @Override
     public final Class<Short> targetType() {
         return Short.class;
     }
@@ -32,6 +32,7 @@ public class ShortConverter extends AbstractTypeConverter<Short> {
         return Short.TYPE;
     }
     
+    @Override
     public Short convert(Object obj) {
         Short value;
         if (obj instanceof Short) {

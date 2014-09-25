@@ -41,7 +41,7 @@ public class ValueDefinition<T, Listener extends ValueChangeListener<?>> {
     /**
      * The listener that will be called in response to this value being changed.
      */
-    private final ValueChangeListener<?> listener;
+    private final Listener listener;
 
     /**
      * @param type
@@ -53,7 +53,7 @@ public class ValueDefinition<T, Listener extends ValueChangeListener<?>> {
      * @param listener
      *            The listener that will be called in response to this value being changed.
      */
-    ValueDefinition(Class<T> type, String expression, ValueChangeListener<?> listener) {
+    ValueDefinition(Class<T> type, String expression, Listener listener) {
         this.type = type;
         if (expression != null && expression.isEmpty()) {
             expression = null;
@@ -70,7 +70,7 @@ public class ValueDefinition<T, Listener extends ValueChangeListener<?>> {
      * @param listener
      *            The listener that will be called in response to this value being changed.
      */
-    ValueDefinition(Class<T> type, ValueChangeListener<?> listener) {
+    ValueDefinition(Class<T> type, Listener listener) {
         this(type, null, listener);
     }
 
@@ -97,7 +97,7 @@ public class ValueDefinition<T, Listener extends ValueChangeListener<?>> {
      * The listener that will be called in response to this value being changed.
      * @return
      */
-    public ValueChangeListener<?> getChangeListener() {
+    public Listener getChangeListener() {
         return listener;
     }
 }

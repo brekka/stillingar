@@ -28,6 +28,7 @@ public class PeriodConverter extends AbstractTypeConverter<Period> {
     /**
      * Target type
      */
+    @Override
     public final Class<Period> targetType() {
         return Period.class;
     }

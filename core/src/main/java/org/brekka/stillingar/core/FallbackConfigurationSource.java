@@ -33,26 +33,27 @@ public class FallbackConfigurationSource implements ConfigurationSource {
      * Should be returned by {@link #getSecondarySource()} if there is no default available.
      */
     public static final ConfigurationSource NONE = new ConfigurationSource() {
+        @Override
         public <T> List<T> retrieveList(Class<T> valueType) {
             return null;
         }
-
+        @Override
         public <T> List<T> retrieveList(String expression, Class<T> valueType) {
             return null;
         }
-
+        @Override
         public <T> T retrieve(Class<T> valueType) {
             return null;
         }
-
+        @Override
         public <T> T retrieve(String expression, Class<T> valueType) {
             return null;
         }
-
+        @Override
         public boolean isAvailable(Class<?> valueType) {
             return false;
         }
-
+        @Override
         public boolean isAvailable(String expression) {
             return false;
         }
@@ -103,6 +104,7 @@ public class FallbackConfigurationSource implements ConfigurationSource {
      * 
      * @see org.brekka.stillingar.core.ConfigurationSource#isAvailable(java.lang.Class)
      */
+    @Override
     public boolean isAvailable(Class<?> valueType) {
         if (valueType == null) {
             throw new IllegalArgumentException("A value type must be specified");
@@ -115,6 +117,7 @@ public class FallbackConfigurationSource implements ConfigurationSource {
      * 
      * @see org.brekka.stillingar.core.ConfigurationSource#isAvailable(java.lang.String)
      */
+    @Override
     public boolean isAvailable(String expression) {
         if (expression == null) {
             throw new IllegalArgumentException("An expression must be specified");
@@ -127,6 +130,7 @@ public class FallbackConfigurationSource implements ConfigurationSource {
      * 
      * @see org.brekka.stillingar.core.ConfigurationSource#retrieve(java.lang.Class)
      */
+    @Override
     public <T> T retrieve(Class<T> valueType) {
         if (valueType == null) {
             throw new IllegalArgumentException("A value type must be specified");
@@ -146,6 +150,7 @@ public class FallbackConfigurationSource implements ConfigurationSource {
      * 
      * @see org.brekka.stillingar.core.ConfigurationSource#retrieve(java.lang.String, java.lang.Class)
      */
+    @Override
     public <T> T retrieve(String expression, Class<T> valueType) {
         if (expression == null) {
             throw new IllegalArgumentException("An expression must be specified");
@@ -169,6 +174,7 @@ public class FallbackConfigurationSource implements ConfigurationSource {
      * 
      * @see org.brekka.stillingar.core.ConfigurationSource#retrieveList(java.lang.Class)
      */
+    @Override
     public <T> List<T> retrieveList(Class<T> valueType) {
         if (valueType == null) {
             throw new IllegalArgumentException("A value type must be specified");
@@ -188,6 +194,7 @@ public class FallbackConfigurationSource implements ConfigurationSource {
      * 
      * @see org.brekka.stillingar.core.ConfigurationSource#retrieveList(java.lang.String, java.lang.Class)
      */
+    @Override
     public <T> List<T> retrieveList(String expression, Class<T> valueType) {
         if (expression == null) {
             throw new IllegalArgumentException("An expression must be specified");

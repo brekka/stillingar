@@ -46,6 +46,7 @@ public class TemporalAdapter {
         this.jodaTimeAvailable = jodaTimeAvailableLocal;
     }
     
+    
     public Calendar toCalendar(Object obj, boolean supportsDate, boolean supportsTime, Class<?> expectedType) {
         Calendar value;
         if (obj instanceof Calendar) {
@@ -73,6 +74,17 @@ public class TemporalAdapter {
             }
             org.joda.time.DateTime dateTime = dateTimeParser.parseDateTime(dateTimeStr);
             value = dateTime.toCalendar(null);
+            if (!supportsDate) {
+                value.clear(Calendar.YEAR);
+                value.clear(Calendar.MONTH);
+                value.clear(Calendar.DAY_OF_MONTH);
+            }
+            if (!supportsTime) {
+                value.clear(Calendar.HOUR_OF_DAY);
+                value.clear(Calendar.MINUTE);
+                value.clear(Calendar.SECOND);
+                value.clear(Calendar.MILLISECOND);
+            }
         } else {
             throw new IllegalArgumentException(format(
                     "No temporal conversion available for value of type '%s' to '%s'.", 

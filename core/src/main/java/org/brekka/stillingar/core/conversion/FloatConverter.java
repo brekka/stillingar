@@ -22,7 +22,7 @@ package org.brekka.stillingar.core.conversion;
  */
 public class FloatConverter extends AbstractTypeConverter<Float> {
 
-    
+    @Override
     public final Class<Float> targetType() {
         return Float.class;
     }
@@ -32,6 +32,7 @@ public class FloatConverter extends AbstractTypeConverter<Float> {
         return Float.TYPE;
     }
     
+    @Override
     public Float convert(Object obj) {
         Float value;
         if (obj instanceof Float) {

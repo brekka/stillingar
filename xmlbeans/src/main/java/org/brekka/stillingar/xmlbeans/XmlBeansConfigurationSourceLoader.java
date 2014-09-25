@@ -97,9 +97,9 @@ public class XmlBeansConfigurationSourceLoader implements ConfigurationSourceLoa
         }
         this.xpathNamespaces = xpathNamespaces;
         
-        XmlOptions loadXmlOptions = new XmlOptions();
-        loadXmlOptions.setLoadStripComments();
-        this.loadXmlOptions = loadXmlOptions;
+        XmlOptions options = new XmlOptions();
+        options.setLoadStripComments();
+        this.loadXmlOptions = options;
     }
     
     /*
