@@ -16,6 +16,8 @@
 
 package org.brekka.stillingar.core.snapshot;
 
+import java.util.Objects;
+
 import org.brekka.stillingar.api.ConfigurationException;
 import org.brekka.stillingar.api.ConfigurationSource;
 import org.brekka.stillingar.core.ChangeConfigurationException;
@@ -50,6 +52,11 @@ public class SnapshotBasedConfigurationService extends DeltaConfigurationService
 	 * cannot just rely on the defaults to load correctly.
 	 */
 	private final boolean initialSnapshotRequired;
+	
+	/**
+	 * The current snapshot, used for error reporting.
+	 */
+	private Snapshot currentSnapshot;
 
 	
     /**
@@ -96,6 +103,7 @@ public class SnapshotBasedConfigurationService extends DeltaConfigurationService
 	    Snapshot initial = null;
 	    try {
             initial = snapshotManager.retrieveInitial();
+            currentSnapshot = initial;
         } catch (NoSnapshotAvailableException e) {
             boolean defaultsAvailable = getDelegate().getSecondarySource() != FallbackConfigurationSource.NONE;
             snapshotEventHandler.noInitialSnapshot(e, defaultsAvailable);
@@ -145,10 +153,29 @@ public class SnapshotBasedConfigurationService extends DeltaConfigurationService
             try {
                 refresh(updated.getSource());
                 snapshotEventHandler.refreshConfigure(updated, null);
+                this.currentSnapshot = updated;
             } catch (ChangeConfigurationException e) {
                 snapshotManager.reject(updated);
                 snapshotEventHandler.refreshConfigure(updated, e);
             }
         }
+    }
+    
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        if (currentSnapshot != null) {
+            return String.format("%s[primary: in '%s', modified '%TF %<TT']", 
+                    getClass().getSimpleName(), currentSnapshot.getLocation(), currentSnapshot.getTimestamp());
+        }
+        if (getDelegate() != null 
+                && getDelegate().getSecondarySource() != null) {
+            FallbackConfigurationSource delegated = getDelegate();
+            ConfigurationSource defaults = delegated.getSecondarySource();
+            return String.format("%s[fallback: %s]", getClass().getSimpleName(), defaults);
+        }
+        return String.format("%s[unknown]", getClass().getSimpleName());
     }
 }

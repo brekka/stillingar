@@ -204,5 +204,4 @@ public class ResourceSnapshotManager implements SnapshotManager {
             // Ignore
         }
     }
-
 }

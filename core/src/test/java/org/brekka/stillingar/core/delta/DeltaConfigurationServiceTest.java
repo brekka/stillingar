@@ -28,6 +28,7 @@ import org.brekka.stillingar.core.SingleValueDefinition;
 import org.brekka.stillingar.core.ValueChangeListener;
 import org.brekka.stillingar.core.ValueDefinition;
 import org.brekka.stillingar.core.ValueDefinitionGroup;
+import org.brekka.stillingar.core.support.ConfigBean;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,8 +43,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class DeltaConfigurationServiceTest {
     
-    private static final String THE_VALUE = "Test";
-    private static final String CHANGED_VALUE = "Test2";
+    private static final ConfigBean THE_VALUE = new ConfigBean();
+    private static final ConfigBean CHANGED_VALUE = new ConfigBean();
     
     private DeltaConfigurationService configurationSource;
     
@@ -59,29 +60,30 @@ public class DeltaConfigurationServiceTest {
         configurationSource.setDeltaValueInterceptor(deltaValueInterceptor);
         configurationSource.setDeltaOperations(new DeltaOperations());
         configurationSource.refresh(null);
-        when(defaultConfigurationSource.isAvailable(eq(String.class))).thenReturn(Boolean.TRUE);
-        when(defaultConfigurationSource.retrieve(eq(String.class))).thenReturn(THE_VALUE);
+        when(defaultConfigurationSource.isAvailable(eq(ConfigBean.class))).thenReturn(Boolean.TRUE);
+        when(defaultConfigurationSource.retrieve(eq(ConfigBean.class))).thenReturn(THE_VALUE);
     }
     
     /**
      * Test method for {@link org.brekka.stillingar.core.delta.DeltaConfigurationService#register(org.brekka.stillingar.core.ValueDefinition, boolean)}.
      */
     @Test
+    @SuppressWarnings("unchecked")
     public void testRegisterValueDefinitionNoFire() throws Exception {
-        ValueChangeListener<String> valueChangeListener = mock(ValueChangeListener.class);
-        SingleValueDefinition<String> valueDefinition = new SingleValueDefinition<String>(String.class, valueChangeListener);
+        ValueChangeListener<ConfigBean> valueChangeListener = mock(ValueChangeListener.class);
+        SingleValueDefinition<ConfigBean> valueDefinition = new SingleValueDefinition<ConfigBean>(ConfigBean.class, valueChangeListener);
         when(deltaValueInterceptor.created(eq(THE_VALUE))).thenReturn(THE_VALUE);
         configurationSource.register(valueDefinition, false);
         
-        verify(defaultConfigurationSource).isAvailable(eq(String.class));
-        verify(defaultConfigurationSource).retrieve(eq(String.class));
+        verify(defaultConfigurationSource, times(2)).isAvailable(eq(ConfigBean.class));
+        verify(defaultConfigurationSource).retrieve(eq(ConfigBean.class));
         verify(deltaValueInterceptor).created(eq(THE_VALUE));
         
         verifyNoMoreInteractions(defaultConfigurationSource, deltaValueInterceptor, valueChangeListener);
         
         // Trigger a refresh
-        when(defaultConfigurationSource.isAvailable(eq(String.class))).thenReturn(Boolean.TRUE);
-        when(defaultConfigurationSource.retrieve(eq(String.class))).thenReturn(CHANGED_VALUE);
+        when(defaultConfigurationSource.isAvailable(eq(ConfigBean.class))).thenReturn(Boolean.TRUE);
+        when(defaultConfigurationSource.retrieve(eq(ConfigBean.class))).thenReturn(CHANGED_VALUE);
         when(deltaValueInterceptor.created(eq(CHANGED_VALUE))).thenReturn(CHANGED_VALUE);
         
         configurationSource.refresh(defaultConfigurationSource);
@@ -95,22 +97,23 @@ public class DeltaConfigurationServiceTest {
      * Test method for {@link org.brekka.stillingar.core.delta.DeltaConfigurationService#register(org.brekka.stillingar.core.ValueDefinition, boolean)}.
      */
     @Test
+    @SuppressWarnings("unchecked")
     public void testRegisterValueDefinitionWithFire() throws Exception {
-        ValueChangeListener<String> valueChangeListener = mock(ValueChangeListener.class);
-        SingleValueDefinition<String> valueDefinition = new SingleValueDefinition<String>(String.class, valueChangeListener);
+        ValueChangeListener<ConfigBean> valueChangeListener = mock(ValueChangeListener.class);
+        SingleValueDefinition<ConfigBean> valueDefinition = new SingleValueDefinition<ConfigBean>(ConfigBean.class, valueChangeListener);
         when(deltaValueInterceptor.created(eq(THE_VALUE))).thenReturn(THE_VALUE);
         configurationSource.register(valueDefinition, true);
         
-        verify(defaultConfigurationSource).isAvailable(eq(String.class));
-        verify(defaultConfigurationSource).retrieve(eq(String.class));
+        verify(defaultConfigurationSource, times(2)).isAvailable(eq(ConfigBean.class));
+        verify(defaultConfigurationSource).retrieve(eq(ConfigBean.class));
         verify(deltaValueInterceptor).created(eq(THE_VALUE));
-        verify(valueChangeListener).onChange(eq(THE_VALUE), isNull(String.class));
+        verify(valueChangeListener).onChange(eq(THE_VALUE), isNull(ConfigBean.class));
         
         verifyNoMoreInteractions(defaultConfigurationSource, deltaValueInterceptor, valueChangeListener);
         
         // Trigger a refresh
-        when(defaultConfigurationSource.isAvailable(eq(String.class))).thenReturn(Boolean.TRUE);
-        when(defaultConfigurationSource.retrieve(eq(String.class))).thenReturn(CHANGED_VALUE);
+        when(defaultConfigurationSource.isAvailable(eq(ConfigBean.class))).thenReturn(Boolean.TRUE);
+        when(defaultConfigurationSource.retrieve(eq(ConfigBean.class))).thenReturn(CHANGED_VALUE);
         when(deltaValueInterceptor.created(eq(CHANGED_VALUE))).thenReturn(CHANGED_VALUE);
         
         configurationSource.refresh(defaultConfigurationSource);
@@ -124,9 +127,10 @@ public class DeltaConfigurationServiceTest {
      * Test method for {@link org.brekka.stillingar.core.delta.DeltaConfigurationService#register(org.brekka.stillingar.core.ValueDefinitionGroup, boolean)}.
      */
     @Test
+    @SuppressWarnings("unchecked")
     public void testRegisterValueDefinitionGroupNoFire() throws Exception {
-        ValueChangeListener<String> valueChangeListener = mock(ValueChangeListener.class);
-        SingleValueDefinition<String> valueDefinition = new SingleValueDefinition<String>(String.class, valueChangeListener);
+        ValueChangeListener<ConfigBean> valueChangeListener = mock(ValueChangeListener.class);
+        SingleValueDefinition<ConfigBean> valueDefinition = new SingleValueDefinition<ConfigBean>(ConfigBean.class, valueChangeListener);
         
         GroupChangeListener groupChangeListener = mock(GroupChangeListener.class);
         
@@ -137,15 +141,15 @@ public class DeltaConfigurationServiceTest {
         when(deltaValueInterceptor.created(eq(THE_VALUE))).thenReturn(THE_VALUE);
         configurationSource.register(valueDefinitionGroup, false);
         
-        verify(defaultConfigurationSource).isAvailable(eq(String.class));
-        verify(defaultConfigurationSource).retrieve(eq(String.class));
+        verify(defaultConfigurationSource, times(2)).isAvailable(eq(ConfigBean.class));
+        verify(defaultConfigurationSource).retrieve(eq(ConfigBean.class));
         verify(deltaValueInterceptor).created(eq(THE_VALUE));
         
         verifyNoMoreInteractions(defaultConfigurationSource, deltaValueInterceptor, groupChangeListener, valueChangeListener);
         
         // Trigger a refresh
-        when(defaultConfigurationSource.isAvailable(eq(String.class))).thenReturn(Boolean.TRUE);
-        when(defaultConfigurationSource.retrieve(eq(String.class))).thenReturn(CHANGED_VALUE);
+        when(defaultConfigurationSource.isAvailable(eq(ConfigBean.class))).thenReturn(Boolean.TRUE);
+        when(defaultConfigurationSource.retrieve(eq(ConfigBean.class))).thenReturn(CHANGED_VALUE);
         when(deltaValueInterceptor.created(eq(CHANGED_VALUE))).thenReturn(CHANGED_VALUE);
         
         configurationSource.refresh(defaultConfigurationSource);
@@ -160,9 +164,10 @@ public class DeltaConfigurationServiceTest {
      * Test method for {@link org.brekka.stillingar.core.delta.DeltaConfigurationService#register(org.brekka.stillingar.core.ValueDefinitionGroup, boolean)}.
      */
     @Test
+    @SuppressWarnings("unchecked")
     public void testRegisterValueDefinitionGroupWithFire() throws Exception {
-        ValueChangeListener<String> valueChangeListener = mock(ValueChangeListener.class);
-        SingleValueDefinition<String> valueDefinition = new SingleValueDefinition<String>(String.class, valueChangeListener);
+        ValueChangeListener<ConfigBean> valueChangeListener = mock(ValueChangeListener.class);
+        SingleValueDefinition<ConfigBean> valueDefinition = new SingleValueDefinition<ConfigBean>(ConfigBean.class, valueChangeListener);
         
         GroupChangeListener groupChangeListener = mock(GroupChangeListener.class);
         
@@ -174,16 +179,16 @@ public class DeltaConfigurationServiceTest {
         configurationSource.register(valueDefinitionGroup, true);
         
         // Trigger a refresh
-        when(defaultConfigurationSource.isAvailable(eq(String.class))).thenReturn(Boolean.TRUE);
-        when(defaultConfigurationSource.retrieve(eq(String.class))).thenReturn(CHANGED_VALUE);
+        when(defaultConfigurationSource.isAvailable(eq(ConfigBean.class))).thenReturn(Boolean.TRUE);
+        when(defaultConfigurationSource.retrieve(eq(ConfigBean.class))).thenReturn(CHANGED_VALUE);
         when(deltaValueInterceptor.created(eq(CHANGED_VALUE))).thenReturn(CHANGED_VALUE);
         
         configurationSource.refresh(defaultConfigurationSource);
         
-        verify(defaultConfigurationSource, times(2)).isAvailable(eq(String.class));
-        verify(defaultConfigurationSource, times(2)).retrieve(eq(String.class));
+        verify(defaultConfigurationSource, times(4)).isAvailable(eq(ConfigBean.class));
+        verify(defaultConfigurationSource, times(2)).retrieve(eq(ConfigBean.class));
         verify(deltaValueInterceptor).created(eq(THE_VALUE));
-        verify(valueChangeListener).onChange(eq(THE_VALUE), isNull(String.class));
+        verify(valueChangeListener).onChange(eq(THE_VALUE), isNull(ConfigBean.class));
         verify(deltaValueInterceptor).released(eq(THE_VALUE));
         verify(deltaValueInterceptor).created(eq(CHANGED_VALUE));
         verify(valueChangeListener).onChange(eq(CHANGED_VALUE), eq(THE_VALUE));
@@ -196,9 +201,10 @@ public class DeltaConfigurationServiceTest {
      * Test method for {@link org.brekka.stillingar.core.delta.DeltaConfigurationService#unregister(org.brekka.stillingar.core.ValueDefinition)}.
      */
     @Test
+    @SuppressWarnings("unchecked")
     public void testUnregisterValueDefinition() {
-        ValueChangeListener<String> valueChangeListener = mock(ValueChangeListener.class);
-        SingleValueDefinition<String> valueDefinition = new SingleValueDefinition<String>(String.class, valueChangeListener);
+        ValueChangeListener<ConfigBean> valueChangeListener = mock(ValueChangeListener.class);
+        SingleValueDefinition<ConfigBean> valueDefinition = new SingleValueDefinition<ConfigBean>(ConfigBean.class, valueChangeListener);
         when(deltaValueInterceptor.created(eq(THE_VALUE))).thenReturn(THE_VALUE);
         configurationSource.register(valueDefinition, false);
         
@@ -210,9 +216,10 @@ public class DeltaConfigurationServiceTest {
      * Test method for {@link org.brekka.stillingar.core.delta.DeltaConfigurationService#unregister(org.brekka.stillingar.core.ValueDefinitionGroup)}.
      */
     @Test
+    @SuppressWarnings("unchecked")
     public void testUnregisterValueDefinitionGroup() {
-        ValueChangeListener<String> valueChangeListener = mock(ValueChangeListener.class);
-        SingleValueDefinition<String> valueDefinition = new SingleValueDefinition<String>(String.class, valueChangeListener);
+        ValueChangeListener<ConfigBean> valueChangeListener = mock(ValueChangeListener.class);
+        SingleValueDefinition<ConfigBean> valueDefinition = new SingleValueDefinition<ConfigBean>(ConfigBean.class, valueChangeListener);
         
         GroupChangeListener groupChangeListener = mock(GroupChangeListener.class);
         
@@ -223,8 +230,8 @@ public class DeltaConfigurationServiceTest {
         when(deltaValueInterceptor.created(eq(THE_VALUE))).thenReturn(THE_VALUE);
         configurationSource.register(valueDefinitionGroup, false);
         
-        verify(defaultConfigurationSource).isAvailable(eq(String.class));
-        verify(defaultConfigurationSource).retrieve(eq(String.class));
+        verify(defaultConfigurationSource, times(2)).isAvailable(eq(ConfigBean.class));
+        verify(defaultConfigurationSource).retrieve(eq(ConfigBean.class));
         verify(deltaValueInterceptor).created(eq(THE_VALUE));
         
         configurationSource.unregister(valueDefinitionGroup);
@@ -234,14 +241,15 @@ public class DeltaConfigurationServiceTest {
      * Test method for {@link org.brekka.stillingar.core.delta.DeltaConfigurationService#shutdown()}.
      */
     @Test
+    @SuppressWarnings("unchecked")
     public void testShutdown() {
-        ValueChangeListener<String> valueChangeListener = mock(ValueChangeListener.class);
-        SingleValueDefinition<String> valueDefinition = new SingleValueDefinition<String>(String.class, valueChangeListener);
+        ValueChangeListener<ConfigBean> valueChangeListener = mock(ValueChangeListener.class);
+        SingleValueDefinition<ConfigBean> valueDefinition = new SingleValueDefinition<ConfigBean>(ConfigBean.class, valueChangeListener);
         when(deltaValueInterceptor.created(eq(THE_VALUE))).thenReturn(THE_VALUE);
         configurationSource.register(valueDefinition, false);
         
-        verify(defaultConfigurationSource).isAvailable(eq(String.class));
-        verify(defaultConfigurationSource).retrieve(eq(String.class));
+        verify(defaultConfigurationSource, times(2)).isAvailable(eq(ConfigBean.class));
+        verify(defaultConfigurationSource).retrieve(eq(ConfigBean.class));
         verify(deltaValueInterceptor).created(eq(THE_VALUE));
         
         configurationSource.shutdown();

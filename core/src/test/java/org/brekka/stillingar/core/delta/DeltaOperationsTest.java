@@ -35,6 +35,7 @@ import org.brekka.stillingar.core.ValueDefinition;
 import org.brekka.stillingar.core.ValueDefinitionGroup;
 import org.brekka.stillingar.core.ValueListDefinition;
 import org.brekka.stillingar.core.GroupConfigurationException.Phase;
+import org.brekka.stillingar.core.support.ConfigBean;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -62,20 +63,21 @@ public class DeltaOperationsTest {
     /**
      * Test method for {@link org.brekka.stillingar.core.delta.DeltaOperations#prepareValueChange(org.brekka.stillingar.core.ValueDefinition, org.brekka.stillingar.api.ConfigurationSource)}.
      */
+    @SuppressWarnings("unchecked")
     @Test
     public void testPrepareValueChangeSingleExpression() {
-        String value = "Test";
+        ConfigBean value = new ConfigBean();
         String expression = "/c:Test";
-        ValueChangeListener<String> valueChangeListener = mock(ValueChangeListener.class);
-        SingleValueDefinition<String> vd = new SingleValueDefinition<String>(String.class, expression, valueChangeListener);
+        ValueChangeListener<ConfigBean> valueChangeListener = mock(ValueChangeListener.class);
+        SingleValueDefinition<ConfigBean> vd = new SingleValueDefinition<ConfigBean>(ConfigBean.class, expression, valueChangeListener);
         
         when(configurationSource.isAvailable(eq(expression))).thenReturn(Boolean.TRUE);
         
-        when(configurationSource.retrieve(eq(expression), eq(String.class))).thenReturn(value);
+        when(configurationSource.retrieve(eq(expression), eq(ConfigBean.class))).thenReturn(value);
         
         ValueChangeAction valueChangeAction = deltaOperations.prepareValueChange(vd, configurationSource);
         
-        verify(configurationSource).retrieve(eq(expression), eq(String.class));
+        verify(configurationSource).retrieve(eq(expression), eq(ConfigBean.class));
         
         assertEquals(value, valueChangeAction.getNewValue());
         assertSame(vd, valueChangeAction.getValueDefinition());
@@ -84,18 +86,19 @@ public class DeltaOperationsTest {
     /**
      * Test method for {@link org.brekka.stillingar.core.delta.DeltaOperations#prepareValueChange(org.brekka.stillingar.core.ValueDefinition, org.brekka.stillingar.api.ConfigurationSource)}.
      */
+    @SuppressWarnings("unchecked")
     @Test
     public void testPrepareValueChangeSingleType() {
-        String value = "Test";
-        ValueChangeListener<String> valueChangeListener = mock(ValueChangeListener.class);
-        SingleValueDefinition<String> vd = new SingleValueDefinition<String>(String.class, valueChangeListener);
+        ConfigBean value = new ConfigBean();
+        ValueChangeListener<ConfigBean> valueChangeListener = mock(ValueChangeListener.class);
+        SingleValueDefinition<ConfigBean> vd = new SingleValueDefinition<ConfigBean>(ConfigBean.class, valueChangeListener);
         
-        when(configurationSource.isAvailable(eq(String.class))).thenReturn(Boolean.TRUE);
-        when(configurationSource.retrieve(eq(String.class))).thenReturn(value);
+        when(configurationSource.isAvailable(eq(ConfigBean.class))).thenReturn(Boolean.TRUE);
+        when(configurationSource.retrieve(eq(ConfigBean.class))).thenReturn(value);
         
         ValueChangeAction valueChangeAction = deltaOperations.prepareValueChange(vd, configurationSource);
         
-        verify(configurationSource).retrieve(eq(String.class));
+        verify(configurationSource).retrieve(eq(ConfigBean.class));
         
         assertEquals(value, valueChangeAction.getNewValue());
         assertSame(vd, valueChangeAction.getValueDefinition());
@@ -104,19 +107,20 @@ public class DeltaOperationsTest {
     /**
      * Test method for {@link org.brekka.stillingar.core.delta.DeltaOperations#prepareValueChange(org.brekka.stillingar.core.ValueDefinition, org.brekka.stillingar.api.ConfigurationSource)}.
      */
+    @SuppressWarnings("unchecked")
     @Test
     public void testPrepareValueChangeListExpression() {
-        List<String> valueList = Arrays.asList("Test1", "Test2", "Test3");
+        List<ConfigBean> valueList = ConfigBean.listOf(3);
         String expression = "/c:Test";
-        ValueChangeListener<List<String>> valueChangeListener = mock(ValueChangeListener.class);
-        ValueListDefinition<String> vd = new ValueListDefinition<String>(String.class, expression, valueChangeListener);
+        ValueChangeListener<List<ConfigBean>> valueChangeListener = mock(ValueChangeListener.class);
+        ValueListDefinition<ConfigBean> vd = new ValueListDefinition<ConfigBean>(ConfigBean.class, expression, valueChangeListener);
         
         when(configurationSource.isAvailable(eq(expression))).thenReturn(Boolean.TRUE);
-        when(configurationSource.retrieveList(eq(expression), eq(String.class))).thenReturn(valueList);
+        when(configurationSource.retrieveList(eq(expression), eq(ConfigBean.class))).thenReturn(valueList);
         
         ValueChangeAction valueChangeAction = deltaOperations.prepareValueChange(vd, configurationSource);
         
-        verify(configurationSource).retrieveList(eq(expression), eq(String.class));
+        verify(configurationSource).retrieveList(eq(expression), eq(ConfigBean.class));
         
         assertEquals(valueList, valueChangeAction.getNewValue());
         assertSame(vd, valueChangeAction.getValueDefinition());
@@ -125,18 +129,19 @@ public class DeltaOperationsTest {
     /**
      * Test method for {@link org.brekka.stillingar.core.delta.DeltaOperations#prepareValueChange(org.brekka.stillingar.core.ValueDefinition, org.brekka.stillingar.api.ConfigurationSource)}.
      */
+    @SuppressWarnings("unchecked")
     @Test
     public void testPrepareValueChangeListType() {
-        List<String> valueList = Arrays.asList("Test1", "Test2", "Test3");
-        ValueChangeListener<List<String>> valueChangeListener = mock(ValueChangeListener.class);
-        ValueListDefinition<String> vd = new ValueListDefinition<String>(String.class, valueChangeListener);
+        List<ConfigBean> valueList = ConfigBean.listOf(3);
+        ValueChangeListener<List<ConfigBean>> valueChangeListener = mock(ValueChangeListener.class);
+        ValueListDefinition<ConfigBean> vd = new ValueListDefinition<ConfigBean>(ConfigBean.class, valueChangeListener);
         
-        when(configurationSource.isAvailable(eq(String.class))).thenReturn(Boolean.TRUE);
-        when(configurationSource.retrieveList(eq(String.class))).thenReturn(valueList);
+        when(configurationSource.isAvailable(eq(ConfigBean.class))).thenReturn(Boolean.TRUE);
+        when(configurationSource.retrieveList(eq(ConfigBean.class))).thenReturn(valueList);
         
         ValueChangeAction valueChangeAction = deltaOperations.prepareValueChange(vd, configurationSource);
         
-        verify(configurationSource).retrieveList(eq(String.class));
+        verify(configurationSource).retrieveList(eq(ConfigBean.class));
         
         assertEquals(valueList, valueChangeAction.getNewValue());
         assertSame(vd, valueChangeAction.getValueDefinition());
@@ -145,14 +150,15 @@ public class DeltaOperationsTest {
     /**
      * Test method for {@link org.brekka.stillingar.core.delta.DeltaOperations#prepareValueChange(org.brekka.stillingar.core.ValueDefinition, org.brekka.stillingar.api.ConfigurationSource)}.
      */
+    @SuppressWarnings("unchecked")
     @Test
     public void testPrepareValueChangeListTypeWithError() {
-        ValueChangeListener<List<String>> valueChangeListener = mock(ValueChangeListener.class);
-        ValueListDefinition<String> vd = new ValueListDefinition<String>(String.class, valueChangeListener);
+        ValueChangeListener<List<ConfigBean>> valueChangeListener = mock(ValueChangeListener.class);
+        ValueListDefinition<ConfigBean> vd = new ValueListDefinition<ConfigBean>(ConfigBean.class, valueChangeListener);
         
         ConfigurationException error = new ConfigurationException("Error");
-        when(configurationSource.isAvailable(eq(String.class))).thenReturn(Boolean.TRUE);
-        when(configurationSource.retrieveList(eq(String.class))).thenThrow(error);
+        when(configurationSource.isAvailable(eq(ConfigBean.class))).thenReturn(Boolean.TRUE);
+        when(configurationSource.retrieveList(eq(ConfigBean.class))).thenThrow(error);
         
         try {
             deltaOperations.prepareValueChange(vd, configurationSource);
@@ -165,35 +171,36 @@ public class DeltaOperationsTest {
     /**
      * Test method for {@link org.brekka.stillingar.core.delta.DeltaOperations#prepareGroupChange(org.brekka.stillingar.core.ValueDefinitionGroup, org.brekka.stillingar.api.ConfigurationSource)}.
      */
+    @SuppressWarnings("unchecked")
     @Test
     public void testPrepareGroupChange() {
-        String value = "Test";
+        ConfigBean value = new ConfigBean();
         String expression = "/c:Test";
-        List<String> valueList = Arrays.asList("Test1", "Test2", "Test3");
+        List<ConfigBean> valueList = ConfigBean.listOf(3);
         
         GroupChangeListener groupChangeListener = mock(GroupChangeListener.class);
-        SingleValueDefinition<?> vdSingleType = new SingleValueDefinition<String>(String.class, mock(ValueChangeListener.class));
-        SingleValueDefinition<?> vdSingleExpression = new SingleValueDefinition<String>(String.class, expression, mock(ValueChangeListener.class));
-        ValueListDefinition<?> vdListType = new ValueListDefinition<String>(String.class, mock(ValueChangeListener.class));
-        ValueListDefinition<?> vdListExpression = new ValueListDefinition<String>(String.class, expression, mock(ValueChangeListener.class));
+        SingleValueDefinition<?> vdSingleType = new SingleValueDefinition<ConfigBean>(ConfigBean.class, mock(ValueChangeListener.class));
+        SingleValueDefinition<?> vdSingleExpression = new SingleValueDefinition<ConfigBean>(ConfigBean.class, expression, mock(ValueChangeListener.class));
+        ValueListDefinition<?> vdListType = new ValueListDefinition<ConfigBean>(ConfigBean.class, mock(ValueChangeListener.class));
+        ValueListDefinition<?> vdListExpression = new ValueListDefinition<ConfigBean>(ConfigBean.class, expression, mock(ValueChangeListener.class));
         List<ValueDefinition<?,?>> values = Arrays.<ValueDefinition<?,?>>asList(vdSingleType, vdSingleExpression, vdListType, vdListExpression);
         ValueDefinitionGroup valueDefinitionGroup = new ValueDefinitionGroup("Test", values, groupChangeListener);
         
         when(configurationSource.isAvailable(eq(expression))).thenReturn(Boolean.TRUE);
-        when(configurationSource.retrieve(eq(expression), eq(String.class))).thenReturn(value);
-        when(configurationSource.isAvailable(eq(String.class))).thenReturn(Boolean.TRUE);
-        when(configurationSource.retrieve(eq(String.class))).thenReturn(value);
+        when(configurationSource.retrieve(eq(expression), eq(ConfigBean.class))).thenReturn(value);
+        when(configurationSource.isAvailable(eq(ConfigBean.class))).thenReturn(Boolean.TRUE);
+        when(configurationSource.retrieve(eq(ConfigBean.class))).thenReturn(value);
         when(configurationSource.isAvailable(eq(expression))).thenReturn(Boolean.TRUE);
-        when(configurationSource.retrieveList(eq(expression), eq(String.class))).thenReturn(valueList);
-        when(configurationSource.isAvailable(eq(String.class))).thenReturn(Boolean.TRUE);
-        when(configurationSource.retrieveList(eq(String.class))).thenReturn(valueList);
+        when(configurationSource.retrieveList(eq(expression), eq(ConfigBean.class))).thenReturn(valueList);
+        when(configurationSource.isAvailable(eq(ConfigBean.class))).thenReturn(Boolean.TRUE);
+        when(configurationSource.retrieveList(eq(ConfigBean.class))).thenReturn(valueList);
         
         GroupChangeAction groupChangeAction = deltaOperations.prepareGroupChange(valueDefinitionGroup, configurationSource);
         
-        verify(configurationSource).retrieve(eq(expression), eq(String.class));
-        verify(configurationSource).retrieve(eq(String.class));
-        verify(configurationSource).retrieveList(eq(expression), eq(String.class));
-        verify(configurationSource).retrieveList(eq(String.class));
+        verify(configurationSource).retrieve(eq(expression), eq(ConfigBean.class));
+        verify(configurationSource).retrieve(eq(ConfigBean.class));
+        verify(configurationSource).retrieveList(eq(expression), eq(ConfigBean.class));
+        verify(configurationSource).retrieveList(eq(ConfigBean.class));
         
         assertSame(valueDefinitionGroup, groupChangeAction.getGroup());
         List<ValueChangeAction> actionList = groupChangeAction.getActionList();
@@ -214,13 +221,14 @@ public class DeltaOperationsTest {
     /**
      * Test method for {@link org.brekka.stillingar.core.delta.DeltaOperations#prepareGroupChange(org.brekka.stillingar.core.ValueDefinitionGroup, org.brekka.stillingar.api.ConfigurationSource)}.
      */
+    @SuppressWarnings("unchecked")
     @Test
     public void testPrepareGroupChangeWithValueError() {
-        ValueDefinition<?,?> vdSingleType = new SingleValueDefinition<String>(String.class, mock(ValueChangeListener.class));
+        ValueDefinition<?,?> vdSingleType = new SingleValueDefinition<ConfigBean>(ConfigBean.class, mock(ValueChangeListener.class));
         GroupChangeListener groupChangeListener = mock(GroupChangeListener.class);
         ValueDefinitionGroup valueDefinitionGroup = new ValueDefinitionGroup("Test", Arrays.<ValueDefinition<?,?>>asList(vdSingleType), groupChangeListener);
         ConfigurationException configurationException = new ConfigurationException("Message");
-        when(configurationSource.isAvailable(eq(String.class))).thenThrow(configurationException);
+        when(configurationSource.isAvailable(eq(ConfigBean.class))).thenThrow(configurationException);
         
         try {
             deltaOperations.prepareGroupChange(valueDefinitionGroup, configurationSource);
@@ -236,49 +244,53 @@ public class DeltaOperationsTest {
     /**
      * Test method for {@link org.brekka.stillingar.core.delta.DeltaOperations#enactValueChange(org.brekka.stillingar.core.delta.ValueChangeAction)}.
      */
+    @SuppressWarnings("unchecked")
     @Test
     public void testEnactValueChange() {
-        String value = "Test";
+        ConfigBean value = new ConfigBean();
         String expression = "/c:Test";
-        ValueChangeListener<String> valueChangeListener = mock(ValueChangeListener.class);
-        ValueDefinition<String,?> vd = new SingleValueDefinition<String>(String.class, expression, valueChangeListener);
+        ValueChangeListener<ConfigBean> valueChangeListener = mock(ValueChangeListener.class);
+        ValueDefinition<ConfigBean,?> vd = new SingleValueDefinition<ConfigBean>(ConfigBean.class, expression, valueChangeListener);
         ValueChangeAction vca = new ValueChangeAction(vd, value);
         
         deltaOperations.enactValueChange(vca);
         
-        verify(valueChangeListener).onChange(eq(value), isNull(String.class));
+        verify(valueChangeListener).onChange(eq(value), isNull(ConfigBean.class));
     }
+    
     /**
      * Test method for {@link org.brekka.stillingar.core.delta.DeltaOperations#enactValueChange(org.brekka.stillingar.core.delta.ValueChangeAction)}.
      */
+    @SuppressWarnings("unchecked")
     @Test(expected=ValueConfigurationException.class)
     public void testEnactValueChangeWithError() {
-        String value = "Test";
+        ConfigBean value = new ConfigBean();
         String expression = "/c:Test";
-        ValueChangeListener<String> valueChangeListener = mock(ValueChangeListener.class);
-        ValueDefinition<String,?> vd = new SingleValueDefinition<String>(String.class, expression, valueChangeListener);
+        ValueChangeListener<ConfigBean> valueChangeListener = mock(ValueChangeListener.class);
+        ValueDefinition<ConfigBean,?> vd = new SingleValueDefinition<ConfigBean>(ConfigBean.class, expression, valueChangeListener);
         ValueChangeAction vca = new ValueChangeAction(vd, value);
         
-        doThrow(new IllegalSelectorException()).when(valueChangeListener).onChange(eq(value), isNull(String.class));
+        doThrow(new IllegalSelectorException()).when(valueChangeListener).onChange(eq(value), isNull(ConfigBean.class));
         
         deltaOperations.enactValueChange(vca);
-        verify(valueChangeListener).onChange(eq(value), isNull(String.class));
+        verify(valueChangeListener).onChange(eq(value), isNull(ConfigBean.class));
     }
 
     /**
      * Test method for {@link org.brekka.stillingar.core.delta.DeltaOperations#enactGroupChange(org.brekka.stillingar.core.delta.GroupChangeAction, org.brekka.stillingar.api.ConfigurationSource)}.
      */
+    @SuppressWarnings("unchecked")
     @Test
     public void testEnactGroupChange() {
-        String value = "Test";
+        ConfigBean value = new ConfigBean();
         String expression = "/c:Test";
-        List<String> valueList = Arrays.asList("Test1", "Test2", "Test3");
+        List<ConfigBean> valueList = ConfigBean.listOf(3);
         
         GroupChangeListener groupChangeListener = mock(GroupChangeListener.class);
-        SingleValueDefinition<String> vdSingleType = new SingleValueDefinition<String>(String.class, mock(ValueChangeListener.class));
-        SingleValueDefinition<String> vdSingleExpression = new SingleValueDefinition<String>(String.class, expression, mock(ValueChangeListener.class));
-        ValueListDefinition<String> vdListType = new ValueListDefinition<String>(String.class, mock(ValueChangeListener.class));
-        ValueListDefinition<String> vdListExpression = new ValueListDefinition<String>(String.class, expression, mock(ValueChangeListener.class));
+        SingleValueDefinition<ConfigBean> vdSingleType = new SingleValueDefinition<ConfigBean>(ConfigBean.class, mock(ValueChangeListener.class));
+        SingleValueDefinition<ConfigBean> vdSingleExpression = new SingleValueDefinition<ConfigBean>(ConfigBean.class, expression, mock(ValueChangeListener.class));
+        ValueListDefinition<ConfigBean> vdListType = new ValueListDefinition<ConfigBean>(ConfigBean.class, mock(ValueChangeListener.class));
+        ValueListDefinition<ConfigBean> vdListExpression = new ValueListDefinition<ConfigBean>(ConfigBean.class, expression, mock(ValueChangeListener.class));
         
         ValueChangeAction vcaSingleType = new ValueChangeAction(vdSingleType, value);
         ValueChangeAction vcaSingleExpression = new ValueChangeAction(vdSingleExpression, value);
@@ -290,8 +302,8 @@ public class DeltaOperationsTest {
         GroupChangeAction gca = new GroupChangeAction(valueDefinitionGroup, vcaList);
         
         deltaOperations.enactGroupChange(gca, configurationSource);
-        verify(vdSingleType.getChangeListener()).onChange(eq(value), isNull(String.class));
-        verify(vdSingleExpression.getChangeListener()).onChange(eq(value), isNull(String.class));
+        verify(vdSingleType.getChangeListener()).onChange(eq(value), isNull(ConfigBean.class));
+        verify(vdSingleExpression.getChangeListener()).onChange(eq(value), isNull(ConfigBean.class));
         verify(vdListType.getChangeListener()).onChange(eq(valueList), isNull(List.class));
         verify(vdListExpression.getChangeListener()).onChange(eq(valueList), isNull(List.class));
     }
@@ -299,13 +311,14 @@ public class DeltaOperationsTest {
     /**
      * Test method for {@link org.brekka.stillingar.core.delta.DeltaOperations#enactGroupChange(org.brekka.stillingar.core.delta.GroupChangeAction, org.brekka.stillingar.api.ConfigurationSource)}.
      */
+    @SuppressWarnings("unchecked")
     @Test
     public void testEnactGroupChangeAssignmentError() {
-        List<String> valueList = Arrays.asList("Test1", "Test2", "Test3");
+        List<ConfigBean> valueList = ConfigBean.listOf(3);
         
         GroupChangeListener groupChangeListener = mock(GroupChangeListener.class);
-        ValueChangeListener<List<String>> valueChangeListener = mock(ValueChangeListener.class);
-        ValueListDefinition<String> vdListType = new ValueListDefinition<String>(String.class, valueChangeListener);
+        ValueChangeListener<List<ConfigBean>> valueChangeListener = mock(ValueChangeListener.class);
+        ValueListDefinition<ConfigBean> vdListType = new ValueListDefinition<ConfigBean>(ConfigBean.class, valueChangeListener);
         
         ValueChangeAction vcaListType = new ValueChangeAction(vdListType, valueList);
         List<ValueDefinition<?,?>> values = Arrays.<ValueDefinition<?,?>>asList(vdListType);
@@ -328,13 +341,14 @@ public class DeltaOperationsTest {
     /**
      * Test method for {@link org.brekka.stillingar.core.delta.DeltaOperations#enactGroupChange(org.brekka.stillingar.core.delta.GroupChangeAction, org.brekka.stillingar.api.ConfigurationSource)}.
      */
+    @SuppressWarnings("unchecked")
     @Test
     public void testEnactGroupChangeListenerError() {
-        List<String> valueList = Arrays.asList("Test1", "Test2", "Test3");
+        List<ConfigBean> valueList = ConfigBean.listOf(3);
         
         GroupChangeListener groupChangeListener = mock(GroupChangeListener.class);
-        ValueChangeListener<List<String>> valueChangeListener = mock(ValueChangeListener.class);
-        ValueListDefinition<String> vdListType = new ValueListDefinition<String>(String.class, valueChangeListener);
+        ValueChangeListener<List<ConfigBean>> valueChangeListener = mock(ValueChangeListener.class);
+        ValueListDefinition<ConfigBean> vdListType = new ValueListDefinition<ConfigBean>(ConfigBean.class, valueChangeListener);
         
         ValueChangeAction vcaListType = new ValueChangeAction(vdListType, valueList);
         List<ValueDefinition<?,?>> values = Arrays.<ValueDefinition<?,?>>asList(vdListType);

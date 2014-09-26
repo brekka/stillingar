@@ -101,15 +101,15 @@ public class GroupConfigurationException extends RuntimeException {
                 message = format("Failed to invoke listener method for group '%s'", groupName);
                 break;
             case VALUE_ASSIGNMENT:
-                message = format("Configuration group '%s' encountered %d errors during value assignment%s",
-                        groupName, errorList.size(), combineValueErrors());
+                message = format("Found %d errors during value assignment for group '%s'%s",
+                        errorList.size(), groupName, combineValueErrors());
                 break;
             case VALUE_DISCOVERY:
-                message = format("Configuration group '%s' encountered %d errors during value discovery%s",
-                        groupName, errorList.size(), combineValueErrors());
+                message = format("Found %d errors during value discovery for group '%s'%s",
+                        errorList.size(), groupName, combineValueErrors());
                 break;
             default:
-                message = format("Configuration group '%s' - unknown phase type '%s'", groupName, phase);
+                message = format("Unknown phase type '%s' for group '%s'", phase, groupName);
                 break;
         }
         return message;

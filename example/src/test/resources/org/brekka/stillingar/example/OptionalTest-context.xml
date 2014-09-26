@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:stil="http://brekka.org/schema/stillingar/v1"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+        http://brekka.org/schema/stillingar/v1 http://brekka.org/schema/stillingar/brekka-stillingar-1.1.xsd">
+
+    <bean class="org.brekka.stillingar.example.support.OptionallyConfiguredBean" />
+    
+
+    <stil:configuration-service id="stillingar-example" engine="xmlbeans"> 
+        <stil:property-placeholder />
+        <stil:namespace prefix="c"     uri="http://brekka.org/xml/stillingar/example/v1" />
+    </stil:configuration-service> 
+    
+    <stil:property-placeholder prefix="$test{" suffix="}" service-ref="stillingar-example"/> 
+    
+</beans>

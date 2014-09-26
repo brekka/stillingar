@@ -17,10 +17,12 @@
 package org.brekka.stillingar.spring.config;
 
 import java.io.InputStream;
+import java.net.URL;
 import java.nio.charset.Charset;
 
 import org.brekka.stillingar.api.ConfigurationSource;
 import org.brekka.stillingar.api.ConfigurationSourceLoader;
+import org.brekka.stillingar.core.DelegatingConfigurationSource;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.core.io.Resource;
 
@@ -73,7 +75,10 @@ class DefaultConfigurationSourceFactoryBean implements FactoryBean<Configuration
         InputStream is = null;
         try {
             is = resource.getInputStream();
-            return loader.parse(is, encoding);
+            ConfigurationSource configurationSource = loader.parse(is, encoding);
+            ConfigurationSource wrapper = new DefaultsConfigurationSourceWrapper(
+                    resource.getURL(), configurationSource);
+            return wrapper;
         } finally {
             if (is != null) {
                 is.close();
@@ -97,4 +102,19 @@ class DefaultConfigurationSourceFactoryBean implements FactoryBean<Configuration
         return true;
     }
 
+    private class DefaultsConfigurationSourceWrapper extends DelegatingConfigurationSource<ConfigurationSource> {
+        private final URL url;
+        public DefaultsConfigurationSourceWrapper(URL url, ConfigurationSource delegate) {
+            super(delegate);
+            this.url = url;
+        }
+        
+        /* (non-Javadoc)
+         * @see java.lang.Object#toString()
+         */
+        @Override
+        public String toString() {
+            return String.format("defaults in '%s'", url);
+        }
+    }
 }

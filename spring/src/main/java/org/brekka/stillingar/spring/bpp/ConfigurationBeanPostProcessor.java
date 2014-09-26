@@ -133,8 +133,8 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
                 }
             } catch (GroupConfigurationException e) {
                 throw new ConfigurationException(String.format(
-                        "Post processing bean '%s' using configuration source '%s'", 
-                        beanName, name), e);
+                        "Problem configuring bean '%s' using configuration source '%s' - %s)", 
+                        beanName, name, configurationSource), e);
             }
         }
         return bean;
