@@ -16,8 +16,6 @@
 
 package org.brekka.stillingar.core.snapshot;
 
-import java.util.Objects;
-
 import org.brekka.stillingar.api.ConfigurationException;
 import org.brekka.stillingar.api.ConfigurationSource;
 import org.brekka.stillingar.core.ChangeConfigurationException;

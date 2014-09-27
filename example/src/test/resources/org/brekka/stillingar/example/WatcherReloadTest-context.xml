@@ -11,6 +11,8 @@
     <bean class="org.brekka.stillingar.example.WatcherReloadTest" />
 
     <bean class="org.brekka.stillingar.example.support.MessageOfTheDay" />
+    
+    <bean class="org.brekka.stillingar.example.PrototypeConfiguredBean" />
 
     <stil:configuration-service id="stillingar-example" engine="xmlbeans" reload-interval="5000"> 
         <stil:selector>

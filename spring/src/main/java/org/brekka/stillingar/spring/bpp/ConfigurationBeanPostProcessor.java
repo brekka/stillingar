@@ -35,6 +35,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.brekka.stillingar.api.ConfigurationException;
 import org.brekka.stillingar.api.ConfigurationSource;
+import org.brekka.stillingar.api.Replacement;
 import org.brekka.stillingar.api.annotations.ConfigurationListener;
 import org.brekka.stillingar.api.annotations.Configured;
 import org.brekka.stillingar.core.ConfigurationService;
@@ -316,7 +317,7 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
             boolean list = false;
             ValueDefinition<Object, ?> value;
             if (type == List.class) {
-                type = listType(field.getGenericType());
+                type = identifyParameterizedType(field.getGenericType());
                 FieldValueChangeListener<List<Object>> listener = new FieldValueChangeListener<List<Object>>(field, bean, type, list);
                 value = new ValueListDefinition<Object>(type, annotation.value(), listener);
             } else {
@@ -353,7 +354,7 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
         ValueDefinition<Object,?> value;
         if (type == List.class) {
             Type[] genericParameterTypes = method.getGenericParameterTypes();
-            type = listType(genericParameterTypes[0]);
+            type = identifyParameterizedType(genericParameterTypes[0]);
             MethodValueChangeListener<List<Object>> listener = new MethodValueChangeListener<List<Object>>(method, bean, type, list);
             value = new ValueListDefinition<Object>(type, configured.value(), listener);
         } else {
@@ -388,20 +389,24 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
             Annotation[] annotations = parameterAnnotations[i];
             Class type = parameterTypes[i];
             boolean list = false;
+            boolean replacement = false;
             if (type == List.class) {
-                type = listType(genericParameterTypes[i]);
+                type = identifyParameterizedType(genericParameterTypes[i]);
                 list = true;
+            } else if (type == Replacement.class) {
+                type = identifyParameterizedType(genericParameterTypes[i]);
+                replacement = true;
             }
             Qualifier qualifier = null;
             for (Annotation annotation : annotations) {
                 if (annotation instanceof Configured) {
                     Configured paramConfigured = (Configured) annotation;
-                    MethodParameterListener mpl = new MethodParameterListener();
+                    MethodParameterListener mpl = new MethodParameterListener(replacement);
                     ValueDefinition<Object, ?> value;
                     if (list) {
-                        value = new ValueListDefinition<Object>(type, paramConfigured.value(), mpl);
+                        value = new ValueListDefinition(type, paramConfigured.value(), mpl);
                     } else {
-                        value = new SingleValueDefinition<Object>(type, paramConfigured.value(), mpl);
+                        value = new SingleValueDefinition(type, paramConfigured.value(), mpl);
                     }
                     value.setRequired(paramConfigured.required());
                     valueList.add(value);
@@ -497,23 +502,23 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
     }
 
     /**
-     * Identifies the type of the parameterised list.
+     * Identifies the type of the parameterised list/replacement.
      * 
-     * @param listType
-     *            the list type to inspect
-     * @return the list type or null if it is not parameterised.
+     * @param type
+     *            the list/replacement type to inspect
+     * @return the list/replacement type or null if it is not parameterised.
      */
     @SuppressWarnings("rawtypes")
-    private static Class<?> listType(Type listType) {
-        Class<?> type;
-        if (listType instanceof ParameterizedType) {
-            ParameterizedType pType = (ParameterizedType) listType;
+    private static Class<?> identifyParameterizedType(Type type) {
+        Class<?> genericClass;
+        if (type instanceof ParameterizedType) {
+            ParameterizedType pType = (ParameterizedType) type;
             Type[] actualTypeArguments = pType.getActualTypeArguments();
-            type = (Class) actualTypeArguments[0];
+            genericClass = (Class) actualTypeArguments[0];
         } else {
             throw new ConfigurationException(String.format(
-                    "Not a parameterised list type: '%s'", listType));
+                    "Not a parameterised list or replacement type: '%s'", type));
         }
-        return type;
+        return genericClass;
     }
 }

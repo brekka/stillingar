@@ -18,6 +18,7 @@ package org.brekka.stillingar.spring.bpp;
 
 import java.lang.ref.WeakReference;
 
+import org.brekka.stillingar.api.Replacement;
 import org.brekka.stillingar.api.annotations.ConfigurationListener;
 import org.brekka.stillingar.core.Expirable;
 import org.brekka.stillingar.core.GroupChangeListener;
@@ -29,19 +30,33 @@ import org.brekka.stillingar.core.ValueChangeListener;
  * 
  * @author Andrew Taylor (andrew@brekka.org)
  */
-class MethodParameterListener<T> implements ValueChangeListener<T>, ParameterValueResolver, Expirable {
+class MethodParameterListener implements ValueChangeListener<Object>, ParameterValueResolver, Expirable {
 
+    private final boolean replacement;
+    
     /**
      * The value set by {@link #onChange(Object)}
      */
-    private WeakReference<T> value;
+    private WeakReference<?> value;
+    
+    public MethodParameterListener() {
+        this(false);
+    }
+    
+    public MethodParameterListener(boolean replacement) {
+        this.replacement = replacement;
+    }
 
     /**
      * When the value changes
      */
     @Override
-    public void onChange(T newValue, T oldValue) {
-        this.value = new WeakReference<T>(newValue);
+    public void onChange(Object newValue, Object oldValue) {
+        Object val = newValue;
+        if (replacement) {
+            val = new Replacement<Object>(newValue, oldValue);
+        }
+        this.value = new WeakReference<Object>(val);
     }
     
     /* (non-Javadoc)
@@ -56,7 +71,7 @@ class MethodParameterListener<T> implements ValueChangeListener<T>, ParameterVal
      * Retrieve the value
      */
     @Override
-    public T getValue() {
+    public Object getValue() {
         return value.get();
     }
 }

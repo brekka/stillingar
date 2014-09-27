@@ -41,6 +41,9 @@ public class WatcherReloadTest extends AbstractJUnit4SpringContextTests {
     @Autowired
     private MessageOfTheDay messageOfTheDay;
     
+    @Autowired
+    private PrototypeConfiguredBean prototypeConfiguredBean;
+    
     static {
         writeConfig("Reload check");
     }

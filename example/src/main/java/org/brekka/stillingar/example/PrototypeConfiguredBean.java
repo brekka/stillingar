@@ -16,19 +16,21 @@
 
 package org.brekka.stillingar.example;
 
+import org.brekka.stillingar.api.Replacement;
 import org.brekka.stillingar.api.annotations.ConfigurationListener;
 import org.brekka.stillingar.api.annotations.Configured;
 
 @Configured
 public class PrototypeConfiguredBean {
 
-    @Configured("//c:Fraud/c:TriggerFactor")
     private float frequency;
     
     private boolean configureCalled;
     
     @ConfigurationListener
-    public void configure() {
+    public void configure(
+            @Configured("//c:MOTD")
+            Replacement<String> motd) {
         configureCalled = true;
     }
     
