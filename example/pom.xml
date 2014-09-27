@@ -36,7 +36,7 @@
     <scm>
         <url>https://github.com/brekka/stillingar.git</url>
         <connection>https://github.com/brekka/stillingar.git</connection>
-      <tag>HEAD</tag>
+      <tag>1.1</tag>
   </scm>
 
     <developers>
