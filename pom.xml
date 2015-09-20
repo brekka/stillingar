@@ -24,7 +24,7 @@
         <url>https://github.com/brekka/stillingar.git</url>
         <connection>https://github.com/brekka/stillingar.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/brekka/stillingar.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>1.2</tag>
     </scm>
     
     <licenses>
