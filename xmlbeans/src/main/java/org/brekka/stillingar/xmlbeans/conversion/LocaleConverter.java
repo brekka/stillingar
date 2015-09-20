@@ -29,7 +29,7 @@ public class LocaleConverter extends org.brekka.stillingar.core.conversion.Local
     public Locale convert(Object xmlValue) {
         Locale value;
         if (xmlValue instanceof XmlLanguage) {
-            value = new Locale(((XmlLanguage) xmlValue).getStringValue());
+            value = Locale.forLanguageTag(((XmlLanguage) xmlValue).getStringValue());
         } else {
             value = super.convert(xmlValue);
         }
