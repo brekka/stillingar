@@ -51,6 +51,10 @@ class MethodValueChangeListener<T extends Object> extends InvocationChangeListen
      */
     @Override
     public void onChange(T newValue, T oldValue, Object target) {
+        if (newValue == null) {
+            // A non-required value, don't call the setter.
+            return;
+        }
         try {
             method.invoke(target, newValue);
         } catch (IllegalAccessException e) {

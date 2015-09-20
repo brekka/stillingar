@@ -33,18 +33,17 @@ import org.brekka.stillingar.core.ValueChangeListener;
 class MethodParameterListener implements ValueChangeListener<Object>, ParameterValueResolver, Expirable {
 
     private final boolean replacement;
-    
+
+    private final Object defaultPrimative;
+
     /**
      * The value set by {@link #onChange(Object)}
      */
     private WeakReference<?> value;
     
-    public MethodParameterListener() {
-        this(false);
-    }
-    
-    public MethodParameterListener(boolean replacement) {
+    public MethodParameterListener(boolean replacement, Object defaultPrimative) {
         this.replacement = replacement;
+        this.defaultPrimative = defaultPrimative;
     }
 
     /**
@@ -53,15 +52,16 @@ class MethodParameterListener implements ValueChangeListener<Object>, ParameterV
     @Override
     public void onChange(Object newValue, Object oldValue) {
         Object val = newValue;
+        if (val == null) {
+            // If the value type is a primitive, this will contain the default value to use.
+            val = defaultPrimative;
+        }
         if (replacement) {
             val = new Replacement<Object>(newValue, oldValue);
         }
         this.value = new WeakReference<Object>(val);
     }
-    
-    /* (non-Javadoc)
-     * @see org.brekka.stillingar.core.Expirable#isExpired()
-     */
+
     @Override
     public boolean isExpired() {
         return value.isEnqueued();

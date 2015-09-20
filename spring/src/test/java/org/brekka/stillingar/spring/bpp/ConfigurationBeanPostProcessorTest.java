@@ -23,7 +23,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -43,7 +42,6 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
@@ -265,6 +263,39 @@ public class ConfigurationBeanPostProcessorTest {
             		"(type 'org.brekka.stillingar.spring.bpp.MultiListenerBean') as it already contains a " +
             		"configuration listener on the method 'init1'", e.getMessage());
         }
+    }
+    
+    @Test
+    public void primitiveDefaultByte() {
+        assertSame(ConfigurationBeanPostProcessor.primitiveDefault(Byte.TYPE), Byte.valueOf((byte) 0));
+    }
+    @Test
+    public void primitiveDefaultFloat() {
+        assertEquals(ConfigurationBeanPostProcessor.primitiveDefault(Float.TYPE), Float.valueOf(0f));
+    }
+    @Test
+    public void primitiveDefaultDouble() {
+        assertEquals(ConfigurationBeanPostProcessor.primitiveDefault(Double.TYPE), Double.valueOf(0d));
+    }
+    @Test
+    public void primitiveDefaultObject() {
+        assertNull(ConfigurationBeanPostProcessor.primitiveDefault(String.class));
+    }
+    @Test
+    public void primitiveDefaultInteger() {
+        assertEquals(ConfigurationBeanPostProcessor.primitiveDefault(Integer.TYPE), Integer.valueOf(0));
+    }
+    @Test
+    public void primitiveDefaultLong() {
+        assertEquals(ConfigurationBeanPostProcessor.primitiveDefault(Long.TYPE), Long.valueOf(0L));
+    }
+    @Test
+    public void primitiveDefaultShort() {
+        assertEquals(ConfigurationBeanPostProcessor.primitiveDefault(Short.TYPE), Short.valueOf((short)0));
+    }
+    @Test
+    public void primitiveDefaultCharacter() {
+        assertEquals(ConfigurationBeanPostProcessor.primitiveDefault(Character.TYPE), Character.valueOf((char)0));
     }
     
     @SuppressWarnings({ "rawtypes", "unchecked" })

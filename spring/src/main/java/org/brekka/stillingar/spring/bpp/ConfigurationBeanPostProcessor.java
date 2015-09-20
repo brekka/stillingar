@@ -401,7 +401,8 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
             for (Annotation annotation : annotations) {
                 if (annotation instanceof Configured) {
                     Configured paramConfigured = (Configured) annotation;
-                    MethodParameterListener mpl = new MethodParameterListener(replacement);
+                    Object primitiveDefault = list ? null : primitiveDefault(type);
+                    MethodParameterListener mpl = new MethodParameterListener(replacement, primitiveDefault);
                     ValueDefinition<Object, ?> value;
                     if (list) {
                         value = new ValueListDefinition(type, paramConfigured.value(), mpl);
@@ -492,13 +493,43 @@ public class ConfigurationBeanPostProcessor implements BeanPostProcessor, BeanFa
     public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
         this.beanFactory = beanFactory;
     }
-    
-    /* (non-Javadoc)
-     * @see org.springframework.core.Ordered#getOrder()
-     */
+
     @Override
     public int getOrder() {
         return 10;
+    }
+    
+
+    /**
+     * If the type represents a primitive type, return the corresponding default, otherwise null.
+     * 
+     * @param type
+     *            the class to check for being primitive.
+     * @return the default for the primitive, or null.
+     */
+    static Object primitiveDefault(Class<?> type) {
+        if (type.isPrimitive()) {
+            if (type == Byte.TYPE) {
+                return Byte.valueOf((byte) 0);
+            } else if (type == Short.TYPE) {
+                return Short.valueOf((short) 0);
+            } else if (type == Integer.TYPE) {
+                return Integer.valueOf(0);
+            } else if (type == Long.TYPE) {
+                return Long.valueOf((short) 0);
+            } else if (type == Float.TYPE) {
+                return Float.valueOf(0f);
+            } else if (type == Double.TYPE) {
+                return Double.valueOf(0d);
+            } else if (type == Boolean.TYPE) {
+                return Boolean.valueOf(false);
+            } else if (type == Character.TYPE) {
+                return Character.valueOf((char) 0);
+            } else {
+                throw new IllegalStateException(String.format("Unknown primitive type %s", type.getName()));
+            }
+        }
+        return null;
     }
 
     /**

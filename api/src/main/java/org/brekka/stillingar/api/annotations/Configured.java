@@ -20,6 +20,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.lang.reflect.Field;
 import java.util.List;
 
 /**
@@ -78,7 +79,14 @@ public @interface Configured {
     String value() default "";
 
     /**
-     * Determine whether this field/parameter/method must be set to a value, failing if no value can be found.
+     * Determine whether this field/parameter/method must be set to a value, if true (the default), an exception will be
+     * thrown. If false then the following rules will apply depending on where this is being used:
+     * <ul>
+     * <li>On a {@link Field}: the value will NOT be changed.</li>
+     * <li>On a {@link ConfigurationListener} method parameter: the value will be null or the default value for a
+     * primitive type.</li>
+     * <li>On a setter {@link Method} parameter: the method will NOT be invoked.</li>
+     * </ul>
      * 
      * @return whether this is required or not
      */
