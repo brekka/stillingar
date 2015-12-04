@@ -146,18 +146,17 @@ public class WatchedResourceMonitor implements ResourceMonitor, DisposableBean {
         return changed;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.springframework.beans.factory.DisposableBean#destroy()
-     */
     @Override
     public void destroy() throws Exception {
         if (log.isInfoEnabled()) {
             log.info(String.format("Shutdown watch on '%s'", resourceFile));
         }
-        watchKey.cancel();
-        watchService.close();
+        if (watchKey != null) {
+            watchKey.cancel();
+        }
+        if (watchService != null) {
+            watchService.close();
+        }
     }
 
     @Override
