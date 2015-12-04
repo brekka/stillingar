@@ -54,6 +54,10 @@ class FieldValueChangeListener<T extends Object> extends InvocationChangeListene
      */
     @Override
     public void onChange(T newValue, T oldValue, Object target) {
+        if (newValue == null) {
+            // There is no value (should be a @Configured(required=false)), so we will not change the reference.
+            return;
+        }
         try {
             if (!field.isAccessible()) {
                 field.setAccessible(true);

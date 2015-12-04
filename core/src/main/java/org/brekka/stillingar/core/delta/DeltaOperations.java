@@ -78,8 +78,7 @@ public class DeltaOperations {
         } else if (valueDefinition.isRequired()) {
             throw new ValueConfigurationException("No value could be found for", type, expression);
         } else {
-            // Not required, not available, set to null
-            // TODO perhaps set to a special object
+            // Not required and not available, set to null. How this is handled is assignment specific.
             result = null;
         }
         return new ValueChangeAction(valueDefinition, result);
