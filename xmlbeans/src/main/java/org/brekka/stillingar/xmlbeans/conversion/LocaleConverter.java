@@ -19,9 +19,11 @@ package org.brekka.stillingar.xmlbeans.conversion;
 import java.util.Locale;
 
 import org.apache.xmlbeans.XmlLanguage;
+import org.apache.xmlbeans.XmlToken;
 
 /**
- * @author Andrew Taylor
+ * Extract a {@link Locale} from the XML value. The standard xsd 'language' type will be parsed using {@link Locale#forLanguageTag(String)}
+ * while any other token will parsed as standard Locale strings.
  */
 public class LocaleConverter extends org.brekka.stillingar.core.conversion.LocaleConverter {
 
@@ -30,10 +32,19 @@ public class LocaleConverter extends org.brekka.stillingar.core.conversion.Local
         Locale value;
         if (xmlValue instanceof XmlLanguage) {
             value = Locale.forLanguageTag(((XmlLanguage) xmlValue).getStringValue());
+        } else if (xmlValue instanceof XmlToken) {
+            String locale = ((XmlToken) xmlValue).getStringValue();
+            if (locale.contains("_")) {
+                // Handle as Java locale language and country
+                String[] parts = locale.split("_");
+                value = new Locale(parts[0], parts[1]);
+            } else {
+                // Just a language
+                value = new Locale(locale);
+            }
         } else {
             value = super.convert(xmlValue);
         }
         return value;
     }
-    
 }
