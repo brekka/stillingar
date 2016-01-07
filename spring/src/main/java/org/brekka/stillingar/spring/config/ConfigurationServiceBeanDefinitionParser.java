@@ -36,14 +36,15 @@ import org.brekka.stillingar.spring.bpp.ConfigurationBeanPostProcessor;
 import org.brekka.stillingar.spring.converter.ApplicationContextConverter;
 import org.brekka.stillingar.spring.expr.DefaultPlaceholderParser;
 import org.brekka.stillingar.spring.pc.ConfigurationPlaceholderConfigurer;
+import org.brekka.stillingar.spring.pc.NamespaceConfigurer;
 import org.brekka.stillingar.spring.resource.BasicResourceNameResolver;
 import org.brekka.stillingar.spring.resource.FixedResourceSelector;
 import org.brekka.stillingar.spring.resource.ScanningResourceSelector;
 import org.brekka.stillingar.spring.resource.VersionedResourceNameResolver;
 import org.brekka.stillingar.spring.resource.dir.EnvironmentVariableDirectory;
 import org.brekka.stillingar.spring.resource.dir.HomeDirectory;
-import org.brekka.stillingar.spring.resource.dir.ResourceDirectory;
 import org.brekka.stillingar.spring.resource.dir.PlatformDirectory;
+import org.brekka.stillingar.spring.resource.dir.ResourceDirectory;
 import org.brekka.stillingar.spring.resource.dir.SystemPropertyDirectory;
 import org.brekka.stillingar.spring.resource.dir.WebappDirectory;
 import org.brekka.stillingar.spring.snapshot.ConfigurationSnapshotRefresher;
@@ -169,6 +170,11 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
 
             parserContext.registerBeanComponent(new BeanComponentDefinition(placeholderConfigurer.getBeanDefinition(),
                     id + "-placeholderConfigurer"));
+            
+            BeanDefinitionBuilder namespaceConfigurer = BeanDefinitionBuilder
+                    .genericBeanDefinition(NamespaceConfigurer.class);
+            parserContext.registerBeanComponent(new BeanComponentDefinition(namespaceConfigurer.getBeanDefinition(),
+                id + "-namespaceConfigurer"));
         }
     }
 
