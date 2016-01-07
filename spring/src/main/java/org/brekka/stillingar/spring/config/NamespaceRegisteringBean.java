@@ -35,7 +35,7 @@ import org.springframework.core.Ordered;
  *
  * @author Andrew Taylor (andrew@brekka.org)
  */
-public class NamespaceRegisteringBean implements BeanPostProcessor, Ordered {
+public class NamespaceRegisteringBean {
 
     private static final Log log = LogFactory.getLog(NamespaceRegisteringBean.class);
     
@@ -62,11 +62,7 @@ public class NamespaceRegisteringBean implements BeanPostProcessor, Ordered {
     }
     
 
-    /* (non-Javadoc)
-     * @see org.springframework.beans.factory.config.BeanPostProcessor#postProcessBeforeInitialization(java.lang.Object, java.lang.String)
-     */
-    @Override
-    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+    public void addNamespaceToContext() {
         if (namespaceToPrefixMap != null) {
             Set<Entry<String,String>> entrySet = namespaceToPrefixMap.entrySet();
             for (Entry<String, String> entry : entrySet) {
@@ -77,24 +73,6 @@ public class NamespaceRegisteringBean implements BeanPostProcessor, Ordered {
             }
             namespaceToPrefixMap = null;
         }
-        return bean;
-    }
-
-    /* (non-Javadoc)
-     * @see org.springframework.beans.factory.config.BeanPostProcessor#postProcessAfterInitialization(java.lang.Object, java.lang.String)
-     */
-    @Override
-    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-        return bean;
-    }
-    
-    /* (non-Javadoc)
-     * @see org.springframework.core.Ordered#getOrder()
-     */
-    @Override
-    public int getOrder() {
-        // Need to run before ConfigurationBeanPostProcessor
-        return 9;
     }
     
     /**

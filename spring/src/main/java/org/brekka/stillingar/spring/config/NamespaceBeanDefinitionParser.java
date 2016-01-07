@@ -49,21 +49,7 @@ class NamespaceBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
         }
         String serviceRef = element.getAttribute("service-ref");
         String namespaceContextId = serviceRef + "-Namespaces";
-        try {
-            BeanDefinition namespaceBeanDefinition = parserContext.getRegistry().getBeanDefinition(namespaceContextId);
-            // In the same context, make sure to register the namespace as early as possible.
-            ConstructorArgumentValues constructorArgumentValues = namespaceBeanDefinition.getConstructorArgumentValues();
-            ValueHolder valueHolder = constructorArgumentValues.getIndexedArgumentValue(0, null);
-            Object value = valueHolder.getValue();
-            ManagedArray array = (ManagedArray) value;
-            array.add(prefix);
-            array.add(uri);
-        } catch (NoSuchBeanDefinitionException e) {
-            if (log.isInfoEnabled()) {
-                log.info(String.format("No namespaces context found with id '%s' in the current container", namespaceContextId), e);
-            }
-        }
-        builder.addConstructorArgReference(serviceRef + "-Namespaces");
+        builder.addConstructorArgReference(namespaceContextId);
         builder.addConstructorArgValue(uri);
         builder.addConstructorArgValue(prefix);
     }
