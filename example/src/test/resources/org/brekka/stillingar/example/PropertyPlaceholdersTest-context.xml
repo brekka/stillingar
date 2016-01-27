@@ -18,7 +18,7 @@
         <constructor-arg value="$config{//c:Testing/c:String}" />
     </bean>
     
-    <bean class="org.brekka.stillingar.example.StandardBean">
+    <bean id="bean" class="org.brekka.stillingar.example.StandardBean">
         <property name="value" value="$config{//c:MOTD}" />
     </bean>
     
