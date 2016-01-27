@@ -29,7 +29,6 @@ import org.brekka.stillingar.core.conversion.ConversionManager;
 import org.brekka.stillingar.core.conversion.TemporalAdapter;
 import org.brekka.stillingar.core.conversion.xml.DocumentConverter;
 import org.brekka.stillingar.core.dom.DOMConfigurationSourceLoader;
-import org.brekka.stillingar.core.dom.DefaultNamespaceContext;
 import org.brekka.stillingar.core.properties.PropertiesConfigurationSourceLoader;
 import org.brekka.stillingar.core.snapshot.SnapshotBasedConfigurationService;
 import org.brekka.stillingar.spring.bpp.ConfigurationBeanPostProcessor;
@@ -42,8 +41,8 @@ import org.brekka.stillingar.spring.resource.ScanningResourceSelector;
 import org.brekka.stillingar.spring.resource.VersionedResourceNameResolver;
 import org.brekka.stillingar.spring.resource.dir.EnvironmentVariableDirectory;
 import org.brekka.stillingar.spring.resource.dir.HomeDirectory;
-import org.brekka.stillingar.spring.resource.dir.ResourceDirectory;
 import org.brekka.stillingar.spring.resource.dir.PlatformDirectory;
+import org.brekka.stillingar.spring.resource.dir.ResourceDirectory;
 import org.brekka.stillingar.spring.resource.dir.SystemPropertyDirectory;
 import org.brekka.stillingar.spring.resource.dir.WebappDirectory;
 import org.brekka.stillingar.spring.snapshot.ConfigurationSnapshotRefresher;
@@ -56,7 +55,6 @@ import org.brekka.stillingar.spring.version.ApplicationVersionFromMaven;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
-import org.springframework.beans.factory.support.ManagedArray;
 import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
@@ -79,6 +77,8 @@ import org.w3c.dom.NodeList;
  * @author Andrew Taylor (andrew@brekka.org)
  */
 class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
+
+    static final String BEAN_NAMESPACES_SUFFIX = "-Namespaces";
 
     private static final int MINIMUM_RELOAD_INTERVAL = 500;
     
@@ -286,21 +286,22 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
     }
 
 
-    /**
-     * @param element
-     * @return
-     */
     protected void prepareNamespaces(Element element, ParserContext parserContext) {
         String id = element.getAttribute("id");
-        this.namespacesId = id + "-Namespaces";
+        this.namespacesId = id + BEAN_NAMESPACES_SUFFIX;
         List<Element> namespaceElements = selectChildElements(element, "namespace");
-        ManagedArray array = new ManagedArray(String.class.getName(), namespaceElements.size() * 2);
         for (Element namespaceElement : namespaceElements) {
-            array.add(namespaceElement.getAttribute("prefix"));
-            array.add(namespaceElement.getAttribute("uri"));
+            BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(NamespaceRegisteringBean.class);
+            String uri = namespaceElement.getAttribute("uri");
+            String prefix = namespaceElement.getAttribute("prefix");
+            builder.addConstructorArgValue(id);
+            builder.addConstructorArgValue(prefix);
+            builder.addConstructorArgValue(uri);
+            parserContext.registerBeanComponent(new BeanComponentDefinition(
+                    builder.getBeanDefinition(), String.format("namespace:%s:%s", prefix, uri)));
         }
-        BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(DefaultNamespaceContext.class);
-        builder.addConstructorArgValue(array);
+        BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(DefaultNamespaceContextFactoryBean.class);
+        builder.addConstructorArgValue(id);
         parserContext.registerBeanComponent(new BeanComponentDefinition(
                 builder.getBeanDefinition(), this.namespacesId));
     }
