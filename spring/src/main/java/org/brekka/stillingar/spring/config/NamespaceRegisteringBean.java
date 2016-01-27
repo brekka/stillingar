@@ -16,96 +16,60 @@
 
 package org.brekka.stillingar.spring.config;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.brekka.stillingar.core.dom.NamespaceAware;
-import org.brekka.stillingar.spring.bpp.ConfigurationBeanPostProcessor;
+import org.brekka.stillingar.core.ConfigurationService;
+import org.brekka.stillingar.core.dom.DefaultNamespaceContext;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.core.Ordered;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
 /**
- * A simple bean that registers the specified namespace uri and prefix on load. At this time it is abusing the {@link BeanPostProcessor}
- * mechanism in order to run before {@link ConfigurationBeanPostProcessor}.
+ * Encapsulates a namespace uri to prefix mapping, also registering the mapping with the {@link DefaultNamespaceContext}
+ * that belongs to the {@link ConfigurationService} with id {@link #serviceId} or any single
+ * {@link DefaultNamespaceContext} in the current application context.
  *
  * @author Andrew Taylor (andrew@brekka.org)
  */
-public class NamespaceRegisteringBean implements BeanPostProcessor, Ordered {
+public class NamespaceRegisteringBean implements InitializingBean, ApplicationContextAware {
 
-    private static final Log log = LogFactory.getLog(NamespaceRegisteringBean.class);
+    private final String serviceId;
+    private final String uri;
+    private final String prefix;
     
-    private final NamespaceAware namespaceAware;
-    private Map<String, String> namespaceToPrefixMap;
-    
-    /**
-     * @param loader
-     * @param uri
-     * @param prefix
-     */
-    public NamespaceRegisteringBean(NamespaceAware namespaceAware, String uri, String prefix) {
-        this(namespaceAware, asMap(uri, prefix));
-    }
+    private ApplicationContext applicationContext;
 
-    /**
-     * @param loader
-     * @param uri
-     * @param prefix
-     */
-    public NamespaceRegisteringBean(NamespaceAware namespaceAware, Map<String, String> namespaceToPrefixMap) {
-        this.namespaceAware = namespaceAware;
-        this.namespaceToPrefixMap = namespaceToPrefixMap;
+    public NamespaceRegisteringBean(String serviceId, String prefix, String uri) {
+        this.serviceId = serviceId;
+        this.prefix = prefix;
+        this.uri = uri;
     }
     
+    public String getServiceId() {
+        return serviceId;
+    }
 
-    /* (non-Javadoc)
-     * @see org.springframework.beans.factory.config.BeanPostProcessor#postProcessBeforeInitialization(java.lang.Object, java.lang.String)
-     */
+    public String getUri() {
+        return uri;
+    }
+
+    public String getPrefix() {
+        return prefix;
+    }
+    
     @Override
-    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-        if (namespaceToPrefixMap != null) {
-            Set<Entry<String,String>> entrySet = namespaceToPrefixMap.entrySet();
-            for (Entry<String, String> entry : entrySet) {
-                if (log.isInfoEnabled()) {
-                    log.info(String.format("Registering prefix '%s' to namespace '%s'", entry.getValue(), entry.getKey()));
-                }
-                namespaceAware.registerNamespace(entry.getValue(), entry.getKey());
-            }
-            namespaceToPrefixMap = null;
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        DefaultNamespaceContext namespaceContext;
+        if (serviceId == null) {
+            namespaceContext = applicationContext.getBean(DefaultNamespaceContext.class);
+        } else {
+            String beanName = serviceId + ConfigurationServiceBeanDefinitionParser.BEAN_NAMESPACES_SUFFIX;
+            namespaceContext = applicationContext.getBean(beanName, DefaultNamespaceContext.class);
         }
-        return bean;
+        namespaceContext.registerNamespace(prefix, uri);
     }
-
-    /* (non-Javadoc)
-     * @see org.springframework.beans.factory.config.BeanPostProcessor#postProcessAfterInitialization(java.lang.Object, java.lang.String)
-     */
-    @Override
-    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-        return bean;
-    }
-    
-    /* (non-Javadoc)
-     * @see org.springframework.core.Ordered#getOrder()
-     */
-    @Override
-    public int getOrder() {
-        // Need to run before ConfigurationBeanPostProcessor
-        return 9;
-    }
-    
-    /**
-     * @param uri
-     * @param prefix
-     * @return
-     */
-    private static Map<String, String> asMap(String uri, String prefix) {
-        Map<String, String> map = new HashMap<String, String>();
-        map.put(uri, prefix);
-        return map;
-    }
-
 }
