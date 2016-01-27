@@ -18,7 +18,7 @@
         <constructor-arg value="$config{//c:Testing/c:String}" />
     </bean>
     
-    <bean id="xyz$ds-config{//CrawlType}" class="org.brekka.stillingar.example.StandardBean">
+    <bean class="org.brekka.stillingar.example.StandardBean">
         <property name="value" value="$config{//c:MOTD}" />
     </bean>
     
