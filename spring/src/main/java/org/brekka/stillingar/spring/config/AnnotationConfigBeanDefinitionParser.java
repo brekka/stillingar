@@ -18,6 +18,8 @@ package org.brekka.stillingar.spring.config;
 
 import org.brekka.stillingar.api.ConfigurationException;
 import org.brekka.stillingar.spring.bpp.ConfigurationBeanPostProcessor;
+import org.brekka.stillingar.spring.bpp.NamespaceBeanFactoryPostProcessor;
+import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
@@ -32,11 +34,8 @@ import org.w3c.dom.Element;
  */
 class AnnotationConfigBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
 
-    /* (non-Javadoc)
-     * @see org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser#doParse(org.w3c.dom.Element, org.springframework.beans.factory.xml.ParserContext, org.springframework.beans.factory.support.BeanDefinitionBuilder)
-     */
     @Override
-    protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
+    protected void doParse(final Element element, final ParserContext parserContext, final BeanDefinitionBuilder builder) {
         String serviceRef = element.getAttribute("service-ref");
         builder.addConstructorArgValue(":" + serviceRef);
         builder.addConstructorArgReference(serviceRef);
@@ -48,18 +47,22 @@ class AnnotationConfigBeanDefinitionParser extends AbstractSingleBeanDefinitionP
             }
             builder.addPropertyValue("markerAnnotation", theClass);
         }
+
+        // Register the post processor if there is not already one in this context
+        String beanName = NamespaceBeanFactoryPostProcessor.class.getName();
+        if (!parserContext.getRegistry().containsBeanDefinition(beanName)) {
+            BeanDefinitionBuilder namespacePostProcessor = BeanDefinitionBuilder.genericBeanDefinition(NamespaceBeanFactoryPostProcessor.class);
+            parserContext.registerBeanComponent(new BeanComponentDefinition(namespacePostProcessor.getBeanDefinition(), beanName));
+        }
     }
-    
+
     @Override
     protected boolean shouldGenerateId() {
         return true;
     }
-    
-    /* (non-Javadoc)
-     * @see org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser#getBeanClass(org.w3c.dom.Element)
-     */
+
     @Override
-    protected Class<?> getBeanClass(Element element) {
+    protected Class<?> getBeanClass(final Element element) {
         return ConfigurationBeanPostProcessor.class;
     }
 }

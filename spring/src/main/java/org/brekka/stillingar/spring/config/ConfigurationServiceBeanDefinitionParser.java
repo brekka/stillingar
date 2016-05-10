@@ -33,6 +33,7 @@ import org.brekka.stillingar.core.dom.DefaultNamespaceContext;
 import org.brekka.stillingar.core.properties.PropertiesConfigurationSourceLoader;
 import org.brekka.stillingar.core.snapshot.SnapshotBasedConfigurationService;
 import org.brekka.stillingar.spring.bpp.ConfigurationBeanPostProcessor;
+import org.brekka.stillingar.spring.bpp.NamespaceBeanFactoryPostProcessor;
 import org.brekka.stillingar.spring.converter.ApplicationContextConverter;
 import org.brekka.stillingar.spring.expr.DefaultPlaceholderParser;
 import org.brekka.stillingar.spring.pc.ConfigurationPlaceholderConfigurer;
@@ -56,8 +57,8 @@ import org.brekka.stillingar.spring.version.ApplicationVersionFromMaven;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
-import org.springframework.beans.factory.support.ManagedArray;
 import org.springframework.beans.factory.support.ManagedList;
+import org.springframework.beans.factory.support.ManagedMap;
 import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.core.io.ClassPathResource;
@@ -75,28 +76,28 @@ import org.w3c.dom.NodeList;
  * Parser that converts the stil:configuration XML element into bean definitions for the Spring container. A bean
  * definition for the {@link SnapshotBasedConfigurationService} class will be prepared as the primary bean, but
  * additional bean definitions may also be added as required.
- * 
+ *
  * @author Andrew Taylor (andrew@brekka.org)
  */
 class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
 
     private static final int MINIMUM_RELOAD_INTERVAL = 500;
-    
+
     /**
      * Determine if Watchable is available (Java 7).
      */
-    private boolean watchableAvailable = ClassUtils.isPresent("java.nio.file.Watchable", 
+    private boolean watchableAvailable = ClassUtils.isPresent("java.nio.file.Watchable",
             this.getClass().getClassLoader()) && !"true".equals(System.getProperty("stillingar.reload-watcher.disabled"));
 
     @Override
-    protected Class<SnapshotBasedConfigurationService> getBeanClass(Element element) {
+    protected Class<SnapshotBasedConfigurationService> getBeanClass(final Element element) {
         return SnapshotBasedConfigurationService.class;
     }
-    
+
     private String namespacesId;
 
     @Override
-    protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
+    protected void doParse(final Element element, final ParserContext parserContext, final BeanDefinitionBuilder builder) {
 
         Engine engine = determineEngine(element);
 
@@ -107,6 +108,8 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
         builder.addPropertyValue("deltaValueInterceptor", prepareDeltaValueInterceptor(element));
         builder.getRawBeanDefinition().setDestroyMethodName("shutdown");
 
+        prepareNamespaceContext(element, parserContext);
+
         // Other identifiable context beans
         prepareNamespaces(element, parserContext);
         prepareLoader(element, parserContext, engine);
@@ -116,7 +119,26 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
     }
 
 
-    protected void preparePostProcessor(Element element, ParserContext parserContext) {
+    private void prepareNamespaceContext(final Element element, final ParserContext parserContext) {
+        String id = element.getAttribute("id");
+        namespacesId = id + "-Namespaces";
+        if (!parserContext.getRegistry().containsBeanDefinition(namespacesId)) {
+            BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(DefaultNamespaceContext.class);
+            builder.addConstructorArgValue(new String[0]);
+            parserContext.registerBeanComponent(new BeanComponentDefinition(
+                builder.getBeanDefinition(), this.namespacesId));
+        }
+
+        // Register the post processor if there is not already one
+        String beanName = NamespaceBeanFactoryPostProcessor.class.getName();
+        if (!parserContext.getRegistry().containsBeanDefinition(beanName)) {
+            BeanDefinitionBuilder namespacePostProcessor = BeanDefinitionBuilder.genericBeanDefinition(NamespaceBeanFactoryPostProcessor.class);
+            parserContext.registerBeanComponent(new BeanComponentDefinition(namespacePostProcessor.getBeanDefinition(), beanName));
+        }
+    }
+
+
+    protected void preparePostProcessor(final Element element, final ParserContext parserContext) {
         String id = element.getAttribute("id");
         String name = getName(element);
         BeanDefinitionBuilder postProcessor = BeanDefinitionBuilder
@@ -142,7 +164,7 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
      * @param element
      * @param parserContext
      */
-    protected void preparePlaceholderConfigurer(Element element, ParserContext parserContext) {
+    protected void preparePlaceholderConfigurer(final Element element, final ParserContext parserContext) {
         Element placeholderElement = selectSingleChildElement(element, "property-placeholder", true);
         if (placeholderElement != null) {
             String id = element.getAttribute("id");
@@ -177,7 +199,7 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
      * @param element
      * @param parserContext
      */
-    protected void prepareLoader(Element element, ParserContext parserContext, Engine engine) {
+    protected void prepareLoader(final Element element, final ParserContext parserContext, final Engine engine) {
         String loaderReference = getLoaderReference(element);
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(engine.getLoaderClassName());
 
@@ -204,30 +226,30 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
         AbstractBeanDefinition beanDefinition = builder.getBeanDefinition();
         parserContext.registerBeanComponent(new BeanComponentDefinition(beanDefinition, loaderReference));
     }
-    
-    
+
+
     /**
      * @param element
      * @param parserContext
      * @param builder
      */
-    protected void prepareXmlBeans(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
+    protected void prepareXmlBeans(final Element element, final ParserContext parserContext, final BeanDefinitionBuilder builder) {
         // ConversionManager
         builder.addConstructorArgValue(prepareXmlBeansConversionManager());
-        
+
         // Namespaces
         builder.addConstructorArgReference(this.namespacesId);
     }
-    
+
     /**
      * @param element
      * @param parserContext
      * @param builder
      */
-    protected void prepareDOM(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
+    protected void prepareDOM(final Element element, final ParserContext parserContext, final BeanDefinitionBuilder builder) {
         // ConversionManager
         builder.addConstructorArgValue(prepareDOMConversionManager());
-        
+
         // Namespaces
         builder.addConstructorArgReference(this.namespacesId);
     }
@@ -236,7 +258,7 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
      * @param element
      * @param builder
      */
-    protected void prepareJAXB(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
+    protected void prepareJAXB(final Element element, final ParserContext parserContext, final BeanDefinitionBuilder builder) {
         Element jaxbElement = selectSingleChildElement(element, "jaxb", false);
 
         // Path
@@ -260,14 +282,14 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
 
         // Namespaces
         builder.addConstructorArgReference(this.namespacesId);
-        
+
         // ConversionManager
         builder.addConstructorArgValue(prepareJAXBConversionManager());
     }
-    
-    protected void prepareJson(Element element, BeanDefinitionBuilder builder) {
+
+    protected void prepareJson(final Element element, final BeanDefinitionBuilder builder) {
         Element jsonElement = selectSingleChildElement(element, "json", false);
-        
+
         // Object mapper
         if (jsonElement.hasAttribute("object-mapper-ref")) {
             String objectMapperRef = jsonElement.getAttribute("object-mapper-ref");
@@ -280,7 +302,7 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
         String rootNodeClass = jsonElement.getAttribute("root-node-class");
         builder.addConstructorArgValue(rootNodeClass);
 
-        
+
         // ConversionManager
         builder.addConstructorArgValue(prepareJsonConversionManager());
     }
@@ -290,22 +312,19 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
      * @param element
      * @return
      */
-    protected void prepareNamespaces(Element element, ParserContext parserContext) {
-        String id = element.getAttribute("id");
-        this.namespacesId = id + "-Namespaces";
+    protected void prepareNamespaces(final Element element, final ParserContext parserContext) {
         List<Element> namespaceElements = selectChildElements(element, "namespace");
-        ManagedArray array = new ManagedArray(String.class.getName(), namespaceElements.size() * 2);
+        ManagedMap<String, String> map = new ManagedMap<String, String>();
         for (Element namespaceElement : namespaceElements) {
-            array.add(namespaceElement.getAttribute("prefix"));
-            array.add(namespaceElement.getAttribute("uri"));
+            map.put(namespaceElement.getAttribute("uri"), namespaceElement.getAttribute("prefix"));
         }
-        BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(DefaultNamespaceContext.class);
-        builder.addConstructorArgValue(array);
-        parserContext.registerBeanComponent(new BeanComponentDefinition(
-                builder.getBeanDefinition(), this.namespacesId));
+        BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(NamespaceRegisteringBean.class);
+        builder.addConstructorArgReference(namespacesId);
+        builder.addConstructorArgValue(map);
+        parserContext.registerBeanComponent(new BeanComponentDefinition(builder.getBeanDefinition(), element.getAttribute("id") + "-ns"));
     }
 
-    protected void prepareReloadMechanism(Element element, ParserContext parserContext) {
+    protected void prepareReloadMechanism(final Element element, final ParserContext parserContext) {
         String id = element.getAttribute("id");
         String reloadIntervalStr = element.getAttribute("reload-interval");
         if (StringUtils.hasLength(reloadIntervalStr)) {
@@ -356,7 +375,7 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
      * @param element
      * @return
      */
-    protected AbstractBeanDefinition prepareResourceManager(Element element, Engine engine, ParserContext parserContext) {
+    protected AbstractBeanDefinition prepareResourceManager(final Element element, final Engine engine, final ParserContext parserContext) {
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(ResourceSnapshotManager.class);
         builder.addConstructorArgValue(prepareResourceSelector(element, engine, parserContext));
         builder.addConstructorArgReference(getLoaderReference(element));
@@ -375,7 +394,7 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
      * @param element
      * @return
      */
-    protected AbstractBeanDefinition prepareResourceMonitor(Element element) {
+    protected AbstractBeanDefinition prepareResourceMonitor(final Element element) {
         BeanDefinitionBuilder builder = null;
         String reloadIntervalStr = element.getAttribute("reload-interval");
         if (StringUtils.hasLength(reloadIntervalStr)) {
@@ -395,7 +414,7 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
      * @param element
      * @return
      */
-    protected AbstractBeanDefinition prepareResourceSelector(Element element, Engine engine, ParserContext parserContext) {
+    protected AbstractBeanDefinition prepareResourceSelector(final Element element, final Engine engine, final ParserContext parserContext) {
         String path = element.getAttribute("path");
         BeanDefinitionBuilder builder;
         if (path != null && !path.isEmpty()) {
@@ -413,7 +432,7 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
      * @param element
      * @return
      */
-    protected AbstractBeanDefinition prepareResourceNameResolver(Element element, Engine engine) {
+    protected AbstractBeanDefinition prepareResourceNameResolver(final Element element, final Engine engine) {
         Element selectorElement = selectSingleChildElement(element, "selector", true);
         BeanDefinitionBuilder builder = null;
         String prefix = getName(element);
@@ -423,7 +442,7 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
             if (name != null) {
                 prefix = attribute(name, "prefix", prefix);
                 extension = attribute(name, "extension", extension);
-                
+
                 Element version = selectSingleChildElement(name, "version", true);
                 if (version != null) {
                     String pattern = version.getAttribute("pattern");
@@ -446,8 +465,8 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
      * @param extension
      * @return
      */
-    protected BeanDefinitionBuilder buildMavenVersionedResourceNameResolver(Element versionMavenElement, String pattern, String prefix,
-            String extension) {
+    protected BeanDefinitionBuilder buildMavenVersionedResourceNameResolver(final Element versionMavenElement, final String pattern, final String prefix,
+            final String extension) {
         BeanDefinitionBuilder builder = BeanDefinitionBuilder
                 .genericBeanDefinition(VersionedResourceNameResolver.class);
         builder.addConstructorArgValue(prefix);
@@ -463,7 +482,7 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
      * @param versionMavenElement
      * @return
      */
-    protected AbstractBeanDefinition prepareApplicationVersionFromMaven(Element versionMavenElement) {
+    protected AbstractBeanDefinition prepareApplicationVersionFromMaven(final Element versionMavenElement) {
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(ApplicationVersionFromMaven.class);
         builder.addConstructorArgValue(versionMavenElement.getAttribute("groupId"));
         builder.addConstructorArgValue(versionMavenElement.getAttribute("artifactId"));
@@ -476,7 +495,7 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
      * @param extension
      * @return
      */
-    protected BeanDefinitionBuilder buildBasicResourceNameResolver(String prefix, Object extension) {
+    protected BeanDefinitionBuilder buildBasicResourceNameResolver(final String prefix, final Object extension) {
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(BasicResourceNameResolver.class);
         builder.addConstructorArgValue(prefix);
         builder.addPropertyValue("extension", extension);
@@ -487,7 +506,7 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
      * @param element
      * @return
      */
-    protected ManagedList<Object> prepareBaseDirectoryList(Element element) {
+    protected ManagedList<Object> prepareBaseDirectoryList(final Element element) {
         ManagedList<Object> list = new ManagedList<Object>();
         Element locationElement = selectSingleChildElement(element, "location", true);
         if (locationElement != null) {
@@ -528,7 +547,7 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
      * @param textContent
      * @return
      */
-    protected PlatformDirectory preparePlatformLocation(String type) {
+    protected PlatformDirectory preparePlatformLocation(final String type) {
         return PlatformDirectory.valueOf(type);
     }
 
@@ -537,32 +556,33 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
      * @param class1
      * @return
      */
-    protected AbstractBeanDefinition prepareHomeLocation(Element element, String path) {
+    protected AbstractBeanDefinition prepareHomeLocation(final Element element, final String path) {
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(HomeDirectory.class);
+        String homePath = path;
         if (path == null) {
-            path = ".config/" + getName(element);
+            homePath = ".config/" + getName(element);
         }
-        builder.addConstructorArgValue(path);
+        builder.addConstructorArgValue(homePath);
         return builder.getBeanDefinition();
     }
-    
+
     /**
      * @param element
      * @param path
      * @return
      */
-    protected AbstractBeanDefinition prepareWebappLocation(Element element, String path) {
+    protected AbstractBeanDefinition prepareWebappLocation(final Element element, final String path) {
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(WebappDirectory.class);
         builder.addConstructorArgValue(path);
         return builder.getBeanDefinition();
     }
-    
+
     /**
      * @param element
      * @param location
      * @return
      */
-    protected AbstractBeanDefinition prepareResourceLocation(Element element, String location) {
+    protected AbstractBeanDefinition prepareResourceLocation(final Element element, final String location) {
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(ResourceDirectory.class);
         builder.addConstructorArgValue(location);
         return builder.getBeanDefinition();
@@ -573,7 +593,7 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
      * @param baseDirectoryClass
      * @return
      */
-    protected AbstractBeanDefinition prepareLocation(String value, Class<?> baseDirectoryClass) {
+    protected AbstractBeanDefinition prepareLocation(final String value, final Class<?> baseDirectoryClass) {
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(baseDirectoryClass);
         builder.addConstructorArgValue(value);
         return builder.getBeanDefinition();
@@ -583,7 +603,7 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
      * @param element
      * @return
      */
-    protected void prepareSnapshotEventHandler(Element element, BeanDefinitionBuilder serviceBuilder) {
+    protected void prepareSnapshotEventHandler(final Element element, final BeanDefinitionBuilder serviceBuilder) {
         Element handlers = selectSingleChildElement(element, "handlers", true);
         if (handlers != null) {
             String eventRef = handlers.getAttribute("event-ref");
@@ -596,12 +616,12 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
         eventBuilder.addConstructorArgValue(getName(element));
         serviceBuilder.addConstructorArgValue(eventBuilder.getBeanDefinition());
     }
-    
+
     /**
      * @param element
      * @return
      */
-    protected Object prepareDeltaValueInterceptor(Element element) {
+    protected Object prepareDeltaValueInterceptor(final Element element) {
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(SnapshotDeltaValueInterceptor.class);
         return builder.getBeanDefinition();
     }
@@ -610,7 +630,7 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
      * @param element
      * @return
      */
-    protected AbstractBeanDefinition prepareDefaultConfigurationSource(Element element, Engine engine) {
+    protected AbstractBeanDefinition prepareDefaultConfigurationSource(final Element element, final Engine engine) {
         Element defaultsElement = selectSingleChildElement(element, "defaults", true);
         String defaultsPath = null;
         String encoding = null;
@@ -641,13 +661,13 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
      * @param defaultsPath
      * @return
      */
-    protected AbstractBeanDefinition prepareClassPathResource(String path) {
+    protected AbstractBeanDefinition prepareClassPathResource(final String path) {
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(ClassPathResource.class);
         builder.addConstructorArgValue(path);
         return builder.getBeanDefinition();
     }
 
-    protected AbstractBeanDefinition prepareFileSystemResource(String path) {
+    protected AbstractBeanDefinition prepareFileSystemResource(final String path) {
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(FileSystemResource.class);
         builder.addConstructorArgValue(path);
         return builder.getBeanDefinition();
@@ -671,13 +691,13 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
         builder.addConstructorArgValue(converters);
         return builder.getBeanDefinition();
     }
-    
+
     protected AbstractBeanDefinition prepareDOMConversionManager() {
         BeanDefinitionBuilder builder = BeanDefinitionBuilder
                 .genericBeanDefinition(ConversionManager.class);
         ManagedList<AbstractBeanDefinition> converters = prepareCoreConverters();
         converters.addAll(prepareTemporalConverters(TemporalAdapter.class.getPackage().getName(), TemporalAdapter.class.getSimpleName()));
-        
+
         BeanDefinitionBuilder appCxtBeanDefBuilder = BeanDefinitionBuilder.genericBeanDefinition(ApplicationContextConverter.class);
         appCxtBeanDefBuilder.addConstructorArgValue(
                 BeanDefinitionBuilder.genericBeanDefinition(DocumentConverter.class).getBeanDefinition()
@@ -710,9 +730,6 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
         return prepareDOMConversionManager();
     }
 
-    /**
-     * @return
-     */
     protected Object prepareObjectMapper() {
         Object objectMapper;
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
@@ -729,7 +746,7 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
         }
         return objectMapper;
     }
-    
+
     protected ManagedList<AbstractBeanDefinition> prepareCoreConverters() {
         List<String> coreConverterShortNames = Arrays.asList("BigDecimalConverter", "BigIntegerConverter",
                 "BooleanConverter", "ByteConverter", "ByteArrayConverter",
@@ -738,24 +755,24 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
                 "UUIDConverter", "EnumConverter");
         return toManagedConverterList(coreConverterShortNames, "org.brekka.stillingar.core.conversion");
     }
-    
+
     /**
      * @param string
      * @return
      */
-    protected Collection<? extends AbstractBeanDefinition> prepareTemporalConverters(String customClassPackage, 
-            String temporalAdapterClassShortName) {
+    protected Collection<? extends AbstractBeanDefinition> prepareTemporalConverters(final String customClassPackage,
+            final String temporalAdapterClassShortName) {
         ManagedList<AbstractBeanDefinition> converters = new ManagedList<AbstractBeanDefinition>();
         BeanDefinitionBuilder temporalBeanBuilder = BeanDefinitionBuilder.genericBeanDefinition(
                 customClassPackage + "." + temporalAdapterClassShortName);
         AbstractBeanDefinition temporalBeanDef = temporalBeanBuilder.getBeanDefinition();
-        
+
         List<String> temporalConverterShortNames = Arrays.asList("DateConverter", "CalendarConverter");
         if (ClassUtils.isPresent("org.joda.time.ReadableInstant", Thread.currentThread().getContextClassLoader())) {
             // JodaTime is present, add the support classes
             temporalConverterShortNames = new ArrayList<String>(temporalConverterShortNames);
             temporalConverterShortNames.addAll(Arrays.asList("DateTimeConverter", "LocalDateConverter", "LocalTimeConverter"));
-            
+
             if (customClassPackage != null) {
                 BeanDefinitionBuilder converterBldr = BeanDefinitionBuilder
                         .genericBeanDefinition(customClassPackage + ".PeriodConverter");
@@ -776,7 +793,7 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
      * @param element
      * @return
      */
-    private static Engine determineEngine(Element element) {
+    private static Engine determineEngine(final Element element) {
         String engine = element.getAttribute("engine");
         engine = engine.toUpperCase();
         return Engine.valueOf(engine);
@@ -788,7 +805,7 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
      * @param prefix
      * @return
      */
-    protected static String attribute(Element elem, String attributeName, String defaultValue) {
+    protected static String attribute(final Element elem, final String attributeName, final String defaultValue) {
         String value;
         if (elem.hasAttribute(attributeName)) {
             value = elem.getAttribute(attributeName);
@@ -802,12 +819,12 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
      * @param element
      * @return
      */
-    protected static String getLoaderReference(Element element) {
+    protected static String getLoaderReference(final Element element) {
         String id = element.getAttribute("id");
         return id + "-loader";
     }
 
-    protected static String getName(Element element) {
+    protected static String getName(final Element element) {
         // Optional application name, will use the id if not specified.
         String name = element.getAttribute("name");
         if (name == null || name.isEmpty()) {
@@ -821,7 +838,7 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
      * @param string
      * @return
      */
-    protected static Element selectSingleChildElement(Element element, String tagName, boolean optional) {
+    protected static Element selectSingleChildElement(final Element element, final String tagName, final boolean optional) {
         Element singleChild = null;
         NodeList children = element.getElementsByTagNameNS("*", tagName);
         if (children.getLength() == 1) {
@@ -847,7 +864,7 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
         return singleChild;
     }
 
-    protected static List<Element> selectChildElements(Element element, String tagName) {
+    protected static List<Element> selectChildElements(final Element element, final String tagName) {
         NodeList children = element.getElementsByTagNameNS("*", tagName);
         List<Element> elementList = new ArrayList<Element>(children.getLength());
         for (int i = 0; i < children.getLength(); i++) {
@@ -863,12 +880,12 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
         }
         return elementList;
     }
-    
+
     /**
      * @param converters
      * @param converterShortNames
      */
-    private static ManagedList<AbstractBeanDefinition> toManagedConverterList(List<String> converterShortNames, String packagePrefix) {
+    private static ManagedList<AbstractBeanDefinition> toManagedConverterList(final List<String> converterShortNames, final String packagePrefix) {
         ManagedList<AbstractBeanDefinition> converters = new ManagedList<AbstractBeanDefinition>();
         for (String shortName : converterShortNames) {
             BeanDefinitionBuilder converterBldr = BeanDefinitionBuilder
@@ -880,13 +897,13 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
 
     enum Engine {
         PROPS(PropertiesConfigurationSourceLoader.class.getName(), "properties"),
-        
+
         DOM(DOMConfigurationSourceLoader.class.getName(), "xml"),
 
         XMLBEANS("org.brekka.stillingar.xmlbeans.XmlBeansConfigurationSourceLoader", "xml"),
 
         JAXB("org.brekka.stillingar.jaxb.JAXBConfigurationSourceLoader", "xml"),
-        
+
         JSON("org.brekka.stillingar.jackson.JacksonConfigurationSourceLoader", "json"),
 
         ;
@@ -894,7 +911,7 @@ class ConfigurationServiceBeanDefinitionParser extends AbstractSingleBeanDefinit
         private final String loaderClassName;
         private final String defaultExtension;
 
-        private Engine(String loaderClassName, String defaultExtension) {
+        private Engine(final String loaderClassName, final String defaultExtension) {
             this.loaderClassName = loaderClassName;
             this.defaultExtension = defaultExtension;
         }
