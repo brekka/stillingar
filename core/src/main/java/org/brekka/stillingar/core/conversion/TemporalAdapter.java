@@ -32,7 +32,7 @@ public class TemporalAdapter {
      * Cache whether JodaTime is available.
      */
     protected final boolean jodaTimeAvailable;
-    
+
     /**
      * Determines whether JodaTime is available, caching the fact
      */
@@ -45,9 +45,9 @@ public class TemporalAdapter {
         }
         this.jodaTimeAvailable = jodaTimeAvailableLocal;
     }
-    
-    
-    public Calendar toCalendar(Object obj, boolean supportsDate, boolean supportsTime, Class<?> expectedType) {
+
+
+    public Calendar toCalendar(final Object obj, final boolean supportsDate, final boolean supportsTime, final Class<?> expectedType) {
         Calendar value;
         if (obj instanceof Calendar) {
             value = (Calendar) obj;
@@ -59,16 +59,15 @@ public class TemporalAdapter {
             if (!jodaTimeAvailable) {
                 throw new IllegalArgumentException(format(
                         "Date/time conversion unavailable for value '%s' to '%s'." +
-                                " Add JodaTime library to enable default ISO conversion.", 
+                                " Add JodaTime library to enable default ISO conversion.",
                                 dateTimeStr, expectedType.getName()));
-            }
-            if (dateTimeStr.length() < 14
-                    && dateTimeStr.endsWith("Z")) {
-                dateTimeStr = dateTimeStr.substring(0, dateTimeStr.length() - 1);
             }
             org.joda.time.format.DateTimeFormatter dateTimeParser;
             if (dateTimeStr.charAt(2) == ':') {
                 dateTimeParser = org.joda.time.format.ISODateTimeFormat.timeParser();
+            } else if (dateTimeStr.length() > 10 && dateTimeStr.charAt(10) != 'T') {
+                dateTimeStr = dateTimeStr.substring(0, 10) + "T" + dateTimeStr.substring(10);
+                dateTimeParser = org.joda.time.format.ISODateTimeFormat.dateParser();
             } else {
                 dateTimeParser = org.joda.time.format.ISODateTimeFormat.dateTimeParser();
             }
@@ -87,7 +86,7 @@ public class TemporalAdapter {
             }
         } else {
             throw new IllegalArgumentException(format(
-                    "No temporal conversion available for value of type '%s' to '%s'.", 
+                    "No temporal conversion available for value of type '%s' to '%s'.",
                     obj.getClass().getName(), expectedType.getName()));
         }
         return value;
