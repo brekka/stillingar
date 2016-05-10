@@ -20,7 +20,7 @@ import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -38,14 +38,14 @@ public class NoSnapshotAvailableExceptionTest {
      */
     @Test
     public void testNoSnapshotAvailableException() {
-        Set<String> names = new HashSet<String>(Arrays.asList("file-1.1.xml", "file-1.xml", "file.xml"));
+        Set<String> names = new LinkedHashSet<String>(Arrays.asList("file-1.1.xml", "file-1.xml", "file.xml"));
         List<RejectedSnapshotLocation> rejected = new ArrayList<RejectedSnapshotLocation>(Arrays.asList(
                 new RejectedSnapshotLocationBean("cookie", "/path", "a message")));
         NoSnapshotAvailableException e = new NoSnapshotAvailableException(names, rejected);
         assertSame(names, e.getSnapshotResourceNames());
         assertSame(rejected, e.getLocations());
         assertEquals("Unable to find configuration with any of the names " +
-        		"[file-1.xml, file-1.1.xml, file.xml] in the locations: " +
+        		"[file-1.1.xml, file-1.xml, file.xml] in the locations: " +
         		"[[cookie - /path - a message]]", e.getLocalizedMessage());
     }
 
