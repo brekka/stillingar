@@ -19,6 +19,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -38,12 +39,10 @@ import org.brekka.stillingar.core.ValueDefinitionGroup;
 /**
  * A configuration source that is 'change aware' supporting the registration of value definitions and value definition
  * groups that will have their change listeners updated when the underlying configuration source changes.
- * 
+ *
  * @author Andrew Taylor (andrew@brekka.org)
  */
-public class DeltaConfigurationService 
-      extends DelegatingConfigurationSource<FallbackConfigurationSource> 
-   implements ConfigurationService {
+public class DeltaConfigurationService extends DelegatingConfigurationSource<FallbackConfigurationSource> implements ConfigurationService {
 
     /**
      * The group that will contain all of the {@link ValueDefinition}s that were registered via
@@ -60,32 +59,32 @@ public class DeltaConfigurationService
      * Operations for changing value definitions/groups
      */
     private DeltaOperations deltaOperations = new DeltaOperations();
-    
+
     /**
      * A map of all values that are currently applied to the various value definitions.
      */
     private Map<ValueDefinition<?, ?>, WeakReference<?>> lastValueMap;
-    
+
     /**
      * Interceptor for value changes.
      */
     private DeltaValueInterceptor deltaValueInterceptor;
 
-    
-    public DeltaConfigurationService(ConfigurationSource defaultConfigurationSource) {
+
+    public DeltaConfigurationService(final ConfigurationSource defaultConfigurationSource) {
         super(new FallbackConfigurationSource(null, defaultConfigurationSource));
         // Use a LinkedHashSet to quick add/removal and iteration in order of addition.
         this.standaloneGroup = new ValueDefinitionGroup("_standalone", new LinkedHashSet<ValueDefinition<?, ?>>(),
                 null, null);
         this.valueGroups.add(standaloneGroup);
-        this.lastValueMap = Collections.emptyMap();
+        this.lastValueMap = new HashMap<ValueDefinition<?,?>, WeakReference<?>>();
     }
 
     /**
      * Register a value definition
      */
     @Override
-    public synchronized void register(ValueDefinition<?, ?> valueDefinition, boolean fireImmediately) {
+    public synchronized void register(final ValueDefinition<?, ?> valueDefinition, final boolean fireImmediately) {
         ValueChangeAction valueChangeAction = deltaOperations.prepareValueChange(valueDefinition, this);
         Object newValue = interceptCreatedValue(valueChangeAction.getNewValue());
         if (fireImmediately) {
@@ -99,7 +98,7 @@ public class DeltaConfigurationService
      * Register a value group definition
      */
     @Override
-    public synchronized void register(ValueDefinitionGroup valueDefinitionGroup, boolean fireImmediately) {
+    public synchronized void register(final ValueDefinitionGroup valueDefinitionGroup, final boolean fireImmediately) {
         GroupChangeAction groupUpdateAction = deltaOperations.prepareGroupChange(valueDefinitionGroup, this);
         groupUpdateAction = interceptGroupRefresh(groupUpdateAction, lastValueMap);
         if (fireImmediately) {
@@ -108,28 +107,15 @@ public class DeltaConfigurationService
         valueGroups.add(valueDefinitionGroup);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.brekka.stillingar.core.ChangeAwareConfigurationSource#unregister(org.brekka.stillingar.core.ValueDefinition)
-     */
     @Override
-    public synchronized void unregister(ValueDefinition<?, ?> valueDefinition) {
+    public synchronized void unregister(final ValueDefinition<?, ?> valueDefinition) {
         Collection<ValueDefinition<?, ?>> values = standaloneGroup.getValues();
         values.remove(valueDefinition);
         releaseValue(valueDefinition);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.brekka.stillingar.core.ChangeAwareConfigurationSource#unregister(org.brekka.stillingar.core.ValueDefinitionGroup
-     * )
-     */
     @Override
-    public synchronized void unregister(ValueDefinitionGroup valueGroup) {
+    public synchronized void unregister(final ValueDefinitionGroup valueGroup) {
         if (valueGroup == standaloneGroup) {
             throw new IllegalStateException("May not remove the standalone group");
         }
@@ -138,7 +124,7 @@ public class DeltaConfigurationService
             releaseValue(valueDefinition);
         }
     }
-    
+
     /**
      * Shutdown this {@link ConfigurationSource}, releasing all values.
      */
@@ -159,11 +145,11 @@ public class DeltaConfigurationService
     /**
      * Updates the primary configuration source and notify all registered listeners of the change. Must be called at
      * least once prior to any of the {@link #register} methods being called.
-     * 
+     *
      * @throws ChangeConfigurationException
      *             if problems are encountered during the first or second phases.
      */
-    protected synchronized void refresh(ConfigurationSource latest) throws ChangeConfigurationException {
+    protected synchronized void refresh(final ConfigurationSource latest) throws ChangeConfigurationException {
         Map<ValueDefinition<?, ?>, WeakReference<?>> newValueMap = new LinkedHashMap<ValueDefinition<?, ?>, WeakReference<?>>();
         FallbackConfigurationSource newSource = new FallbackConfigurationSource(latest, getDelegate()
                 .getSecondarySource());
@@ -174,7 +160,7 @@ public class DeltaConfigurationService
 
         // Phase One
         List<GroupChangeAction> updateActionList = updater.phaseOneUpdate();
-        
+
         updateActionList = interceptRefresh(updateActionList, newValueMap);
 
         // Phase Two
@@ -190,8 +176,8 @@ public class DeltaConfigurationService
      * @param updateActionList
      * @return
      */
-    protected List<GroupChangeAction> interceptRefresh(List<GroupChangeAction> updateActionList, 
-            Map<ValueDefinition<?, ?>, WeakReference<?>> newValueMap) {
+    protected List<GroupChangeAction> interceptRefresh(final List<GroupChangeAction> updateActionList,
+            final Map<ValueDefinition<?, ?>, WeakReference<?>> newValueMap) {
         List<GroupChangeAction> groupChangeActions = new ArrayList<GroupChangeAction>();
         for (GroupChangeAction groupChangeAction : updateActionList) {
             groupChangeActions.add(interceptGroupRefresh(groupChangeAction, newValueMap));
@@ -203,14 +189,14 @@ public class DeltaConfigurationService
      * @param groupChangeAction
      * @return
      */
-    protected GroupChangeAction interceptGroupRefresh(GroupChangeAction groupChangeAction, 
-            Map<ValueDefinition<?, ?>, WeakReference<?>> newValueMap) {
+    protected GroupChangeAction interceptGroupRefresh(final GroupChangeAction groupChangeAction,
+            final Map<ValueDefinition<?, ?>, WeakReference<?>> newValueMap) {
         List<ValueChangeAction> currentActionList = groupChangeAction.getActionList();
         List<ValueChangeAction> updatedActionList = new ArrayList<ValueChangeAction>(currentActionList.size());
         ValueDefinitionGroup group = groupChangeAction.getGroup();
         for (ValueChangeAction valueChangeAction : groupChangeAction.getActionList()) {
             ValueDefinition<?, ?> valueDefinition = valueChangeAction.getValueDefinition();
-            
+
             // Release old value
             WeakReference<?> originalValueRef = lastValueMap.get(valueDefinition);
             Object oldValue = null;
@@ -220,7 +206,7 @@ public class DeltaConfigurationService
                     interceptReleasedValue(oldValue);
                 }
             }
-            
+
             // Prepare new value
             Object newValue = valueChangeAction.getNewValue();
             newValue = interceptCreatedValue(newValue);
@@ -255,7 +241,7 @@ public class DeltaConfigurationService
     /**
      * @param valueDefinition
      */
-    protected void releaseValue(ValueDefinition<?, ?> valueDefinition) {
+    protected void releaseValue(final ValueDefinition<?, ?> valueDefinition) {
         WeakReference<?> removedValueRef = lastValueMap.remove(valueDefinition);
         if (removedValueRef != null) {
             Object removedValue = removedValueRef.get();
@@ -268,51 +254,51 @@ public class DeltaConfigurationService
      * @param newValue
      * @param valueDefinition
      */
-    protected Object interceptCreatedValue(Object newValue) {
+    protected Object interceptCreatedValue(final Object newValue) {
         if (deltaValueInterceptor == null) {
             return newValue;
         }
         return deltaValueInterceptor.created(newValue);
     }
-    
+
     /**
      * @param valueDefinition
      */
-    protected void interceptReleasedValue(Object value) {
+    protected void interceptReleasedValue(final Object value) {
         if (deltaValueInterceptor == null) {
             return;
         }
         deltaValueInterceptor.released(value);
     }
-    
+
     /**
      * @param deltaOperations
      *            the deltaOperations to set
      */
-    public void setDeltaOperations(DeltaOperations deltaOperations) {
+    public void setDeltaOperations(final DeltaOperations deltaOperations) {
         if (deltaOperations == null) {
             throw new IllegalArgumentException("Delta operations may not be null");
         }
         this.deltaOperations = deltaOperations;
     }
-    
+
     /**
      * @param deltaValueInterceptor the deltaValueInterceptor to set
      */
-    public void setDeltaValueInterceptor(DeltaValueInterceptor deltaValueInterceptor) {
+    public void setDeltaValueInterceptor(final DeltaValueInterceptor deltaValueInterceptor) {
         this.deltaValueInterceptor = deltaValueInterceptor;
     }
-    
+
 
     /**
      * Checks to see if the specified instance implements {@link Expirable} and if it is, check whether it has
      * expired.
-     * 
+     *
      * @param val
      *            the value to check
      * @return true if the listener has expired.
      */
-    private static boolean isExpired(Object val) {
+    private static boolean isExpired(final Object val) {
         if (val instanceof Expirable) {
             return ((Expirable) val).isExpired();
         }
