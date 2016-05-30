@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.brekka.stillingar</groupId>
     <artifactId>stillingar</artifactId>
-    <version>1.2.3</version>
+    <version>1.2.4-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Stillingar - Root</name>
@@ -24,7 +24,7 @@
         <url>https://github.com/brekka/stillingar.git</url>
         <connection>https://github.com/brekka/stillingar.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/brekka/stillingar.git</developerConnection>
-        <tag>stillingar-1.2.3</tag>
+        <tag>1.2</tag>
     </scm>
     
     <licenses>
