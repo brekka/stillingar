@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.brekka.stillingar</groupId>
         <artifactId>stillingar</artifactId>
-        <version>1.2.3-SNAPSHOT</version>
+        <version>1.2.3</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>stillingar-xmlbeans-xpath</artifactId>
@@ -40,7 +40,7 @@
     <scm>
         <url>https://github.com/brekka/stillingar.git</url>
         <connection>https://github.com/brekka/stillingar.git</connection>
-      <tag>1.2</tag>
+      <tag>stillingar-1.2.3</tag>
   </scm>
 
     <developers>
